@@ -1,0 +1,622 @@
+{
+  "app": {
+    "name": "TheraPrep"
+  },
+  "nav": {
+    "today": "Hôm nay",
+    "toolkit": "Bộ công cụ",
+    "library": "Thư viện",
+    "history": "Lịch sử",
+    "profile": "Hồ sơ",
+    "newJournal": "Nhật ký mới"
+  },
+  "home": {
+    "today": "hôm nay.",
+    "yourEntries": "Bài viết của bạn",
+    "greeting": {
+      "morning": "Chào buổi sáng",
+      "afternoon": "Chào buổi chiều",
+      "evening": "Chào buổi tối"
+    },
+    "beginCheckIn": "Bắt đầu ghi nhận",
+    "dailyPrompt": "Câu hỏi hàng ngày",
+    "startWriting": "Bắt đầu viết",
+    "dayOf": "Ngày {day} / {total}",
+    "homework": {
+      "title": "Bài tập trị liệu",
+      "viewAll": "Xem tất cả",
+      "moreItems": "+{count} mục khác"
+    }
+  },
+  "entries": {
+    "reflection": "SUY NGẪM",
+    "noEntries": "Chưa có bài viết nào",
+    "startFirst": "Bắt đầu bài viết đầu tiên",
+    "seeAll": "Xem tất cả",
+    "emptyPrompt": "Dành một chút thời gian suy ngẫm — bài viết đầu tiên đang chờ bạn."
+  },
+  "history": {
+    "title": "Lịch sử",
+    "subtitle": "Các bài viết nhật ký theo thời gian",
+    "noMatchingEntries": "Không tìm thấy bài viết phù hợp",
+    "noEntries": "Chưa có bài viết nào",
+    "clearFilters": "Xoá bộ lọc",
+    "startFirst": "Bắt đầu bài viết đầu tiên",
+    "filters": "bộ lọc.",
+    "search": "Tìm kiếm",
+    "searchPlaceholder": "Tìm kiếm bài viết...",
+    "dateRange": "Khoảng thời gian",
+    "dateRangePlaceholder": "Chọn khoảng thời gian...",
+    "clearDates": "Xoá ngày",
+    "selectDateRange": "Chọn khoảng thời gian",
+    "clear": "Xoá",
+    "done": "Xong",
+    "filterByType": "Lọc theo loại",
+    "allEntries": "Tất cả bài viết",
+    "journalFreeForm": "Nhật ký (tự do)",
+    "reset": "Đặt lại",
+    "applyFilters": "Áp dụng bộ lọc",
+    "activeFilters": "Bộ lọc đang dùng:",
+    "clearAll": "Xoá tất cả",
+    "journal": "Nhật ký",
+    "tryDifferentFilters": "Thử điều chỉnh bộ lọc để tìm nội dung bạn cần.",
+    "startJournalingPrompt": "Bắt đầu hành trình viết nhật ký — suy nghĩ của bạn xứng đáng có một không gian riêng."
+  },
+  "learn": {
+    "library": "Thư viện",
+    "workingOffline": "Làm việc ngoại tuyến - mẫu từ bộ nhớ đệm",
+    "featured": "Nổi bật",
+    "collections": "Bộ sưu tập",
+    "seeAll": "Xem tất cả",
+    "allCategories": "Tất cả danh mục",
+    "chapters": "{count} chương",
+    "questions": "{count} câu hỏi",
+    "seeAllOnCategory": "Xem tất cả {count} Nhật ký về {category}",
+    "mindfulExercises": "Bài tập chánh niệm",
+    "categories": {
+      "all": "Tất cả",
+      "morning": "Buổi sáng",
+      "evening": "Buổi tối",
+      "anxiety": "Lo âu",
+      "stress": "Căng thẳng",
+      "mood": "Tâm trạng",
+      "gratitude": "Biết ơn",
+      "mindfulness": "Chánh niệm",
+      "relationships": "Mối quan hệ",
+      "selfCare": "Chăm sóc bản thân"
+    }
+  },
+  "progress": {
+    "title": "Thống kê",
+    "totalCompletedDays": "Tổng ngày hoàn thành",
+    "wordsWritten": "Số từ đã viết",
+    "avgMood": "Tâm trạng TB",
+    "journalEntries": "Bài viết nhật ký",
+    "general": "Tổng quan",
+    "currentStreak": "Chuỗi hiện tại",
+    "longestStreak": "Chuỗi dài nhất",
+    "averageMood": "Tâm trạng trung bình",
+    "emotionDistribution": "Phân bố cảm xúc",
+    "journalingActivity": "Hoạt động viết nhật ký",
+    "emptyState": "Hành trình tiến bộ của bạn bắt đầu từ đây. Viết nhật ký đầu tiên để bắt đầu theo dõi suy ngẫm.",
+    "startJournaling": "Bắt đầu viết nhật ký",
+    "day": "ngày | ngày",
+    "mood": {
+      "1": "Rất tệ",
+      "2": "Tệ lắm",
+      "3": "Tệ",
+      "4": "Kém",
+      "5": "Bình thường",
+      "6": "Ổn",
+      "7": "Tốt",
+      "8": "Rất tốt",
+      "9": "Tuyệt vời",
+      "10": "Xuất sắc"
+    }
+  },
+  "profile": {
+    "title": "hồ sơ.",
+    "personalize": "Cá nhân hoá",
+    "account": "Tài khoản",
+    "colorTheme": "Giao diện màu",
+    "aboutYou": "Về bạn",
+    "aboutYouSubtitle": "Cá nhân hoá AI & ký ức",
+    "notifications": "Thông báo",
+    "notificationsSubtitle": "Nhắc nhở buổi sáng & tối",
+    "yourData": "Dữ liệu của bạn",
+    "yourDataSubtitle": "Xuất, đồng bộ & quản lý dữ liệu",
+    "dataSync": "dữ liệu & đồng bộ.",
+    "logout": "Đăng xuất",
+    "terms": "Điều khoản",
+    "privacy": "Bảo mật",
+    "support": "Hỗ trợ"
+  },
+  "settings": {
+    "personalization": "cá nhân hoá.",
+    "theme": "Giao diện",
+    "fontSize": "Cỡ chữ",
+    "reduceMotion": "Giảm chuyển động",
+    "minimizeAnimations": "Giảm thiểu hiệu ứng",
+    "themeOptions": {
+      "light": "Sáng",
+      "dark": "Tối",
+      "auto": "Tự động"
+    },
+    "fontSizeOptions": {
+      "small": "Nhỏ",
+      "medium": "Vừa",
+      "large": "Lớn"
+    },
+    "language": "Ngôn ngữ",
+    "languageSubtitle": "Ngôn ngữ hiển thị",
+    "aiPrivacy": {
+      "heading": "AI & bảo mật.",
+      "aiPersonalization": "Cá nhân hoá AI",
+      "aiPersonalizationDesc": "Câu hỏi & phân tích cá nhân",
+      "yourStory": "Câu chuyện của bạn",
+      "yourStoryDesc": "Giúp AI hiểu ngữ cảnh của bạn",
+      "yourStoryPlaceholder": "VD: Tôi đang chuẩn bị cho buổi trị liệu đầu tiên và đang đối mặt với lo âu công việc...",
+      "yourStoryUpdated": "Đã cập nhật câu chuyện",
+      "analytics": "Phân tích",
+      "analyticsDesc": "Giúp cải thiện ứng dụng",
+      "aiDisabledTitle": "Tính năng AI đã tắt",
+      "aiDisabledDesc": "Bài viết nhật ký vẫn được lưu bình thường nhưng sẽ không nhận câu hỏi theo dõi cá nhân hoá hoặc phân tích AI."
+    },
+    "dataManagement": {
+      "heading": "quản lý dữ liệu.",
+      "exportData": "Xuất dữ liệu",
+      "exportDataDesc": "Tải bài viết dưới dạng JSON",
+      "deleteAccount": "Xoá tài khoản",
+      "deleteAccountDesc": "Xoá vĩnh viễn tất cả dữ liệu",
+      "deleteWarning": "Điều này sẽ xoá vĩnh viễn tất cả dữ liệu bao gồm:",
+      "deleteItems": {
+        "journals": "Bài viết nhật ký",
+        "learning": "Tiến trình học tập",
+        "aiMemory": "Bộ nhớ & ngữ cảnh AI",
+        "accountSettings": "Cài đặt tài khoản"
+      },
+      "downloadFirst": "Tải dữ liệu trước?",
+      "downloadFirstDesc": "Chúng tôi khuyên bạn nên xuất dữ liệu trước khi xoá tài khoản.",
+      "confirmDeletePrompt": "Nhập tên người dùng {username} để xác nhận xoá:",
+      "enterUsername": "Nhập tên người dùng",
+      "usernameNoMatch": "Tên người dùng không khớp",
+      "exportFirst": "Xuất trước",
+      "continue": "Tiếp tục",
+      "exportComingSoon": "Tính năng xuất sắp có",
+      "exportComingSoonDesc": "Xuất dữ liệu sẽ có trong bản cập nhật tương lai.",
+      "accountDeleted": "Đã xoá tài khoản",
+      "accountDeletedDesc": "Tất cả dữ liệu đã được gỡ bỏ.",
+      "deletionFailed": "Xoá thất bại",
+      "deletionFailedDesc": "Vui lòng thử lại sau."
+    },
+    "logout": {
+      "button": "Đăng xuất",
+      "confirmTitle": "Đăng xuất khỏi TheraPrep?",
+      "confirmDesc": "Dữ liệu sẽ vẫn được đồng bộ khi bạn đăng nhập lại. Dữ liệu cục bộ sẽ được giữ lại trên thiết bị.",
+      "confirmButton": "Đăng xuất"
+    },
+    "notifications": {
+      "heading": "nhắc nhở.",
+      "morningCheckin": "Ghi nhận buổi sáng",
+      "morningCheckinDesc": "Bắt đầu ngày mới tỉnh thức",
+      "eveningReflection": "Suy ngẫm buổi tối",
+      "eveningReflectionDesc": "Thư giãn với nhật ký",
+      "permissionNote": "Lên lịch thông báo cần quyền thiết bị. Thông báo đẩy thực tế sẽ có trong bản cập nhật tương lai.",
+      "morningEnabled": "Đã bật nhắc nhở buổi sáng",
+      "morningDisabled": "Đã tắt nhắc nhở buổi sáng",
+      "eveningEnabled": "Đã bật nhắc nhở buổi tối",
+      "eveningDisabled": "Đã tắt nhắc nhở buổi tối"
+    },
+    "memories": {
+      "heading": "ký ức.",
+      "description": "Những hiểu biết TheraPrep AI đã học từ nhật ký của bạn. Dùng để cá nhân hoá trải nghiệm. Chỉ bạn có thể xem.",
+      "noMemories": "Chưa có ký ức nào",
+      "noMemoriesDesc": "Tiếp tục viết nhật ký và TheraPrep sẽ dần hiểu về bạn.",
+      "memoryRemoved": "Đã xoá ký ức",
+      "memoryRemoveFailed": "Không thể xoá ký ức",
+      "categories": {
+        "values": "Giá trị",
+        "habits": "Thói quen",
+        "relationships": "Mối quan hệ",
+        "goals": "Mục tiêu",
+        "struggles": "Khó khăn",
+        "preferences": "Sở thích",
+        "patterns": "Khuôn mẫu",
+        "growth": "Phát triển"
+      }
+    },
+    "account": {
+      "defaultName": "Người dùng"
+    }
+  },
+  "goDeeper": {
+    "title": "Chọn hướng suy ngẫm",
+    "subtitle": "Bạn muốn khám phá thêm theo hướng nào?",
+    "button": "Đào sâu hơn",
+    "thinking": "Đang suy nghĩ...",
+    "directions": {
+      "why": {
+        "label": "Hiểu lý do",
+        "description": "Khám phá nguyên nhân gốc rễ và lý do đằng sau suy nghĩ của bạn"
+      },
+      "emotions": {
+        "label": "Khám phá cảm xúc",
+        "description": "Đi sâu hơn vào cảm xúc và phản ứng tình cảm của bạn"
+      },
+      "patterns": {
+        "label": "Tìm khuôn mẫu",
+        "description": "Nhận diện các chủ đề và hành vi lặp lại trong trải nghiệm"
+      },
+      "challenge": {
+        "label": "Thách thức suy nghĩ",
+        "description": "Đặt câu hỏi về giả định và khám phá góc nhìn khác"
+      },
+      "growth": {
+        "label": "Tập trung phát triển",
+        "description": "Tìm bước hành động và cơ hội thay đổi tích cực"
+      }
+    }
+  },
+  "common": {
+    "add": "Add",
+    "done": "Done",
+    "step": "Step {count} of {total}",
+    "cancel": "Huỷ",
+    "save": "Lưu",
+    "delete": "Xoá",
+    "edit": "Sửa",
+    "back": "Quay lại",
+    "next": "Tiếp",
+    "prev": "Trước",
+    "submit": "Gửi",
+    "confirm": "Xác nhận",
+    "begin": "Bắt đầu",
+    "collection": "Bộ sưu tập",
+    "loading": "Đang tải...",
+    "error": "Đã xảy ra lỗi",
+    "retry": "Thử lại",
+    "view": "Xem",
+    "details": "Chi tiết"
+  },
+  "auth": {
+    "welcomeBack": "Chào mừng trở lại",
+    "signInSubtitle": "Đăng nhập để tiếp tục hành trình",
+    "usernameOrEmail": "Tên đăng nhập hoặc Email",
+    "enterUsername": "Nhập tên đăng nhập",
+    "password": "Mật khẩu",
+    "enterPassword": "Nhập mật khẩu",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "forgotPassword": "Quên mật khẩu?",
+    "signIn": "Đăng nhập",
+    "dontHaveAccount": "Chưa có tài khoản?",
+    "createAccount": "Tạo tài khoản",
+    "joinTheraPrep": "Tham gia TheraPrep ngay hôm nay",
+    "email": "Email",
+    "enterEmail": "Nhập email của bạn",
+    "username": "Tên đăng nhập",
+    "chooseUsername": "Chọn tên đăng nhập",
+    "usernameHint": "Tên định danh duy nhất trên TheraPrep",
+    "createPassword": "Tạo mật khẩu",
+    "passwordHint": "Ít nhất 8 ký tự",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "confirmYourPassword": "Xác nhận mật khẩu của bạn",
+    "agreeToTerms": "Tôi đồng ý với",
+    "termsOfService": "Điều khoản dịch vụ",
+    "and": "và",
+    "privacyPolicy": "Chính sách bảo mật",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "loginFailed": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.",
+    "passwordsNoMatch": "Mật khẩu không khớp",
+    "registrationSuccess": "Tạo tài khoản thành công! Đang chuyển đến trang đăng nhập...",
+    "registrationFailed": "Đăng ký thất bại. Vui lòng thử lại."
+  },
+  "sync": {
+    "notSynced": "Chưa đồng bộ",
+    "notSyncedTitle": "Chưa đồng bộ - có thay đổi chờ tải lên",
+    "syncing": "Đang đồng bộ",
+    "syncingTitle": "Đang đồng bộ...",
+    "synced": "Đã đồng bộ",
+    "syncedTitle": "Đã đồng bộ",
+    "offlineMessage": "Làm việc ngoại tuyến - thay đổi sẽ được đồng bộ khi có kết nối",
+    "syncingJournals": "Đang đồng bộ nhật ký...",
+    "pendingSync": "{count} mục chờ đồng bộ | {count} mục chờ đồng bộ",
+    "syncNow": "Đồng bộ ngay",
+    "retry": "Thử lại",
+    "dataSync": "Đồng bộ dữ liệu",
+    "networkStatus": "Trạng thái mạng",
+    "online": "Trực tuyến",
+    "offline": "Ngoại tuyến",
+    "pendingUploads": "Chờ tải lên",
+    "items": "{count} mục | {count} mục",
+    "lastSync": "Đồng bộ gần nhất",
+    "partialSync": "Đồng bộ một phần",
+    "syncError": "Lỗi đồng bộ",
+    "dismiss": "Bỏ qua",
+    "syncStatistics": "Thống kê đồng bộ",
+    "uploaded": "Đã tải lên",
+    "downloaded": "Đã tải xuống",
+    "errors": "Lỗi",
+    "lastSuccessful": "Thành công gần nhất: {date}",
+    "recentActivity": "Hoạt động gần đây",
+    "viewAll": "Xem tất cả",
+    "clearHistory": "Xóa lịch sử",
+    "resetStats": "Đặt lại thống kê",
+    "syncItems": "Đồng bộ {count} mục | Đồng bộ {count} mục",
+    "offlineTooltip": "Ngoại tuyến - Thay đổi sẽ được đồng bộ khi có kết nối",
+    "syncingTooltip": "Đang đồng bộ...",
+    "syncErrorTooltip": "Lỗi đồng bộ: {error}",
+    "pendingSyncTooltip": "{count} mục chờ đồng bộ | {count} mục chờ đồng bộ",
+    "lastSyncedTooltip": "Đồng bộ gần nhất: {time}",
+    "uploadedToCloud": "Đã tải lên cloud",
+    "downloadedFromCloud": "Đã tải xuống từ cloud",
+    "fullSync": "Đồng bộ đầy đủ",
+    "justNow": "Vừa xong",
+    "minutesAgo": "{count} phút trước",
+    "hoursAgo": "{count} giờ trước",
+    "daysAgo": "{count} ngày trước"
+  },
+  "journal": {
+    "newJournal": "Nhật ký mới",
+    "editJournal": "Sửa nhật ký",
+    "untitledJournal": "Nhật ký chưa đặt tên",
+    "titlePlaceholder": "Tiêu đề (tuỳ chọn)",
+    "howFeeling": "Bạn đang cảm thấy thế nào?",
+    "goDeeper": "Đào sâu hơn",
+    "score": "Điểm: {score}/10",
+    "deleteJournal": "Xoá nhật ký",
+    "deleteConfirmMessage": "Bạn có chắc muốn xoá bài nhật ký này? Hành động này không thể hoàn tác.",
+    "notFound": "Không tìm thấy nhật ký",
+    "collectionNotFound": "Không tìm thấy bộ sưu tập",
+    "backToLibrary": "Quay lại thư viện",
+    "editing": "Đang sửa",
+    "resumeJournaling": "Tiếp tục viết nhật ký",
+    "autoSave": {
+      "ready": "Sẵn sàng",
+      "typing": "Đang nhập...",
+      "autoSaved": "Đã tự động lưu",
+      "saving": "Đang lưu...",
+      "saved": "Đã lưu!",
+      "unsavedChanges": "Có thay đổi chưa lưu",
+      "thinking": "Đang suy nghĩ...",
+      "questionAdded": "Đã thêm câu hỏi!",
+      "errorGenerating": "Lỗi tạo câu hỏi",
+      "errorSaving": "Lỗi lưu bài",
+      "error": "Lỗi"
+    },
+    "moodLabels": {
+      "1": "Rất tệ",
+      "2": "Tệ lắm",
+      "3": "Tệ",
+      "4": "Kém",
+      "5": "Bình thường",
+      "6": "Ổn",
+      "7": "Tốt",
+      "8": "Rất tốt",
+      "9": "Tuyệt vời",
+      "10": "Xuất sắc"
+    }
+  },
+  "onboarding": {
+    "profile": "Hồ sơ",
+    "profileDesc": "Hãy cho chúng tôi biết về bạn",
+    "preferences": "Tuỳ chọn",
+    "preferencesDesc": "Chọn mục tiêu và trải nghiệm trị liệu",
+    "gender": "Giới tính",
+    "ageRange": "Độ tuổi",
+    "male": "Nam",
+    "female": "Nữ",
+    "preferNotToSay": "Không muốn nói",
+    "goalQuestion": "Mục tiêu của bạn khi sử dụng trang web là gì?",
+    "goals": {
+      "journaling": "Viết nhật ký cảm xúc",
+      "therapy": "Chuẩn bị cho buổi trị liệu",
+      "tracking": "Theo dõi cảm xúc",
+      "selfReflection": "Tự suy ngẫm",
+      "other": "Khác"
+    },
+    "experienceQuestion": "Bạn đã có kinh nghiệm với trị liệu tâm lý chưa?",
+    "experience": {
+      "yes": "Có",
+      "no": "Không",
+      "preferNotToSay": "Không muốn nói"
+    },
+    "initialJournal": {
+      "moodQuestion": "Tâm trạng của bạn bây giờ thế nào?",
+      "whatMakesYouFeel": "Điều gì khiến bạn cảm thấy như vậy?"
+    },
+    "success": "Thành công",
+    "formSubmitted": "Biểu mẫu đã được gửi."
+  },
+  "learnSub": {
+    "collections": "bộ sưu tập.",
+    "collectionsDescription": "Bài học về các chủ đề thiết yếu trong cuộc sống - được thiết kế để truyền cảm hứng suy ngẫm và phát triển bản thân.",
+    "chapters": "{count} chương",
+    "noTemplatesFound": "Không tìm thấy mẫu trong danh mục này",
+    "categoryDescriptions": {
+      "check": "Ghi nhận nhanh và suy ngẫm giúp bạn kết nối với suy nghĩ và cảm xúc trong suốt cả ngày.",
+      "daily": "Thực hành hàng ngày và câu hỏi gợi ý để xây dựng thói quen lành mạnh và duy trì sức khỏe tinh thần.",
+      "well": "Hỗ trợ và hướng dẫn cho những khoảnh khắc khó khăn khi bạn cần giúp đỡ và an ủi ngay lập tức.",
+      "sleep": "Bài tập thư giãn và suy ngẫm giúp bạn thả lỏng và chuẩn bị cho giấc ngủ ngon.",
+      "default": "Bộ sưu tập bài học và câu hỏi nhật ký giúp bạn khám phá và hiểu về {category}."
+    }
+  },
+  "slide": {
+    "moodInstruction": "Di chuyển thanh trượt để phản ánh cảm xúc của bạn",
+    "defaultMoodQuestion": "Bạn đang cảm thấy thế nào?",
+    "sleepQuestion": "Giấc ngủ của bạn hôm qua thế nào",
+    "furtherReading": "Đọc thêm",
+    "moodLabels": {
+      "1": "Rất tệ",
+      "2": "Tệ lắm",
+      "3": "Tệ",
+      "4": "Kém",
+      "5": "Bình thường",
+      "6": "Ổn",
+      "7": "Tốt",
+      "8": "Rất tốt",
+      "9": "Tuyệt vời",
+      "10": "Xuất sắc"
+    }
+  },
+  "toolkit": {
+    "title": "Bộ công cụ trị liệu",
+    "subtitle": "Bạn đồng hành chuẩn bị cho buổi trị liệu",
+    "journey": {
+      "title": "Hành trình chuẩn bị",
+      "description": "Hướng dẫn từng bước để chuẩn bị cho buổi trị liệu.",
+      "overallProgress": "Hoàn thành {percent}%",
+      "chaptersProgress": "{completed}/{total} chương",
+      "step1": {
+        "label": "Learn About Therapy",
+        "description": "Signs you need therapy, first session, what to expect"
+      },
+      "step2": {
+        "label": "Your Mental Health History",
+        "description": "Diagnoses, past treatment, medications, crisis history"
+      },
+      "step3": {
+        "label": "Your Lifestyle & Support",
+        "description": "Sleep, diet, social support, daily routines"
+      },
+      "step4": {
+        "label": "Prepare for Your Session",
+        "description": "Goals, concerns, what your therapist should know"
+      }
+    },
+    "prepPack": {
+      "title": "Gói chuẩn bị",
+      "description": "Tạo bản tóm tắt AI từ nhật ký gần đây để chuẩn bị cho buổi trị liệu.",
+      "generate": "Tạo gói chuẩn bị",
+      "generating": "Đang phân tích nhật ký của bạn...",
+      "noJournals": "Hãy viết nhật ký trước để tạo gói chuẩn bị",
+      "lastGenerated": "Tạo lần cuối",
+      "viewAll": "Xem tất cả gói chuẩn bị",
+      "new": "Gói chuẩn bị mới",
+      "selectRange": "Chọn khoảng thời gian",
+      "last7Days": "7 ngày qua",
+      "last14Days": "14 ngày qua",
+      "last30Days": "30 ngày qua",
+      "journalsAnalyzed": "{count} nhật ký đã phân tích",
+      "dateRange": "Khoảng thời gian",
+      "moodOverview": "Tổng quan tâm trạng",
+      "moodTrend": "Xu hướng",
+      "moodAverage": "Trung bình",
+      "moodHighest": "Cao nhất",
+      "moodLowest": "Thấp nhất",
+      "improving": "Cải thiện",
+      "declining": "Giảm sút",
+      "stable": "Ổn định",
+      "keyThemes": "Chủ đề chính",
+      "emotionalHighlights": "Điểm nổi bật cảm xúc",
+      "patterns": "Các khuôn mẫu phát hiện",
+      "discussionPoints": "Chủ đề thảo luận",
+      "growthMoments": "Khoảnh khắc trưởng thành",
+      "personalNotes": "Ghi chú cá nhân",
+      "notFound": "Không tìm thấy gói chuẩn bị.",
+      "deleteConfirm": "Xóa gói chuẩn bị này?",
+      "errorGenerate": "Không thể tạo gói chuẩn bị. Vui lòng thử lại.",
+      "pastPacks": "Các gói chuẩn bị trước",
+      "preparation": {
+        "title": "Hành trình chuẩn bị",
+        "overall": "Tiến trình chung"
+      }
+    },
+    "session": {
+      "title": "Theo dõi buổi trị liệu",
+      "noSession": "Chưa có buổi trị liệu. Hãy lên lịch buổi trị liệu tiếp theo.",
+      "schedule": "Lên lịch buổi trị liệu",
+      "scheduleTitle": "Buổi trị liệu của bạn khi nào?",
+      "scheduleConfirm": "Xác nhận",
+      "prepare": "Chuẩn bị cho buổi trị liệu",
+      "logAfter": "Ghi lại cảm nhận",
+      "delete": "Xóa buổi trị liệu",
+      "deleteConfirm": "Xóa buổi trị liệu này? Hành động này không thể hoàn tác.",
+      "pastSessions": "Các buổi trước",
+      "before": {
+        "title": "Trước buổi trị liệu",
+        "mood": "Bạn đang cảm thấy thế nào?",
+        "talkingPoints": "Bạn muốn nói về điều gì?",
+        "priority": "Ưu tiên hàng đầu của tôi"
+      },
+      "after": {
+        "title": "Sau buổi trị liệu",
+        "mood": "Bạn cảm thấy thế nào bây giờ?",
+        "takeaways": "Những điều rút ra",
+        "homework": "Bài tập / Hành động",
+        "addHomework": "Thêm bài tập",
+        "rating": "Đánh giá buổi trị liệu"
+      },
+      "status": {
+        "scheduled": "Đã lên lịch",
+        "beforeCompleted": "Sẵn sàng cho buổi trị liệu",
+        "completed": "Hoàn thành"
+      },
+      "detail": {
+        "title": "Chi tiết buổi trị liệu",
+        "moodComparison": "Tâm trạng",
+        "moodBefore": "Trước",
+        "moodAfter": "Sau",
+        "talkingPoints": "Chủ đề muốn nói",
+        "priority": "Ưu tiên hàng đầu",
+        "takeaways": "Điều rút ra",
+        "notFound": "Không tìm thấy buổi trị liệu."
+      }
+    },
+    "homework": {
+      "title": "Bài tập trị liệu",
+      "empty": "Chưa có bài tập nào",
+      "completed": "Hoàn thành",
+      "addPlaceholder": "Thêm mục..."
+    },
+    "grounding": {
+      "fiveSenses": {
+        "title": "5-4-3-2-1",
+        "description": "Ground yourself by naming what you can sense",
+        "steps": {
+          "see": "Name 5 things you can see",
+          "touch": "Name 4 things you can touch",
+          "hear": "Name 3 things you can hear",
+          "smell": "Name 2 things you can smell",
+          "taste": "Name 1 thing you can taste"
+        },
+        "inputPlaceholder": "Type here...",
+        "complete": "You are here. You are present. You are safe."
+      },
+      "bodyScan": {
+        "title": "Body Scan",
+        "description": "Bring attention to each part of your body",
+        "focusOn": "Focus on",
+        "prompt": "Notice any tension and breathe into it.",
+        "complete": "Nice work. Take a moment to notice how you feel."
+      },
+      "affirmations": {
+        "title": "Safety Affirmations",
+        "description": "Calming reminders you can return to anytime",
+        "addPlaceholder": "Add your own affirmation...",
+        "favorites": "Favorites",
+        "myAffirmations": "My Affirmations",
+        "defaults": "Suggested"
+      },
+      "quickJournal": {
+        "title": "Quick Journal",
+        "description": "Start a quick free-form entry"
+      },
+      "title": "Bài tập hít thở",
+      "breathing": {
+        "title": "Hít thở vuông",
+        "description": "Kỹ thuật thư giãn với nhịp 4 giây",
+        "start": "Bắt đầu hít thở",
+        "stop": "Dừng",
+        "inhale": "Hít vào",
+        "holdIn": "Giữ",
+        "exhale": "Thở ra",
+        "holdOut": "Giữ",
+        "elapsed": "Đã {time}",
+        "complete": "Tuyệt vời! Bạn đã tập {duration}."
+      }
+    }
+  }
+}
+
+
+

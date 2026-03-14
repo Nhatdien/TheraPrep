@@ -1,0 +1,620 @@
+{
+  "app": {
+    "name": "TheraPrep"
+  },
+  "nav": {
+    "today": "Today",
+    "toolkit": "Toolkit",
+    "library": "Library",
+    "history": "History",
+    "profile": "Profile",
+    "newJournal": "New Journal"
+  },
+  "home": {
+    "today": "today.",
+    "yourEntries": "Your Entries",
+    "greeting": {
+      "morning": "Good Morning",
+      "afternoon": "Good Afternoon",
+      "evening": "Good Evening"
+    },
+    "beginCheckIn": "Begin Your Check-In",
+    "dailyPrompt": "Daily Prompt",
+    "startWriting": "Start Writing",
+    "dayOf": "Day {day} of {total}",
+    "homework": {
+      "title": "Therapy Homework",
+      "viewAll": "View all",
+      "moreItems": "+{count} more"
+    }
+  },
+  "entries": {
+    "reflection": "REFLECTION",
+    "noEntries": "No journal entries yet",
+    "startFirst": "Start Your First Entry",
+    "seeAll": "See all entries",
+    "emptyPrompt": "Take a moment to reflect — your first entry is waiting."
+  },
+  "history": {
+    "title": "History",
+    "subtitle": "Your journal entries over time",
+    "noMatchingEntries": "No matching entries found",
+    "noEntries": "No journal entries yet",
+    "clearFilters": "Clear Filters",
+    "startFirst": "Start Your First Entry",
+    "filters": "filters.",
+    "search": "Search",
+    "searchPlaceholder": "Search entries...",
+    "dateRange": "Date Range",
+    "dateRangePlaceholder": "Select date range...",
+    "clearDates": "Clear dates",
+    "selectDateRange": "Select Date Range",
+    "clear": "Clear",
+    "done": "Done",
+    "filterByType": "Filter by type",
+    "allEntries": "All Entries",
+    "journalFreeForm": "Journal (Free-form)",
+    "reset": "Reset",
+    "applyFilters": "Apply Filters",
+    "activeFilters": "Active filters:",
+    "clearAll": "Clear all",
+    "journal": "Journal",
+    "tryDifferentFilters": "Try adjusting your filters to find what you're looking for.",
+    "startJournalingPrompt": "Begin your journaling journey — your thoughts deserve a space."
+  },
+  "learn": {
+    "library": "Library",
+    "workingOffline": "Working offline - templates from cache",
+    "featured": "Featured",
+    "collections": "Collections",
+    "seeAll": "See All",
+    "allCategories": "All Categories",
+    "chapters": "{count} chapters",
+    "questions": "{count} questions",
+    "seeAllOnCategory": "See All {count} Journals on {category}",
+    "mindfulExercises": "Mindful Exercises",
+    "categories": {
+      "all": "All",
+      "morning": "Morning",
+      "evening": "Evening",
+      "anxiety": "Anxiety",
+      "stress": "Stress",
+      "mood": "Mood",
+      "gratitude": "Gratitude",
+      "mindfulness": "Mindfulness",
+      "relationships": "Relationships",
+      "selfCare": "Self-Care"
+    }
+  },
+  "progress": {
+    "title": "Stats",
+    "totalCompletedDays": "Total completed days",
+    "wordsWritten": "Words Written",
+    "avgMood": "Avg. Mood",
+    "journalEntries": "Journal entries",
+    "general": "General",
+    "currentStreak": "Current streak",
+    "longestStreak": "Longest streak",
+    "averageMood": "Average mood",
+    "emotionDistribution": "Emotion Distribution",
+    "journalingActivity": "Journaling Activity",
+    "emptyState": "Your progress journey starts here. Write your first journal to begin tracking your reflections.",
+    "startJournaling": "Start Journaling",
+    "day": "day | days",
+    "mood": {
+      "1": "Terrible",
+      "2": "Very Bad",
+      "3": "Bad",
+      "4": "Poor",
+      "5": "Okay",
+      "6": "Fine",
+      "7": "Good",
+      "8": "Very Good",
+      "9": "Great",
+      "10": "Fantastic"
+    }
+  },
+  "profile": {
+    "title": "your profile.",
+    "personalize": "Personalize",
+    "account": "Account",
+    "colorTheme": "Color Theme",
+    "aboutYou": "About You",
+    "aboutYouSubtitle": "AI personalization & memories",
+    "notifications": "Notifications",
+    "notificationsSubtitle": "Morning & evening reminders",
+    "yourData": "Your Data",
+    "yourDataSubtitle": "Export, sync & manage data",
+    "dataSync": "data & sync.",
+    "logout": "Log Out",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "support": "Support"
+  },
+  "settings": {
+    "personalization": "personalization.",
+    "theme": "Theme",
+    "fontSize": "Font Size",
+    "reduceMotion": "Reduce Motion",
+    "minimizeAnimations": "Minimize animations",
+    "themeOptions": {
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto"
+    },
+    "fontSizeOptions": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "language": "Language",
+    "languageSubtitle": "App display language",
+    "aiPrivacy": {
+      "heading": "ai & privacy.",
+      "aiPersonalization": "AI Personalization",
+      "aiPersonalizationDesc": "Personalized questions & insights",
+      "yourStory": "Your Story",
+      "yourStoryDesc": "Help AI understand your context",
+      "yourStoryPlaceholder": "e.g. I'm preparing for my first therapy session and dealing with work-related anxiety...",
+      "yourStoryUpdated": "Your story updated",
+      "analytics": "Analytics",
+      "analyticsDesc": "Help improve the app",
+      "aiDisabledTitle": "AI features disabled",
+      "aiDisabledDesc": "Journal entries will be saved normally but won't receive personalized follow-up questions or AI insights."
+    },
+    "dataManagement": {
+      "heading": "data management.",
+      "exportData": "Export Data",
+      "exportDataDesc": "Download your entries as JSON",
+      "deleteAccount": "Delete Account",
+      "deleteAccountDesc": "Permanently delete all data",
+      "deleteWarning": "This will permanently delete all your data including:",
+      "deleteItems": {
+        "journals": "Journal entries",
+        "learning": "Learning progress",
+        "aiMemory": "AI memory & context",
+        "accountSettings": "Account settings"
+      },
+      "downloadFirst": "Download your data first?",
+      "downloadFirstDesc": "We recommend exporting your data before deleting your account.",
+      "confirmDeletePrompt": "Enter your username {username} to confirm deletion:",
+      "enterUsername": "Enter username",
+      "usernameNoMatch": "Username does not match",
+      "exportFirst": "Export First",
+      "continue": "Continue",
+      "exportComingSoon": "Export coming soon",
+      "exportComingSoonDesc": "Data export will be available in a future update.",
+      "accountDeleted": "Account deleted",
+      "accountDeletedDesc": "All your data has been removed.",
+      "deletionFailed": "Deletion failed",
+      "deletionFailedDesc": "Please try again later."
+    },
+    "logout": {
+      "button": "Logout",
+      "confirmTitle": "Log out of TheraPrep?",
+      "confirmDesc": "Your data will remain synced when you log back in. Local data will be preserved on this device.",
+      "confirmButton": "Log Out"
+    },
+    "notifications": {
+      "heading": "reminders.",
+      "morningCheckin": "Morning Check-in",
+      "morningCheckinDesc": "Start your day mindfully",
+      "eveningReflection": "Evening Reflection",
+      "eveningReflectionDesc": "Wind down with journaling",
+      "permissionNote": "Notification scheduling requires device permissions. Actual push notifications will be available in a future update.",
+      "morningEnabled": "Morning reminder enabled",
+      "morningDisabled": "Morning reminder disabled",
+      "eveningEnabled": "Evening reminder enabled",
+      "eveningDisabled": "Evening reminder disabled"
+    },
+    "memories": {
+      "heading": "memories.",
+      "description": "Insights TheraPrep AI has learned from your journals. Used to personalize your experience. Only you can see them.",
+      "noMemories": "No memories yet",
+      "noMemoriesDesc": "Keep journaling and TheraPrep will learn about you over time.",
+      "memoryRemoved": "Memory removed",
+      "memoryRemoveFailed": "Failed to delete memory",
+      "categories": {
+        "values": "Values",
+        "habits": "Habits",
+        "relationships": "Relationships",
+        "goals": "Goals",
+        "struggles": "Struggles",
+        "preferences": "Preferences",
+        "patterns": "Patterns",
+        "growth": "Growth"
+      }
+    },
+    "account": {
+      "defaultName": "User"
+    }
+  },
+  "goDeeper": {
+    "title": "Choose Reflection Direction",
+    "subtitle": "How would you like to explore this further?",
+    "button": "Go Deeper",
+    "thinking": "Thinking...",
+    "directions": {
+      "why": {
+        "label": "Understand why",
+        "description": "Explore the root causes and reasoning behind your thoughts"
+      },
+      "emotions": {
+        "label": "Explore emotions",
+        "description": "Dive deeper into your feelings and emotional responses"
+      },
+      "patterns": {
+        "label": "Look for patterns",
+        "description": "Identify recurring themes and behaviors in your experiences"
+      },
+      "challenge": {
+        "label": "Challenge my thinking",
+        "description": "Question assumptions and explore alternative perspectives"
+      },
+      "growth": {
+        "label": "Focus on growth",
+        "description": "Find actionable steps and opportunities for positive change"
+      }
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "back": "Back",
+    "next": "Next",
+    "prev": "Prev",
+    "done": "Done",
+    "step": "Step {count} of {total}",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "begin": "Begin",
+    "collection": "Collection",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "view": "View",
+    "details": "Details"
+  },
+  "auth": {
+    "welcomeBack": "Welcome Back",
+    "signInSubtitle": "Sign in to continue your journey",
+    "usernameOrEmail": "Username or Email",
+    "enterUsername": "Enter your username",
+    "password": "Password",
+    "enterPassword": "Enter your password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign In",
+    "dontHaveAccount": "Don't have an account?",
+    "createAccount": "Create Account",
+    "joinTheraPrep": "Join TheraPrep today",
+    "email": "Email",
+    "enterEmail": "Enter your email",
+    "username": "Username",
+    "chooseUsername": "Choose a username",
+    "usernameHint": "Your unique identifier on TheraPrep",
+    "createPassword": "Create a password",
+    "passwordHint": "At least 8 characters",
+    "confirmPassword": "Confirm Password",
+    "confirmYourPassword": "Confirm your password",
+    "agreeToTerms": "I agree to the",
+    "termsOfService": "Terms of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginFailed": "Login failed. Please check your credentials.",
+    "passwordsNoMatch": "Passwords do not match",
+    "registrationSuccess": "Account created successfully! Redirecting to login...",
+    "registrationFailed": "Registration failed. Please try again."
+  },
+  "sync": {
+    "notSynced": "Not synced",
+    "notSyncedTitle": "Not synced - changes pending upload",
+    "syncing": "Syncing",
+    "syncingTitle": "Syncing...",
+    "synced": "Synced",
+    "syncedTitle": "Synced",
+    "offlineMessage": "Working offline - your changes will sync when connected",
+    "syncingJournals": "Syncing your journals...",
+    "pendingSync": "{count} entry pending sync | {count} entries pending sync",
+    "syncNow": "Sync Now",
+    "retry": "Retry",
+    "dataSync": "Data Sync",
+    "networkStatus": "Network Status",
+    "online": "Online",
+    "offline": "Offline",
+    "pendingUploads": "Pending Uploads",
+    "items": "{count} item | {count} items",
+    "lastSync": "Last Sync",
+    "partialSync": "Partial Sync",
+    "syncError": "Sync Error",
+    "dismiss": "Dismiss",
+    "syncStatistics": "Sync Statistics",
+    "uploaded": "Uploaded",
+    "downloaded": "Downloaded",
+    "errors": "Errors",
+    "lastSuccessful": "Last successful: {date}",
+    "recentActivity": "Recent Activity",
+    "viewAll": "View All",
+    "clearHistory": "Clear History",
+    "resetStats": "Reset Stats",
+    "syncItems": "Sync {count} item | Sync {count} items",
+    "offlineTooltip": "Offline - Changes will sync when online",
+    "syncingTooltip": "Syncing...",
+    "syncErrorTooltip": "Sync error: {error}",
+    "pendingSyncTooltip": "{count} item pending sync | {count} items pending sync",
+    "lastSyncedTooltip": "Last synced: {time}",
+    "uploadedToCloud": "Uploaded to cloud",
+    "downloadedFromCloud": "Downloaded from cloud",
+    "fullSync": "Full sync",
+    "justNow": "Just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "daysAgo": "{count}d ago"
+  },
+  "journal": {
+    "newJournal": "New Journal",
+    "editJournal": "Edit Journal",
+    "untitledJournal": "Untitled Journal",
+    "titlePlaceholder": "Title (optional)",
+    "howFeeling": "How are you feeling?",
+    "goDeeper": "Go Deeper",
+    "score": "Score: {score}/10",
+    "deleteJournal": "Delete Journal",
+    "deleteConfirmMessage": "Are you sure you want to delete this journal entry? This action cannot be undone.",
+    "notFound": "Journal not found",
+    "collectionNotFound": "Collection not found",
+    "backToLibrary": "Back to Library",
+    "editing": "Editing",
+    "resumeJournaling": "Resume Journaling",
+    "autoSave": {
+      "ready": "Ready",
+      "typing": "Typing...",
+      "autoSaved": "Auto-saved",
+      "saving": "Saving...",
+      "saved": "Saved!",
+      "unsavedChanges": "Unsaved changes",
+      "thinking": "Thinking...",
+      "questionAdded": "Question added!",
+      "errorGenerating": "Error generating question",
+      "errorSaving": "Error saving",
+      "error": "Error"
+    },
+    "moodLabels": {
+      "1": "Terrible",
+      "2": "Very Bad",
+      "3": "Bad",
+      "4": "Poor",
+      "5": "Okay",
+      "6": "Fine",
+      "7": "Good",
+      "8": "Very Good",
+      "9": "Great",
+      "10": "Fantastic"
+    }
+  },
+  "onboarding": {
+    "profile": "Profile",
+    "profileDesc": "Tell us about yourself",
+    "preferences": "Preferences",
+    "preferencesDesc": "Choose your goals and therapy experience",
+    "gender": "Gender",
+    "ageRange": "Age Range",
+    "male": "Male",
+    "female": "Female",
+    "preferNotToSay": "Prefer not to say",
+    "goalQuestion": "What is your goal using this website?",
+    "goals": {
+      "journaling": "Journaling emotions",
+      "therapy": "Preparing for a therapy session",
+      "tracking": "Tracking emotional patterns",
+      "selfReflection": "Self-reflection",
+      "other": "Other"
+    },
+    "experienceQuestion": "Have you had any experience with mental therapy?",
+    "experience": {
+      "yes": "Yes",
+      "no": "No",
+      "preferNotToSay": "Prefer not to say"
+    },
+    "initialJournal": {
+      "moodQuestion": "How is your mood now?",
+      "whatMakesYouFeel": "What makes you feel that way?"
+    },
+    "success": "Success",
+    "formSubmitted": "The form has been submitted."
+  },
+  "learnSub": {
+    "collections": "collections.",
+    "collectionsDescription": "Lessons on essential life topics - designed to inspire reflection and personal growth.",
+    "chapters": "{count} chapters",
+    "noTemplatesFound": "No templates found in this category",
+    "categoryDescriptions": {
+      "check": "Quick check-ins and reflections to help you stay connected with your thoughts and emotions throughout the day.",
+      "daily": "Essential daily practices and prompts to build healthy habits and maintain mental wellness.",
+      "well": "Support and guidance for challenging moments when you need immediate help and comfort.",
+      "sleep": "Calming exercises and reflections to help you unwind and prepare for restful sleep.",
+      "default": "A collection of lessons and journal prompts to help you explore and understand {category}."
+    }
+  },
+  "slide": {
+    "moodInstruction": "Move the slider to reflect how you're feeling",
+    "defaultMoodQuestion": "How are you feeling right now?",
+    "sleepQuestion": "How was your sleep yesterday",
+    "furtherReading": "Further reading",
+    "moodLabels": {
+      "1": "Terrible",
+      "2": "Very Bad",
+      "3": "Bad",
+      "4": "Poor",
+      "5": "Okay",
+      "6": "Fine",
+      "7": "Good",
+      "8": "Very Good",
+      "9": "Great",
+      "10": "Fantastic"
+    }
+  },
+  "toolkit": {
+    "title": "Therapy Toolkit",
+    "subtitle": "Your companion for therapy preparation",
+    "journey": {
+      "title": "Preparation Journey",
+      "description": "Your step-by-step guide to preparing for therapy sessions.",
+      "overallProgress": "{percent}% complete",
+      "chaptersProgress": "{completed}/{total} chapters",
+      "step1": {
+        "label": "Learn About Therapy",
+        "description": "Signs you need therapy, first session, what to expect"
+      },
+      "step2": {
+        "label": "Your Mental Health History",
+        "description": "Diagnoses, past treatment, medications, crisis history"
+      },
+      "step3": {
+        "label": "Your Lifestyle & Support",
+        "description": "Sleep, diet, social support, daily routines"
+      },
+      "step4": {
+        "label": "Prepare for Your Session",
+        "description": "Goals, concerns, what your therapist should know"
+      }
+    },
+    "prepPack": {
+      "title": "Prep Pack",
+      "description": "Generate an AI summary of your recent journals to prepare for your next session.",
+      "generate": "Generate Prep Pack",
+      "generating": "Analyzing your journals...",
+      "noJournals": "Write some journal entries first to generate a prep pack",
+      "lastGenerated": "Last generated",
+      "viewAll": "View All Prep Packs",
+      "new": "New Prep Pack",
+      "selectRange": "Select date range",
+      "last7Days": "Last 7 days",
+      "last14Days": "Last 14 days",
+      "last30Days": "Last 30 days",
+      "journalsAnalyzed": "{count} journals analyzed",
+      "dateRange": "Date Range",
+      "moodOverview": "Mood Overview",
+      "moodTrend": "Trend",
+      "moodAverage": "Average",
+      "moodHighest": "Highest",
+      "moodLowest": "Lowest",
+      "improving": "Improving",
+      "declining": "Declining",
+      "stable": "Stable",
+      "keyThemes": "Key Themes",
+      "emotionalHighlights": "Emotional Highlights",
+      "patterns": "Detected Patterns",
+      "discussionPoints": "Discussion Points",
+      "growthMoments": "Growth Moments",
+      "personalNotes": "Personal Notes",
+      "notFound": "Prep pack not found.",
+      "deleteConfirm": "Delete this prep pack?",
+      "errorGenerate": "Failed to generate prep pack. Please try again.",
+      "pastPacks": "Past Prep Packs",
+      "preparation": {
+        "title": "Preparation Journey",
+        "overall": "Overall progress"
+      }
+    },
+    "session": {
+      "title": "Session Tracker",
+      "noSession": "No upcoming sessions. Schedule your next therapy session.",
+      "schedule": "Schedule Session",
+      "scheduleTitle": "When is your session?",
+      "scheduleConfirm": "Confirm",
+      "prepare": "Prepare for session",
+      "logAfter": "Log how it went",
+      "delete": "Delete session",
+      "deleteConfirm": "Delete this session? This cannot be undone.",
+      "pastSessions": "Past Sessions",
+      "before": {
+        "title": "Before Your Session",
+        "mood": "How are you feeling right now?",
+        "talkingPoints": "What do you want to talk about?",
+        "priority": "My top priority for this session"
+      },
+      "after": {
+        "title": "After Your Session",
+        "mood": "How do you feel now?",
+        "takeaways": "Key takeaways",
+        "homework": "Homework / Action items",
+        "addHomework": "Add homework item",
+        "rating": "Rate this session"
+      },
+      "status": {
+        "scheduled": "Scheduled",
+        "beforeCompleted": "Ready for session",
+        "completed": "Completed"
+      },
+      "detail": {
+        "title": "Session Details",
+        "moodComparison": "Mood",
+        "moodBefore": "Before",
+        "moodAfter": "After",
+        "talkingPoints": "Talking Points",
+        "priority": "Top Priority",
+        "takeaways": "Key Takeaways",
+        "notFound": "Session not found."
+      }
+    },
+    "homework": {
+      "title": "Therapy Homework",
+      "empty": "No homework items yet",
+      "completed": "Completed",
+      "addPlaceholder": "Add an item..."
+    },
+    "grounding": {
+      "title": "Grounding Exercises",
+      "breathing": {
+        "title": "Box Breathing",
+        "description": "A calming technique using 4-second intervals",
+        "start": "Start Breathing",
+        "stop": "Stop",
+        "inhale": "Breathe In",
+        "holdIn": "Hold",
+        "exhale": "Breathe Out",
+        "holdOut": "Hold",
+        "elapsed": "{time} elapsed",
+        "complete": "Well done! You practiced for {duration}."
+      },
+      "fiveSenses": {
+        "title": "5-4-3-2-1",
+        "description": "Ground yourself by naming what you can sense",
+        "steps": {
+          "see": "Name 5 things you can see",
+          "touch": "Name 4 things you can touch",
+          "hear": "Name 3 things you can hear",
+          "smell": "Name 2 things you can smell",
+          "taste": "Name 1 thing you can taste"
+        },
+        "inputPlaceholder": "Type here...",
+        "complete": "You are here. You are present. You are safe."
+      },
+      "bodyScan": {
+        "title": "Body Scan",
+        "description": "Bring attention to each part of your body",
+        "focusOn": "Focus on",
+        "prompt": "Notice any tension and breathe into it.",
+        "complete": "Nice work. Take a moment to notice how you feel."
+      },
+      "affirmations": {
+        "title": "Safety Affirmations",
+        "description": "Calming reminders you can return to anytime",
+        "addPlaceholder": "Add your own affirmation...",
+        "favorites": "Favorites",
+        "myAffirmations": "My Affirmations",
+        "defaults": "Suggested"
+      },
+      "quickJournal": {
+        "title": "Quick Journal",
+        "description": "Start a quick free-form entry"
+      }
+    }
+  }
+}
+
