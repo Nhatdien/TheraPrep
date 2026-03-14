@@ -1,0 +1,2 @@
+-- This migration is deprecated
+-- User table drop is now in 000001_create_user_informations_table.down.sql

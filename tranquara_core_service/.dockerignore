@@ -1,0 +1,33 @@
+# Git
+.git
+.gitignore
+
+# Environment & secrets
+.env
+.env.*
+keycloak.env
+
+# Binaries (will be rebuilt in container)
+bin/
+
+# IDE
+.vscode/
+.idea/
+
+# Docker files
+Dockerfile
+Dockerfile.yml
+docker-compose.yml
+
+# Docs
+*.md
+LICENSE
+
+# Keycloak data
+keycloak-data/data/
+
+# Test scripts
+test-*.sh
+
+# OS
+.DS_Store

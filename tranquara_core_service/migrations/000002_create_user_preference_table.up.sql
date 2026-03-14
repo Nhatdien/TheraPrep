@@ -1,0 +1,3 @@
+-- This migration is deprecated
+-- User table is now created in 000001_create_user_informations_table.up.sql
+-- Keeping this file for migration history consistency

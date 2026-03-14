@@ -1,0 +1,22 @@
+# Binaries
+bin/
+main
+*.exe
+
+# Environment variables & secrets
+.env
+.env.*
+keycloak.env
+
+# Keycloak persistent data (contains realm secrets)
+keycloak-data/data/
+
+# Docker volumes
+postgres-data/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store

@@ -1,0 +1,82 @@
+services:
+  core_service: 
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+    env_file: ".env"
+   
+    ports: 
+      - "4000:4000"
+    depends_on:
+       db:
+          condition: service_healthy
+       migrate:
+          condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/v1/healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - tranquara-network
+    restart: unless-stopped
+
+  db:
+      image: postgres:16
+      environment:
+          POSTGRES_DB: ${POSTGRES_DB:-tranquara_core}
+          POSTGRES_USER: ${POSTGRES_USER:-postgres}
+          POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      ports:
+          - "5432"
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB:-tranquara_core}"]
+        interval: 10s
+        timeout: 3s
+        retries: 3
+      volumes:
+        - postgres-data:/var/lib/postgresql/data
+      networks:
+      - tranquara-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.6
+    environment: 
+    - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_ADMIN_USERNAME:-admin}
+    - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_ADMIN_PASSWORD:?KC_ADMIN_PASSWORD is required}
+    - KC_HTTP_PORT=4200
+    - KC_HOSTNAME_STRICT=false
+    - KC_PROXY_HEADERS=xforwarded
+    ports:
+      - "4200:4200"
+    command: "start-dev"
+    networks:
+      - tranquara-network
+    volumes:
+      - ./keycloak-data/data:/opt/keycloak/data
+      - ./keycloak-data/conf:/opt/keycloak/conf
+      - ./keycloak-data/themes:/opt/keycloak/themes
+      - ./keycloak-data/providers:/opt/keycloak/providers
+    depends_on:
+      - db
+
+  migrate:
+      image: migrate/migrate
+      volumes:
+          - ./migrations:/migrations
+      command: ["-path", "/migrations", "-database", "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-tranquara_core}?sslmode=disable", "up"]
+      depends_on:
+        db:
+          condition: service_healthy
+      networks:
+      - tranquara-network
+      restart: on-failure
+
+
+volumes:
+  postgres-data:
+networks:
+  tranquara-network:
+    external: true
+
