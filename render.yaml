@@ -1,0 +1,178 @@
+# ============================================================
+# Tranquara — Render Blueprint (render.yaml)
+# ============================================================
+#
+# This file defines the full Tranquara stack on Render.
+#
+# WHAT RENDER MANAGES:
+#   ✅ PostgreSQL (native managed database)
+#   ✅ Frontend (Nuxt 3 web service)
+#   ✅ Core Service (Go web service)
+#   ✅ AI Service (Python web service)
+#
+# WHAT YOU NEED EXTERNALLY:
+#   ❌ RabbitMQ → Use CloudAMQP (free tier: cloudamqp.com)
+#   ❌ Qdrant   → Use Qdrant Cloud (free tier: cloud.qdrant.io)
+#   ❌ Keycloak → Use a Render Docker web service (below) or external
+#
+# SETUP:
+#   1. Push this repo to GitHub/GitLab
+#   2. Sign up for external services (CloudAMQP, Qdrant Cloud)
+#   3. Go to Render Dashboard → New → Blueprint
+#   4. Connect your repo → Render will detect this file
+#   5. Fill in the prompted secret values
+#   6. Deploy!
+#
+# See RENDER-DEPLOY.md for detailed instructions.
+# ============================================================
+
+services:
+  # ── Frontend (Nuxt 3 SPA) ─────────────────────────────────
+  - type: web
+    name: tranquara-frontend
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./tranquara_frontend/Dockerfile.yml
+    dockerContext: ./tranquara_frontend
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NUXT_PUBLIC_BASE_URL
+        fromService:
+          name: tranquara-core
+          type: web
+          property: url
+      - key: NUXT_PUBLIC_BASE_FRONTEND_URL
+        fromService:
+          name: tranquara-frontend
+          type: web
+          property: url
+      - key: NUXT_PUBLIC_WEBSOCKET_URL
+        sync: false  # e.g., wss://tranquara-core.onrender.com
+      - key: NUXT_PUBLIC_KEYCLOAK_URL
+        sync: false  # e.g., https://tranquara-keycloak.onrender.com
+      - key: NUXT_PUBLIC_KEYCLOAK_REALM
+        value: tranquara_auth
+      - key: NUXT_PUBLIC_KEYCLOAK_CLIENT_ID
+        value: tranquara_client
+      - key: NUXT_PUBLIC_KEYCLOAK_CLIENT_SECRET
+        sync: false
+
+  # ── Core Service (Go REST API) ─────────────────────────────
+  - type: web
+    name: tranquara-core
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./tranquara_core_service/Dockerfile
+    dockerContext: ./tranquara_core_service
+    healthCheckPath: /v1/healthcheck
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: TRANQUARA_DB_DSN
+        fromDatabase:
+          name: tranquara-db
+          property: connectionString
+      - key: RABBITMQ_URL
+        sync: false  # CloudAMQP connection string (amqps://...)
+      - key: INTERNAL_API_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        sync: false  # e.g., https://tranquara-frontend.onrender.com
+      - key: PUBLIC_KEY_PATH
+        value: /app/publicKey.pem
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_SENDER
+        sync: false
+
+  # ── AI Service (Python FastAPI) ────────────────────────────
+  - type: web
+    name: tranquara-ai
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./tranquara_ai_service/Dockerfile
+    dockerContext: ./tranquara_ai_service
+    healthCheckPath: /healthcheck
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: RABBITMQ_HOST
+        sync: false  # CloudAMQP host (e.g., sparrow.rmq.cloudamqp.com)
+      - key: RABBITMQ_PORT
+        value: "5672"
+      - key: RABBITMQ_USER
+        sync: false
+      - key: RABBITMQ_PASSWORD
+        sync: false
+      - key: QDRANT_HOST
+        sync: false  # Qdrant Cloud host (e.g., xyz.us-east4-0.gcp.cloud.qdrant.io)
+      - key: QDRANT_PORT
+        value: "6333"
+      - key: QDRANT_API_KEY
+        sync: false  # Qdrant Cloud API key
+      - key: CORE_SERVICE_URL
+        fromService:
+          name: tranquara-core
+          type: web
+          property: url
+      - key: INTERNAL_API_KEY
+        fromService:
+          name: tranquara-core
+          type: web
+          envVarKey: INTERNAL_API_KEY
+      - key: ALLOWED_ORIGINS
+        sync: false  # e.g., https://tranquara-frontend.onrender.com
+      - key: MEMORY_INTERVAL_HOURS
+        value: "12"
+
+  # ── Keycloak (Auth Server) ─────────────────────────────────
+  # Runs as a Docker web service on Render.
+  # NOTE: Keycloak needs a persistent disk or external DB for production.
+  # Consider using Keycloak's Postgres backend (shares the same Render DB).
+  - type: web
+    name: tranquara-keycloak
+    runtime: docker
+    plan: starter
+    region: singapore
+    image:
+      url: quay.io/keycloak/keycloak:26.0.6
+    dockerCommand: "start --hostname-strict=false --proxy-headers=xforwarded --http-port=10000"
+    envVars:
+      - key: KC_BOOTSTRAP_ADMIN_USERNAME
+        value: admin
+      - key: KC_BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
+      - key: KC_DB
+        value: postgres
+      - key: KC_DB_URL
+        sync: false  # jdbc:postgresql://<render-db-host>:5432/tranquara_core
+      - key: KC_DB_USERNAME
+        fromDatabase:
+          name: tranquara-db
+          property: user
+      - key: KC_DB_PASSWORD
+        fromDatabase:
+          name: tranquara-db
+          property: password
+      - key: PORT
+        value: "10000"
+
+# ── PostgreSQL Database ────────────────────────────────────
+databases:
+  - name: tranquara-db
+    plan: starter
+    region: singapore
+    databaseName: tranquara_core
+    user: tranquara
+    postgresMajorVersion: "16"

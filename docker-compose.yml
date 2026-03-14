@@ -1,0 +1,184 @@
+# ============================================================
+# Tranquara Full-Stack Docker Compose
+# ============================================================
+# Usage:
+#   1. Copy .env.example to .env and fill in values
+#   2. Create the network: docker network create tranquara-network
+#   3. Start all services: docker compose up -d
+#   4. Check health: docker compose ps
+# ============================================================
+
+services:
+  # ── Frontend (Nuxt 3 SPA) ─────────────────────────────────
+  frontend:
+    build:
+      context: ./tranquara_frontend
+      dockerfile: Dockerfile.yml
+    env_file: .env
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    networks:
+      - tranquara-network
+    depends_on:
+      core_service:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ── Core Service (Go REST API) ─────────────────────────────
+  core_service:
+    build:
+      context: ./tranquara_core_service
+      dockerfile: Dockerfile
+    env_file: .env
+    command: ["/app/wait-for-it.sh", "db:5432", "--", "/app/main"]
+    ports:
+      - "${CORE_PORT:-4000}:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/v1/healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - tranquara-network
+    restart: unless-stopped
+
+  # ── AI Service (Python FastAPI) ────────────────────────────
+  ai_service:
+    build:
+      context: ./tranquara_ai_service
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - "${AI_PORT:-8000}:8000"
+    networks:
+      - tranquara-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthcheck')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ── PostgreSQL ─────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tranquara_core}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-tranquara_core}"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - tranquara-network
+    restart: unless-stopped
+
+  # ── Database Migrations ────────────────────────────────────
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./tranquara_core_service/migrations:/migrations
+    command: >
+      -path=/migrations
+      -database=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-tranquara_core}?sslmode=disable
+      up
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - tranquara-network
+    restart: on-failure
+
+  # ── RabbitMQ ───────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-rabbitmq}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD is required}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 15s
+      timeout: 20s
+      retries: 5
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - tranquara-network
+    restart: unless-stopped
+
+  # ── Qdrant (Vector Database) ───────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "${QDRANT_GRPC_PORT:-6334}:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - tranquara-network
+    restart: unless-stopped
+
+  # ── Keycloak (Auth) ────────────────────────────────────────
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.6
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:?KC_ADMIN_PASSWORD is required}
+      KC_HTTP_PORT: 4200
+      KC_HOSTNAME_STRICT: "false"
+      KC_PROXY_HEADERS: xforwarded
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-tranquara_core}
+      KC_DB_USERNAME: ${POSTGRES_USER:-postgres}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${KEYCLOAK_PORT:-4200}:4200"
+    command: "start-dev"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./tranquara_core_service/keycloak-data/conf:/opt/keycloak/conf
+      - ./tranquara_core_service/keycloak-data/themes:/opt/keycloak/themes
+      - ./tranquara_core_service/keycloak-data/providers:/opt/keycloak/providers
+    networks:
+      - tranquara-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+  qdrant-data:
+
+networks:
+  tranquara-network:
+    driver: bridge
