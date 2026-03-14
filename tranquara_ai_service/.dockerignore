@@ -1,0 +1,29 @@
+venv
+.venv
+__pycache__
+*.pyc
+*.pyo
+
+# Environment & secrets
+.env
+.env.*
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Data (mounted as volumes in production)
+data/
+
+# Docker files
+Dockerfile
+Dockerfile.yml
+docker-compose.yml
+
+# Docs
+*.md
+LICENSE

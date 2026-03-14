@@ -1,0 +1,140 @@
+import asyncio
+import json
+import os
+import sys
+import dotenv
+import uvicorn
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from service.rabbitmq import rabbitmq_conn
+from models.messages import AITaskMessage, JournalIndexPayload, JournalDeletePayload
+from database.vector_database import index_journal, delete_journal
+from router.analyze import router as analyze_router
+from router.memory import router as memory_router
+from router.prep_pack import router as prep_pack_router
+from service.memory_scheduler import start_scheduler, stop_scheduler
+
+
+dotenv.load_dotenv()
+
+
+# --- RabbitMQ Consumer: ai_tasks queue ---
+
+def ai_tasks_callback(ch, method, properties, body):
+    """
+    Process messages from the ai_tasks queue.
+    Currently handles:
+      - journal.index: Index/re-index a journal entry in Qdrant
+      - journal.delete: Remove a journal entry from Qdrant
+    """
+    try:
+        raw = json.loads(body)
+        message = AITaskMessage.model_validate(raw)
+
+        if message.event == "journal.index":
+            payload = JournalIndexPayload.model_validate(message.payload)
+            index_journal(
+                journal_id=payload.id,
+                user_id=payload.user_id,
+                content=payload.content,
+                title=payload.title,
+                mood_score=payload.mood_score,
+                mood_label=payload.mood_label,
+                created_at=payload.created_at,
+            )
+            print(
+                f"[ai_tasks] Indexed journal {payload.id} for user {payload.user_id}")
+
+        elif message.event == "journal.delete":
+            payload = JournalDeletePayload.model_validate(message.payload)
+            delete_journal(journal_id=payload.id)
+            print(
+                f"[ai_tasks] Deleted journal {payload.id} for user {payload.user_id}")
+
+        else:
+            print(f"[ai_tasks] Unknown event: {message.event}")
+
+        # Acknowledge the message after successful processing
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
+    except Exception as e:
+        print(f"[ai_tasks] Error processing message: {e}")
+        # Reject and don't requeue to avoid infinite loops on bad messages
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+
+
+async def start_rabbitmq_consumer():
+    """Start the blocking RabbitMQ consumer in a background thread."""
+    rabbitmq_conn.channel.queue_declare("ai_tasks", durable=True)
+
+    loop = asyncio.get_event_loop()
+
+    def run():
+        try:
+            print("[ai_tasks] Starting RabbitMQ consumer on 'ai_tasks' queue...")
+            rabbitmq_conn.consume(queue_name='ai_tasks',
+                                  callback=ai_tasks_callback)
+        except Exception as e:
+            print(f"[ai_tasks] RabbitMQ consumer error: {e}")
+            sys.exit(1)
+
+    await loop.run_in_executor(None, run)
+
+
+# --- FastAPI App ---
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: launch RabbitMQ consumer + memory scheduler
+    consumer_task = asyncio.create_task(start_rabbitmq_consumer())
+    print("[startup] RabbitMQ consumer started")
+    start_scheduler()
+    print("[startup] Memory generation scheduler started")
+    yield
+    # Shutdown
+    consumer_task.cancel()
+    stop_scheduler()
+    print("[shutdown] RabbitMQ consumer + scheduler stopped")
+
+
+app = FastAPI(lifespan=lifespan)
+
+# Register routers
+app.include_router(analyze_router)
+app.include_router(memory_router)
+app.include_router(prep_pack_router)
+
+# CORS — restrict origins in production
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Internal-Key"],
+)
+
+
+@app.get("/healthcheck")
+async def healthcheck():
+    return {"status": "ok", "service": "tranquara_ai_service"}
+
+
+if __name__ == "__main__":
+    try:
+        env = os.getenv("ENVIRONMENT", "production")
+        log_level = "debug" if env == "development" else "info"
+        uvicorn.run(
+            "main:app",
+            host="0.0.0.0",
+            port=int(os.getenv("PORT", "8000")),
+            reload=(env == "development"),
+            log_level=log_level,
+            access_log=True,
+            workers=1,  # single worker because of RabbitMQ consumer in-process
+        )
+    except KeyboardInterrupt:
+        print("Server interrupted.")
+        sys.exit(0)

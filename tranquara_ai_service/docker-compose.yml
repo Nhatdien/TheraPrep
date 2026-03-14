@@ -1,0 +1,58 @@
+services:
+  ai_service: 
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+
+    env_file: ".env"
+   
+    ports: 
+      - "8000:8000"
+    networks:
+      - tranquara-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthcheck')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    networks:
+      - tranquara-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 15s
+      timeout: 20s
+      retries: 4
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+  qdrant:
+    container_name: qdrant_local
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    networks:
+      - tranquara-network
+    volumes:
+      - qdrant-data:/qdrant/storage
+
+volumes:
+  rabbitmq-data:
+  qdrant-data:
+
+networks:
+  tranquara-network:
+    external: true
