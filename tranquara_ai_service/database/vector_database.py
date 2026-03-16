@@ -13,7 +13,8 @@ qdrant_api_key = os.getenv("QDRANT_API_KEY", None)
 # Use URL-based connection for Qdrant Cloud (https), host-based for local
 if qdrant_api_key:
     # Qdrant Cloud: connect via HTTPS with API key
-    qdrant_url = os.getenv("QDRANT_URL", f"https://{qdrant_host}:{qdrant_port}")
+    qdrant_url = os.getenv(
+        "QDRANT_URL", f"https://{qdrant_host}:{qdrant_port}")
     client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
 else:
     # Local: connect via host/port (no auth)
