@@ -6,7 +6,7 @@
     <!-- Main Content Area (offset for sidebar on desktop) -->
     <div class="flex-1 flex flex-col lg:ml-64">
       <main class="flex-1 overflow-y-auto">
-        <div class="mx-auto w-full max-w-5xl">
+        <div class="mx-auto w-screen lg:w-full max-w-5xl">
           <slot />
         </div>
       </main>

@@ -4,7 +4,7 @@
     <SidebarNavigation />
 
     <main class="flex-1 flex items-start justify-center lg:items-center lg:ml-64">
-      <div class="w-full max-w-lg mx-auto">
+      <div class="w-screen lg:w-full max-w-lg mx-auto">
         <slot />
       </div>
     </main>

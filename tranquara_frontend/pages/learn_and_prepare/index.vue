@@ -107,26 +107,6 @@
           <Icon name="i-lucide-chevron-right" class="w-4 h-4" />
         </NuxtLink>
       </div>
-
-      <!-- Mindful Exercises Section -->
-      <!-- <div>
-        <h2 class="text-xl font-semibold mb-4">Mindful Exercises</h2>
-        <div class="flex flex-col gap-3">
-          <div
-            v-for="exercise in mindfulExercises"
-            :key="exercise.id"
-            class="flex items-center rounded-xl border border-neutral-700 bg-neutral-900/50 overflow-hidden cursor-pointer hover:bg-neutral-800/50 transition-colors"
-            @click="navigateTo(`/exercises/${exercise.id}`)">
-            <div class="w-24 h-16 flex items-center justify-center bg-neutral-800 shrink-0">
-              <component :is="exercise.icon" class="w-10 h-10 text-neutral-300" />
-            </div>
-            <div class="flex-1 px-4 py-3">
-              <p class="font-medium">{{ exercise.title }}</p>
-            </div>
-            <Icon name="i-lucide-chevron-right" class="w-5 h-5 text-neutral-500 mr-4" />
-          </div>
-        </div>
-      </div> -->
     </template>
   </section>
 </template>
