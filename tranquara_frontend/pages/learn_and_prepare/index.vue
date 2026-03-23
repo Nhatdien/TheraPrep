@@ -49,11 +49,11 @@
         </div>
         
         <!-- Collection Cards (Horizontal Scroll → Grid on desktop) -->
-        <div class="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide lg:grid lg:grid-cols-3 xl:grid-cols-4 lg:overflow-visible lg:mx-0 lg:px-0">
+        <div class="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:overflow-visible">
           <div
             v-for="collection in displayedCollections"
             :key="collection.id"
-            class="shrink-0 w-72 lg:w-auto lg:shrink p-5 rounded-xl border border-default bg-elevated cursor-pointer hover:bg-muted hover:shadow-sm transition-all"
+            class="w-72 p-5 rounded-xl border border-default bg-elevated cursor-pointer hover:bg-muted hover:shadow-sm transition-all"
             @click="navigateTo(`/learn_and_prepare/collection/${collection.id}`)">
             <div class="flex items-start gap-4">
               <div class="w-16 h-24 flex items-center justify-center">
