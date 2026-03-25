@@ -50,10 +50,11 @@ services:
     - KC_PROXY_HEADERS=xforwarded
     ports:
       - "4200:4200"
-    command: "start-dev"
+    command: "start-dev --import-realm"
     networks:
       - tranquara-network
     volumes:
+      - ./keycloak-data/import:/opt/keycloak/data/import
       - ./keycloak-data/data:/opt/keycloak/data
       - ./keycloak-data/conf:/opt/keycloak/conf
       - ./keycloak-data/themes:/opt/keycloak/themes
