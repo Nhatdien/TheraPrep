@@ -169,9 +169,9 @@ services:
       KC_HOSTNAME_STRICT: "false"
       KC_PROXY_HEADERS: xforwarded
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-tranquara_core}
-      KC_DB_USERNAME: ${POSTGRES_USER:-postgres}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/${KC_DB_NAME:-keycloak}
+      KC_DB_USERNAME: ${KC_DB_USER:-keycloak}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
     ports:
       - "${KEYCLOAK_PORT:-4200}:4200"
     command: "start-dev --import-realm"
@@ -186,12 +186,31 @@ services:
     networks:
       - tranquara-network
     restart: unless-stopped
+ 
+  keycloak-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${KC_DB_NAME:-keycloak}
+      POSTGRES_USER: ${KC_DB_USER:-keycloak}
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD:?KC_DB_PASSWORD is required}
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KC_DB_USER:-keycloak} -d ${KC_DB_NAME:-keycloak}"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - keycloak-postgres-data:/var/lib/postgresql/data
+    networks:
+      - tranquara-network
+    restart: unless-stopped
 
 volumes:
   postgres-data:
   rabbitmq-data:
   qdrant-data:
-
+  keycloak-postgres-data:
 networks:
   tranquara-network:
     driver: bridge
