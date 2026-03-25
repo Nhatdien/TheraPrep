@@ -12,7 +12,7 @@ RUN yarn build
 # Run the application
 FROM node:22-alpine
 
-RUN apk --no-cache add wget
+RUN apk --no-cache add ca-certificates curl
 
 # Create non-root user
 RUN addgroup -S appuser && adduser -S appuser -G appuser
