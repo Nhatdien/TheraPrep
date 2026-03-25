@@ -174,11 +174,12 @@ services:
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${KEYCLOAK_PORT:-4200}:4200"
-    command: "start-dev"
+    command: "start-dev --import-realm"
     depends_on:
       db:
         condition: service_healthy
     volumes:
+      - ./tranquara_core_service/keycloak-data/import:/opt/keycloak/data/import
       - ./tranquara_core_service/keycloak-data/conf:/opt/keycloak/conf
       - ./tranquara_core_service/keycloak-data/themes:/opt/keycloak/themes
       - ./tranquara_core_service/keycloak-data/providers:/opt/keycloak/providers
