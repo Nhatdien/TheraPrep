@@ -149,7 +149,7 @@ async def run_memory_generation():
         f"[memory-scheduler] Starting memory generation cycle at {datetime.now(timezone.utc).isoformat()}")
 
     since = (datetime.now(timezone.utc) -
-             timedelta(hours=MEMORY_GENERATION_INTERVAL_HOURS)).isoformat()
+             timedelta(minutes=MEMORY_GENERATION_INTERVAL_HOURS)).isoformat()
 
     # 1. Get users with recent journal activity
     user_ids = await _fetch_active_users(since)
