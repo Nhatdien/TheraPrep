@@ -71,7 +71,5 @@ func defineConsumers(amqpChannel *amqp.Channel, models *data.Models) error {
 	if err != nil {
 		return err
 	}
-	err = Consumer(amqpChannel, "ai_tasks", models, aiTaskResponseMessageCallback)
-
 	return err
 }
