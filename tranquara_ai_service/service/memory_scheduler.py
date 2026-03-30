@@ -179,7 +179,7 @@ def start_scheduler():
     scheduler.add_job(
         run_memory_generation,
         trigger="interval",
-        hours=MEMORY_GENERATION_INTERVAL_HOURS,
+        minutes=MEMORY_GENERATION_INTERVAL_HOURS,
         id="memory_generation",
         name="AI Memory Generation",
         replace_existing=True,
