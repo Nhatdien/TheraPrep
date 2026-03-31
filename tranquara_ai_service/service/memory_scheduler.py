@@ -25,9 +25,18 @@ from database.vector_database import (
 CORE_SERVICE_URL = os.getenv("CORE_SERVICE_URL", "http://core_service:4000")
 INTERNAL_API_KEY = os.getenv("INTERNAL_API_KEY", "")
 
-# Scheduler interval (hours)
-MEMORY_GENERATION_INTERVAL_HOURS = int(
-    os.getenv("MEMORY_INTERVAL_HOURS", "12"))
+# Scheduler interval (minutes)
+# Prefer MEMORY_INTERVAL_MINUTES; fall back to MEMORY_INTERVAL_HOURS for backward compatibility.
+_minutes_env = os.getenv("MEMORY_INTERVAL_MINUTES")
+if _minutes_env is not None and _minutes_env != "":
+    MEMORY_GENERATION_INTERVAL_MINUTES = int(_minutes_env)
+else:
+    MEMORY_GENERATION_INTERVAL_MINUTES = int(
+        os.getenv("MEMORY_INTERVAL_HOURS", "12")) * 60
+
+# Optional: run a cycle immediately on startup for easier debugging
+RUN_ON_STARTUP = os.getenv("MEMORY_RUN_ON_STARTUP", "false").lower() in (
+    "1", "true", "yes", "y", "on")
 
 scheduler = AsyncIOScheduler()
 
@@ -176,18 +185,19 @@ async def run_memory_generation():
 
 def start_scheduler():
     """Initialize and start the memory generation scheduler."""
-    scheduler.add_job(
+    job = scheduler.add_job(
         run_memory_generation,
         trigger="interval",
-        minutes=MEMORY_GENERATION_INTERVAL_HOURS,
+        minutes=MEMORY_GENERATION_INTERVAL_MINUTES,
         id="memory_generation",
         name="AI Memory Generation",
         replace_existing=True,
-        next_run_time=None,  # Don't run immediately on startup
+        next_run_time=datetime.now(timezone.utc) if RUN_ON_STARTUP else None,
     )
     scheduler.start()
+    next_run = job.next_run_time.isoformat() if job.next_run_time else "unscheduled"
     print(
-        f"[memory-scheduler] Scheduler started (every {MEMORY_GENERATION_INTERVAL_HOURS}h)")
+        f"[memory-scheduler] Scheduler started (every {MEMORY_GENERATION_INTERVAL_MINUTES}m); next run at {next_run}")
 
 
 def stop_scheduler():
