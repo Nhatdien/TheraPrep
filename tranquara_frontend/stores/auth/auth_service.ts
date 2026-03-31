@@ -123,7 +123,7 @@ export class AuthService {
    */
   async register(email: string, username: string, password: string): Promise<boolean> {
     try {
-      const response = await fetch(`${this.BACKEND_URL}/v1/auth/register`, {
+      const response = await fetch(`${this.BACKEND_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

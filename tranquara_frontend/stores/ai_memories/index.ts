@@ -29,7 +29,7 @@ export class AIMemories extends Base {
   ): Promise<{ memories: AIMemory[]; total: number }> {
     const params = category ? `?category=${category}` : "";
     return this.fetch<{ memories: AIMemory[]; total: number }>(
-      `${this.config.base_url}/v1/ai-memories${params}`
+      `${this.config.base_url}/ai-memories${params}`
     );
   }
 
@@ -39,7 +39,7 @@ export class AIMemories extends Base {
    */
   async deleteAIMemory(memoryId: string): Promise<{ message: string }> {
     return this.fetch<{ message: string }>(
-      `${this.config.base_url}/v1/ai-memories/${memoryId}`,
+      `${this.config.base_url}/ai-memories/${memoryId}`,
       { method: "DELETE" }
     );
   }
