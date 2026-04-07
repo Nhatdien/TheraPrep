@@ -20,38 +20,57 @@
     <!-- Free-form Edit Mode (for journals without collection_id) -->
     <div v-else-if="isEditing && journal" class="flex flex-col min-h-screen bg-background">
       <!-- Header -->
-      <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+      <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 md:px-6 xl:px-8">
         <UButton variant="ghost" icon="i-lucide-arrow-left" @click="onEditClosed" />
-        <h1 class="text-lg font-semibold">{{ $t('journal.editJournal') }}</h1>
+        <h1 class="text-lg font-semibold md:text-xl">{{ $t('journal.editJournal') }}</h1>
         <UButton variant="ghost" icon="i-lucide-check" @click="saveAndClose" :disabled="!hasContent" />
       </header>
 
-      <!-- Title Input -->
-      <div class="px-4 pt-4 max-w-2xl mx-auto w-full">
-        <input
-          v-model="title"
-          type="text"
-          :placeholder="$t('journal.titlePlaceholder')"
-          class="w-full text-xl font-semibold bg-transparent border-none outline-none placeholder-gray-400 dark:placeholder-gray-600"
-        />
-      </div>
+      <div class="flex-1 xl:grid xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-8 xl:px-8 xl:pt-6">
+        <div>
+          <!-- Title Input -->
+          <div class="px-4 pt-4 max-w-3xl mx-auto w-full md:px-6 md:pt-6 xl:px-0 xl:pt-0 xl:max-w-none">
+            <input
+              v-model="title"
+              type="text"
+              :placeholder="$t('journal.titlePlaceholder')"
+              class="w-full text-xl md:text-2xl font-semibold bg-transparent border-none outline-none placeholder-gray-400 dark:placeholder-gray-600"
+            />
+          </div>
 
-      <!-- Date Display -->
-      <div class="px-4 py-2 max-w-2xl mx-auto w-full">
-        <span class="text-sm text-muted">{{ formattedDate }}</span>
-      </div>
+          <!-- Date Display -->
+          <div class="px-4 py-2 max-w-3xl mx-auto w-full md:px-6 xl:px-0 xl:max-w-none">
+            <span class="text-sm text-muted">{{ formattedDate }}</span>
+          </div>
 
-      <!-- TipTap Editor -->
-      <div class="flex-1 px-4 pb-4 max-w-2xl mx-auto w-full">
-        <CommonMarkdownEditor
-          ref="editorRef"
-          v-model="content"
-          @on-update="onContentUpdate"
-        />
+          <!-- TipTap Editor -->
+          <div class="flex-1 px-4 pb-4 max-w-3xl mx-auto w-full md:px-6 xl:px-0 xl:max-w-none">
+            <CommonMarkdownEditor
+              ref="editorRef"
+              v-model="content"
+              @on-update="onContentUpdate"
+            />
+          </div>
+        </div>
+
+        <aside class="hidden xl:flex xl:flex-col xl:gap-4 xl:sticky xl:top-24 xl:self-start xl:rounded-2xl xl:border xl:border-default xl:bg-elevated xl:p-5">
+          <h3 class="text-sm font-semibold text-highlighted">{{ $t('journal.howFeeling') }}</h3>
+          <EmotionSliderV2 v-model="moodScore" />
+          <UButton
+            :loading="isGeneratingQuestion"
+            :disabled="!hasContent || isGeneratingQuestion"
+            @click="handleGoDeeper"
+            icon="i-lucide-sparkles"
+            block
+          >
+            {{ $t('journal.goDeeper') }}
+          </UButton>
+          <p class="text-xs text-muted text-center">{{ autoSaveStatusText }}</p>
+        </aside>
       </div>
 
       <!-- Bottom Toolbar -->
-      <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-gray-200 dark:border-gray-800 p-4 flex items-center justify-between">
+      <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-gray-200 dark:border-gray-800 p-4 flex items-center justify-between xl:hidden">
         <div class="flex items-center gap-2">
           <!-- Mood Selector -->
           <UButton 
@@ -206,6 +225,10 @@ const moodLabels: Record<number, string> = {
 };
 
 const computedMoodLabel = computed(() => t(`journal.moodLabels.${moodScore.value}`) || t('journal.moodLabels.5'));
+
+watch(moodScore, () => {
+  moodLabel.value = computedMoodLabel.value;
+}, { immediate: true });
 
 const onSaved = async () => {
   // Reload journal data and return to view mode

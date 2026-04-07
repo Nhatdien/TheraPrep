@@ -2,6 +2,14 @@
 @forward "./components/index.scss";
 @forward "@nuxt/ui";
 
+:root {
+  --motion-fast: 150ms;
+  --motion-standard: 200ms;
+  --motion-smooth: 300ms;
+  --motion-entrance: 450ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
 
 .body-container {
   width: 100%;

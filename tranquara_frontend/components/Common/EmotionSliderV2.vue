@@ -208,7 +208,7 @@ const moodLabel = computed(() => moodLabels[currentValue.value] || 'Okay');
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--motion-smooth) var(--motion-ease-standard);
   box-shadow: 
     0 10px 30px rgba(0, 0, 0, 0.3),
     inset 0 -5px 20px rgba(0, 0, 0, 0.1),
@@ -243,7 +243,7 @@ const moodLabel = computed(() => moodLabels[currentValue.value] || 'Okay');
   width: 14px;
   height: 14px;
   color: #333;
-  transition: transform 0.3s ease;
+  transition: transform var(--motion-smooth) var(--motion-ease-standard);
 }
 
 .eye.left .pupil {
@@ -265,7 +265,7 @@ const moodLabel = computed(() => moodLabels[currentValue.value] || 'Okay');
 }
 
 .mouth path {
-  transition: d 0.3s ease;
+  transition: d var(--motion-smooth) var(--motion-ease-standard);
 }
 
 /* Mood Label */
@@ -279,7 +279,7 @@ const moodLabel = computed(() => moodLabels[currentValue.value] || 'Okay');
 .mood-label {
   font-size: 1.5rem;
   font-weight: 700;
-  transition: color 0.3s ease;
+  transition: color var(--motion-smooth) var(--motion-ease-standard);
 }
 
 .mood-score {
@@ -339,7 +339,7 @@ const moodLabel = computed(() => moodLabels[currentValue.value] || 'Okay');
   cursor: pointer;
   border: 3px solid var(--thumb-color, #f39c12);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  transition: transform 0.15s ease;
+  transition: transform var(--motion-fast) var(--motion-ease-standard);
 }
 
 .emotion-range::-webkit-slider-thumb:hover {
@@ -358,7 +358,7 @@ const moodLabel = computed(() => moodLabels[currentValue.value] || 'Okay');
   cursor: pointer;
   border: 3px solid var(--thumb-color, #f39c12);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  transition: transform 0.15s ease;
+  transition: transform var(--motion-fast) var(--motion-ease-standard);
 }
 
 .emotion-range::-moz-range-thumb:hover {
@@ -371,7 +371,7 @@ const moodLabel = computed(() => moodLabels[currentValue.value] || 'Okay');
 
 /* Animation for face entrance */
 .face-container {
-  animation: face-entrance 0.5s ease-out;
+  animation: face-entrance var(--motion-entrance) var(--motion-ease-standard);
 }
 
 @keyframes face-entrance {
@@ -387,11 +387,11 @@ const moodLabel = computed(() => moodLabels[currentValue.value] || 'Okay');
 
 /* Subtle bounce when mood changes */
 [data-mood="0"] .face {
-  animation: slight-shake 0.3s ease;
+  animation: slight-shake var(--motion-smooth) var(--motion-ease-standard);
 }
 
 [data-mood="2"] .face {
-  animation: happy-bounce 0.4s ease;
+  animation: happy-bounce var(--motion-entrance) var(--motion-ease-standard);
 }
 
 @keyframes slight-shake {

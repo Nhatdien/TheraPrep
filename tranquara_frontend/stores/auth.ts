@@ -30,6 +30,7 @@ export class Auth {
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
   private tokenExpiry: number | null = null;
+  private readonly refreshBufferMs = 60 * 1000;
 
   /**
    * Login with email and password using Direct Grant Flow
@@ -224,8 +225,12 @@ export class Auth {
    * Get current access token
    */
   async getAccessToken(): Promise<string | null> {
+    if (!this.accessToken) {
+      await this.loadTokens();
+    }
+
     // Check if token is expired
-    if (this.tokenExpiry && Date.now() >= this.tokenExpiry) {
+    if (this.tokenExpiry && Date.now() >= this.tokenExpiry - this.refreshBufferMs) {
       // Try to refresh
       const refreshed = await this.refreshAccessToken();
       if (!refreshed) {

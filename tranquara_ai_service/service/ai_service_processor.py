@@ -6,7 +6,7 @@ from langchain_openai.chat_models import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from database.vector_database import (
     search_user_journals, search_user_memories,
-    check_memory_duplicate, index_memory
+    check_memory_duplicate, index_memory, get_top_k_for_direction
 )
 
 load_dotenv()
@@ -55,6 +55,7 @@ class AIProcessor():
             temperature=0.7,
             streaming=False
         )
+
 
     def _retrieve_past_journals(self, user_id: str, current_content: str, top_k: int = 5) -> str:
         """
@@ -241,11 +242,22 @@ class AIProcessor():
         # Get system prompt (with optional direction enhancement)
         system_prompt = get_system_prompt(direction)
 
+        depth = get_top_k_for_direction(direction)
+        memory_depth = max(5, depth)
+
         # --- RAG: Retrieve relevant past journals ---
-        past_journals_context = self._retrieve_past_journals(user_id, content)
+        past_journals_context = self._retrieve_past_journals(
+            user_id=user_id,
+            current_content=content,
+            top_k=depth,
+        )
 
         # --- RAG: Retrieve user memories ---
-        user_memories_context = self._retrieve_user_memories(user_id, content)
+        user_memories_context = self._retrieve_user_memories(
+            user_id=user_id,
+            current_content=content,
+            top_k=memory_depth,
+        )
 
         # --- Build slide group context ---
         context_info = []
@@ -330,11 +342,12 @@ User's Mood Score: {mood_score}/10
 {your_story_section}{memories_section}{past_journals_section}
 Based on the FULL CONTEXT of this journaling session, the user's current writing,
 and their past journal history (if available), generate ONE follow-up question that:
-1. Relates specifically to what they just wrote
+1. Prioritizes what they just wrote right now as the primary signal
 2. Stays aligned with the theme of this slide and the overall session
 3. Helps them explore their thoughts and feelings more deeply
 4. Feels natural and conversational
-5. If past journals reveal patterns or recurring themes, gently reference them
+5. Uses past journals only as secondary grounding context
+6. If past journals reveal patterns or recurring themes, gently reference them
    (e.g., "You mentioned something similar about work last week — what's changed?")
 
 Generate the question now:"""

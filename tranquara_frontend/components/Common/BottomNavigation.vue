@@ -9,7 +9,7 @@
         :class="{ 'text-primary': isActive(item.link), 'text-muted': !isActive(item.link) }"
       >
         <component 
-          :is="iconComponents[item.icon]" 
+          :is="resolveNavIcon(item.icon)" 
           :size="24"
           :stroke-width="isActive(item.link) ? 2.5 : 2"
         />
@@ -21,16 +21,9 @@
 
 <script setup lang="ts">
 import { bottomNavSchema } from "./bottomNavSchema";
-import { Home, HeartHandshake, BookOpen, Clock } from "lucide-vue-next";
+import { resolveNavIcon } from "./navIcons";
 
 const route = useRoute();
-
-const iconComponents = {
-  "home": Home,
-  "heart-handshake": HeartHandshake,
-  "book-open": BookOpen,
-  "clock": Clock,
-} as Record<string, any>;
 
 const isActive = (link: string) => {
   if (link === '/') {

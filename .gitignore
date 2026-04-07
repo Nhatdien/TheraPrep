@@ -37,3 +37,9 @@ tranquara_ai_service/data/qdrant_storage/
 
 # Docker
 *.log
+
+## my files
+baocao/
+Mau_do_an/
+_tmp_docs/
+VPS-DEPLOY.md

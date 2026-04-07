@@ -130,6 +130,58 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async getGoogleOAuthStartURL(redirectUri: string): Promise<string> {
+      return await TranquaraSDK.getInstance().getGoogleOAuthStartURL(redirectUri);
+    },
+
+    async loginWithGoogleOAuthCode(code: string, redirectUri: string) {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        await TranquaraSDK.getInstance().exchangeGoogleOAuthCode(code, redirectUri);
+        this.user = TranquaraSDK.getInstance().getUserProfile();
+        this.isAuthenticated = true;
+        await this.syncUserToBackend('google');
+        return true;
+      } catch (error: any) {
+        this.error = error.message || 'Google login failed';
+        this.isAuthenticated = false;
+        this.user = null;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async requestPasswordReset(email: string) {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        return await TranquaraSDK.getInstance().requestPasswordReset(email);
+      } catch (error: any) {
+        this.error = error.message || 'Failed to request password reset';
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async resetPassword(token: string, newPassword: string, confirmPassword: string) {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        return await TranquaraSDK.getInstance().resetPassword(token, newPassword, confirmPassword);
+      } catch (error: any) {
+        this.error = error.message || 'Failed to reset password';
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
     /**
      * Logout user
      */
@@ -160,7 +212,7 @@ export const useAuthStore = defineStore('auth', {
      * Uses TranquaraSDK (not direct fetch) and gracefully handles offline.
      * If offline, the sync will be retried on next login.
      */
-    async syncUserToBackend() {
+    async syncUserToBackend(oauthProvider: string = 'email') {
       try {
         const user = this.user;
         if (!user) return;
@@ -168,7 +220,7 @@ export const useAuthStore = defineStore('auth', {
         await TranquaraSDK.getInstance().syncUserToBackend({
           email: user.email || '',
           username: user.preferred_username || '',
-          oauth_provider: 'email',
+          oauth_provider: oauthProvider,
         });
 
         console.log('[AuthStore] User synced to backend successfully');

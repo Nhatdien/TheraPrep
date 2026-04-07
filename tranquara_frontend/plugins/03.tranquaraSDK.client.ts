@@ -1,4 +1,3 @@
-import AuthService from "~/stores/auth/auth_service";
 import { useAuthStore } from "~/stores/stores/auth_store";
 import { userJournalStore } from "~/stores/stores/user_journal";
 import { useUserStreakStore } from "~/stores/stores/user_streak";
@@ -30,8 +29,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   
   // Get initial token if user is authenticated
   if (authStore.isAuthenticated) {
-    const token = await AuthService.getAccessToken();
-    const user = AuthService.getUserProfile();
+    const token = await authStore.getAccessToken();
+    const user = authStore.user;
     
     if (token && user) {
       tranquaraSDK.config.access_token = token;
@@ -64,8 +63,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     () => authStore.isAuthenticated,
     async (isAuthenticated) => {
       if (isAuthenticated) {
-        const token = await AuthService.getAccessToken();
-        const user = AuthService.getUserProfile();
+        const token = await authStore.getAccessToken();
+        const user = authStore.user;
         
         if (token && user) {
           tranquaraSDK.config.access_token = token;
@@ -101,10 +100,27 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   );
 
   // Handle SDK errors (e.g., 401 Unauthorized)
-  TranquaraSDK.getInstance().onError = (error) => {
+  TranquaraSDK.getInstance().onError = async (error) => {
     if (error.message.includes("Unauthorized")) {
-      // Clear auth state and redirect to login
-      authStore.logout();
+      // Refresh first to avoid false logout from token edge timing or transient failures.
+      const refreshed = await authStore.refreshToken();
+      if (refreshed) {
+        const newToken = await authStore.getAccessToken();
+        if (newToken) {
+          tranquaraSDK.config.access_token = newToken;
+        }
+        return;
+      }
+
+      // If offline/local session exists, keep user in app and let server calls fail gracefully.
+      const hasLocalSession = await TranquaraSDK.getInstance().hasLocalSession();
+      if (hasLocalSession) {
+        console.warn('[Plugin] Unauthorized while local session exists; skipping forced logout');
+        return;
+      }
+
+      // No valid refresh and no local session: perform full logout.
+      await authStore.logout();
     }
   };
 
@@ -119,7 +135,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   return {
     provide: {
-      authService: AuthService,
       tranquaraSDK,
     },
   };

@@ -1,30 +1,43 @@
 <template>
-  <section class="p-4 max-w-lg mx-auto">
-    <div class="flex justify-between w-full">
-      <ChevronLeft @click="prevNode" />
-      <X @click="closeSlideGroup"/>
+  <section class="px-4 pb-24 pt-5 max-w-2xl mx-auto min-h-screen">
+    <div class="w-full rounded-2xl border border-default/60 bg-default/70 backdrop-blur px-4 py-3 mb-5">
+      <div class="flex items-start justify-between gap-3">
+        <UButton variant="ghost" size="sm" @click="prevNode">
+          <ChevronLeft class="w-4 h-4" />
+        </UButton>
+        <div class="text-center min-w-0">
+          <p class="text-xs uppercase tracking-wide text-toned">{{ currentSlideMeta }}</p>
+          <h1 class="text-base sm:text-lg font-semibold text-highlighted truncate">{{ activeSlideGroup?.title || 'Guided Flow' }}</h1>
+        </div>
+        <UButton variant="ghost" size="sm" @click="closeSlideGroup">
+          <X class="w-4 h-4" />
+        </UButton>
+      </div>
+      <SegmentedProgress class="mt-3" :current="currentIndex + 1" :total="totalSlides" />
     </div>
+
     <UCarousel
       :watch-drag="true"
       ref="carousel"
-      class="mt-12"
-      dots
+      class="mt-2"
       v-slot="{ item }"
       :items="carouselItems"
       @select="(index: number) => (currentIndex = index)"
       :ui="{
         viewport: 'h-full',
-        dot: 'w-6 h-1 rounded-none'
+        dot: 'w-6 h-1 rounded-full'
       }">
-      <div class="h-[70vh] max-h-[700px] lg:h-[60vh]">
-        <component
-          :is="renderSlide(item?.content?.type)"
-          :currentIndex
-          :index="carouselItems.indexOf(item)"
-          :content="item?.content"
-          :slideGroupContext="activeSlideGroup"
-          :collectionTitle="currentCollecton?.title"></component>
-      </div>
+      <Transition name="guided-slide" mode="out-in">
+        <div :key="currentIndex" class="h-[70vh] max-h-[760px] lg:h-[64vh] rounded-2xl border border-default/60 bg-default p-5 sm:p-7 shadow-sm overflow-y-auto">
+          <component
+            :is="renderSlide((item as any)?.content?.type)"
+            :currentIndex
+            :index="carouselItems.indexOf(item as any)"
+            :content="(item as any)?.content"
+            :slideGroupContext="activeSlideGroup"
+            :collectionTitle="currentCollecton?.title"></component>
+        </div>
+      </Transition>
       <!-- <CommonMarkdownEditor v-model="item.currentNote"></CommonMarkdownEditor> -->
     </UCarousel>
 
@@ -32,17 +45,28 @@
        - a button to make forward (user can still slide backward)
        - a button to edit text format
        - a button to open the chatbox with the chatbot to help with the journaling process -->
-    <div class="flex fixed justify-between bottom-8 left-1/2 -translate-x-1/2 w-full max-w-lg px-4">
-      <div></div>
-      <div class="flex items-center">
-        <UButton :variant="'soft'" @click="nextNode"><ChevronRight /></UButton>
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 hidden sm:block">
+      <div class="flex justify-between items-center rounded-2xl border border-default/60 bg-default/90 backdrop-blur px-4 py-3">
+        <UButton variant="ghost" :disabled="!canGoPrev" @click="prevNode">Back</UButton>
+        <UButton :variant="isLastSlide ? 'solid' : 'soft'" @click="nextNode">
+          <span>{{ isLastSlide ? 'Finish' : 'Continue' }}</span>
+          <ChevronRight class="ml-1 w-4 h-4" />
+        </UButton>
       </div>
     </div>
+
+    <button
+      type="button"
+      class="floating-next-btn sm:hidden"
+      :aria-label="isLastSlide ? 'Finish' : 'Continue'"
+      @click="nextNode"
+    >
+      <ChevronRight class="w-5 h-5" />
+    </button>
   </section>
 </template>
 <script lang="ts" setup>
 import { ChevronRight, ChevronLeft, X } from "lucide-vue-next";
-import type { DropdownMenuItem } from "@nuxt/ui";
 import Document from "@/components/Slide/Document.vue";
 import CTA from "@/components/Slide/CTA.vue";
 import FurtherReading from "@/components/Slide/FutherReading.vue";
@@ -52,8 +76,7 @@ import MoodSlide from "~/components/Slide/MoodSlide.vue";
 import DatePickerSlide from "~/components/Slide/DatePickerSlide.vue";
 import StarRatingSlide from "~/components/Slide/StarRatingSlide.vue";
 import ChecklistInputSlide from "~/components/Slide/ChecklistInputSlide.vue";
-import Index from "~/pages/index.vue";
-import { Editor } from "@tiptap/vue-3";
+import SegmentedProgress from "~/components/Slide/SegmentedProgress.vue";
 
 const props = defineProps(['templateId']);
 const carousel = useTemplateRef("carousel");
@@ -92,6 +115,11 @@ const carouselItems = ref(
     };
   }) || []
 );
+
+const totalSlides = computed(() => carouselItems.value.length || 1);
+const currentSlideMeta = computed(() => `Slide ${currentIndex.value + 1} of ${totalSlides.value}`);
+const isLastSlide = computed(() => currentIndex.value >= totalSlides.value - 1);
+const canGoPrev = computed(() => currentIndex.value > 0);
 
 const nextNode = () => {
   if (!carousel.value?.emblaApi?.canScrollNext()) {
@@ -134,7 +162,7 @@ const prevNode = () => {
 
 onMounted(() => {
   // Init empty objects for editor store if needed (TipTap Store logic seems to require this)
-  carouselItems.value.forEach((_item) => {
+  carouselItems.value.forEach((_item: unknown) => {
     // This usage of editors.push({}) seems to cause type errors, 
     // suppressing for now if it works at runtime or use proper type
     // @ts-ignore
@@ -142,3 +170,38 @@ onMounted(() => {
   });
 });
 </script>
+
+<style scoped>
+.floating-next-btn {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(var(--ui-primary));
+  color: rgb(var(--ui-bg));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: transform var(--motion-fast) var(--motion-ease-standard),
+    background-color var(--motion-standard) var(--motion-ease-standard);
+}
+
+.floating-next-btn:active {
+  transform: scale(0.94);
+}
+
+.guided-slide-enter-active,
+.guided-slide-leave-active {
+  transition: opacity var(--motion-smooth) var(--motion-ease-standard),
+    transform var(--motion-smooth) var(--motion-ease-standard);
+}
+
+.guided-slide-enter-from,
+.guided-slide-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
+}
+</style>

@@ -36,7 +36,7 @@
         "
       >
         <component
-          :is="iconComponents[item.icon]"
+          :is="resolveNavIcon(item.icon)"
           :size="20"
           :stroke-width="isActive(item.link) ? 2.5 : 2"
         />
@@ -63,16 +63,10 @@
 
 <script setup lang="ts">
 import { bottomNavSchema } from "./bottomNavSchema";
-import { Home, HeartHandshake, BookOpen, Clock, User, PenLine } from "lucide-vue-next";
+import { User, PenLine } from "lucide-vue-next";
+import { resolveNavIcon } from "./navIcons";
 
 const route = useRoute();
-
-const iconComponents: Record<string, any> = {
-  "home": Home,
-  "heart-handshake": HeartHandshake,
-  "book-open": BookOpen,
-  "clock": Clock,
-};
 
 const isActive = (link: string) => {
   if (link === '/') {
