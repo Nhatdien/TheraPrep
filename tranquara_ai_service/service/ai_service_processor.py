@@ -56,7 +56,6 @@ class AIProcessor():
             streaming=False
         )
 
-
     def _retrieve_past_journals(self, user_id: str, current_content: str, top_k: int = 5) -> str:
         """
         Query Qdrant for the user's past journal entries that are semantically
