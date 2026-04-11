@@ -30,10 +30,10 @@
         </p>
       </div>
 
-      <!-- Collections List -->
+      <!-- Learn Collections -->
       <div class="px-4 flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
         <div
-          v-for="collection in allCollections"
+          v-for="collection in learnCollections"
           :key="collection.id"
           class="p-5 rounded-2xl border border-default bg-elevated cursor-pointer hover:bg-muted hover:shadow-sm transition-all"
           @click="navigateTo(`/learn_and_prepare/collection/${collection.id}`)">
@@ -48,6 +48,34 @@
               <h3 class="font-semibold text-lg mb-1">{{ collection.title }}</h3>
               <p class="text-sm text-muted mb-4">{{ $t('learnSub.chapters', { count: collection.slide_groups?.length || 0 }) }}</p>
               <UProgress :model-value="getCollectionProgress(collection.id)" size="md" color="neutral" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Journal Templates Section -->
+      <div v-if="journalCollections.length > 0" class="mt-10">
+        <div class="px-6 pb-6 text-center">
+          <h2 class="text-2xl font-bold mb-2">{{ $t('learnSub.journalTemplates', 'Journal Templates') }}</h2>
+          <p class="text-muted text-sm leading-relaxed max-w-sm mx-auto">
+            {{ $t('learnSub.journalTemplatesDescription', 'Ready-to-use journaling prompts for daily reflection and self-care.') }}
+          </p>
+        </div>
+
+        <div class="px-4 flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
+          <div
+            v-for="collection in journalCollections"
+            :key="collection.id"
+            class="p-5 rounded-2xl border border-default bg-elevated cursor-pointer hover:bg-muted hover:shadow-sm transition-all"
+            @click="navigateTo(`/learn_and_prepare/collection/${collection.id}`)">
+            <div class="flex items-center gap-5">
+              <div class="w-20 h-28 flex items-center justify-center shrink-0">
+                <component :is="getCollectionIcon(collection.category, collection.title)" class="w-14 h-20 text-default" />
+              </div>
+              <div class="flex-1">
+                <h3 class="font-semibold text-lg mb-1">{{ collection.title }}</h3>
+                <p class="text-sm text-muted mb-4">{{ $t('learnSub.chapters', { count: collection.slide_groups?.length || 0 }) }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -99,9 +127,19 @@ onMounted(async () => {
   }
 });
 
-// Only learn-type collections
-const allCollections = computed(() => {
+// Learn-type collections
+const learnCollections = computed(() => {
   return journalStore.templates.filter(t => t.type === 'learn');
+});
+
+// Journal-type collections (template packs)
+const journalCollections = computed(() => {
+  return journalStore.templates.filter(t => t.type === 'journal');
+});
+
+// Combined for progress tracking
+const allCollections = computed(() => {
+  return [...learnCollections.value, ...journalCollections.value];
 });
 
 // Get icon based on category or title keywords

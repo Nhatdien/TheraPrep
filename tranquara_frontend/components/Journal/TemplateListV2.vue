@@ -36,11 +36,11 @@
       </div>
 
       <!-- Slide Groups Carousel -->
-      <div class="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:overflow-visible lg:snap-none">
+      <div class="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory lg:grid lg:grid-cols-2 lg:overflow-visible lg:snap-none">
         <div
           v-for="(slideGroup, index) in currentCollection.slide_groups"
           :key="slideGroup.id"
-          class="shrink-0 w-[85vw] max-w-md lg:w-auto lg:max-w-none min-h-[320px] p-6 rounded-2xl border border-default bg-elevated flex flex-col snap-center lg:snap-align-none">
+          class="shrink-0 w-[85vw] max-w-md lg:w-auto lg:max-w-none min-h-[320px] p-6 rounded-2xl border border-default bg-elevated flex flex-col snap-center lg:snap-align-none overflow-hidden">
           <!-- Chapter Number -->
           <div class="flex justify-end mb-8">
             <span class="text-dimmed text-sm font-medium">
@@ -50,7 +50,7 @@
 
           <!-- Content -->
           <div class="flex-1">
-            <h2 class="text-xl font-bold mb-3 uppercase">{{ slideGroup.title }}</h2>
+            <h2 class="text-xl font-bold mb-3 uppercase break-words">{{ slideGroup.title }}</h2>
             <p class="text-muted text-sm leading-relaxed">
               {{ slideGroup.description }}
             </p>

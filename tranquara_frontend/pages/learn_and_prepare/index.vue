@@ -53,7 +53,7 @@
           <div
             v-for="collection in displayedCollections"
             :key="collection.id"
-            class="w-72 p-5 rounded-xl border border-default bg-elevated cursor-pointer hover:bg-muted hover:shadow-sm transition-all"
+            class="w-72 shrink-0 p-5 rounded-xl border border-default bg-elevated cursor-pointer hover:bg-muted hover:shadow-sm transition-all lg:w-auto"
             @click="navigateTo(`/learn_and_prepare/collection/${collection.id}`)">
             <div class="flex items-start gap-4">
               <div class="w-16 h-24 flex items-center justify-center">

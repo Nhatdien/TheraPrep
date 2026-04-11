@@ -77,10 +77,14 @@ export const useSlideGroup = (props?: {
     // Apply locale to template-level title/description
     const lang = locale.value;
     if (lang === 'vi') {
+      const viGroups = (template as any).slide_groups_vi;
       return {
         ...template,
         title: (template as any).title_vi || template.title,
         description: (template as any).description_vi || template.description,
+        ...(viGroups && {
+          slide_groups: typeof viGroups === 'string' ? JSON.parse(viGroups) : viGroups,
+        }),
       };
     }
     return template;

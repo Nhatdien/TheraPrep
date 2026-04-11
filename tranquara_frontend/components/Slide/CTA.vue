@@ -14,7 +14,6 @@
 
 <script lang="ts" setup>
 import { JournalModalContents, JournalTemplateCardV2 } from "#components";
-import { testCollection } from "~/mock/testCollection";
 
 const { openSlideGroup, activeSlideGroup, findSlideGroup } = useSlideGroup();
 
