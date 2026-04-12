@@ -317,7 +317,12 @@
 </template>
 
 <script lang="ts" setup>
-import { Wind, Trash2, X, Eye, HeartPulse, Sparkles, PenLine } from "lucide-vue-next";
+import { Trash2, X } from "lucide-vue-next";
+import IconBreathing from '~/components/Icons/IconBreathing.vue';
+import IconFiveSenses from '~/components/Icons/IconFiveSenses.vue';
+import IconBodyScan from '~/components/Icons/IconBodyScan.vue';
+import IconAffirmations from '~/components/Icons/IconAffirmations.vue';
+import IconQuickJournal from '~/components/Icons/IconQuickJournal.vue';
 import { userJournalStore } from "~/stores/stores/user_journal";
 import { useLearnedStore } from "~/stores/stores/user_learned";
 import { useToolkitStore } from "~/stores/stores/therapy_toolkit_store";
@@ -428,35 +433,35 @@ const groundingTools = [
     key: 'breathing',
     titleKey: 'toolkit.grounding.breathing.title',
     descriptionKey: 'toolkit.grounding.breathing.description',
-    icon: Wind,
+    icon: IconBreathing,
     path: '/toolkit/grounding/breathing',
   },
   {
     key: 'fiveSenses',
     titleKey: 'toolkit.grounding.fiveSenses.title',
     descriptionKey: 'toolkit.grounding.fiveSenses.description',
-    icon: Eye,
+    icon: IconFiveSenses,
     path: '/toolkit/grounding/five-senses',
   },
   {
     key: 'bodyScan',
     titleKey: 'toolkit.grounding.bodyScan.title',
     descriptionKey: 'toolkit.grounding.bodyScan.description',
-    icon: HeartPulse,
+    icon: IconBodyScan,
     path: '/toolkit/grounding/body-scan',
   },
   {
     key: 'affirmations',
     titleKey: 'toolkit.grounding.affirmations.title',
     descriptionKey: 'toolkit.grounding.affirmations.description',
-    icon: Sparkles,
+    icon: IconAffirmations,
     path: '/toolkit/grounding/affirmations',
   },
   {
     key: 'quickJournal',
     titleKey: 'toolkit.grounding.quickJournal.title',
     descriptionKey: 'toolkit.grounding.quickJournal.description',
-    icon: PenLine,
+    icon: IconQuickJournal,
     path: '/journaling',
   },
 ];

@@ -30,13 +30,13 @@
         <UCard>
           <div class="divide-y divide-default">
             <SettingsNavItem
-              :icon="Palette"
+              :icon="IconPalette"
               :label="$t('profile.personalize')"
               :subtitle="themeLabel"
               @click="openSection('theme')"
             />
             <SettingsNavItem
-              :icon="UserCircle"
+              :icon="IconPersonCircle"
               :label="$t('profile.aboutYou')"
               :subtitle="$t('profile.aboutYouSubtitle')"
               @click="openSection('about-you')"
@@ -53,13 +53,13 @@
         <UCard>
           <div class="divide-y divide-default">
             <SettingsNavItem
-              :icon="Bell"
+              :icon="IconBell"
               :label="$t('profile.notifications')"
               :subtitle="$t('profile.notificationsSubtitle')"
               @click="openSection('notifications')"
             />
             <SettingsNavItem
-              :icon="Database"
+              :icon="IconDatabase"
               :label="$t('profile.yourData')"
               :subtitle="$t('profile.yourDataSubtitle')"
               @click="openSection('data')"
@@ -74,8 +74,11 @@
       </div>
 
       <!-- App Info -->
-      <div class="text-center py-6 space-y-2">
-        <p class="text-xs text-muted">TheraPrep v1.0.0</p>
+      <div class="text-center py-6 space-y-3">
+        <div class="flex flex-col items-center gap-1">
+          <BrandLogoMark :size="36" color="#F59E0B" variant="mark" />
+          <p class="text-xs text-muted tracking-widest uppercase" style="letter-spacing:0.15em;">Tranquara v1.0.0</p>
+        </div>
         <div class="flex items-center justify-center gap-3">
           <UButton to="/terms" size="xs" color="neutral" variant="link">{{ $t('profile.terms') }}</UButton>
           <span class="text-dimmed">•</span>
@@ -120,7 +123,10 @@
 </template>
 
 <script setup lang="ts">
-import { Palette, UserCircle, Bell, Database } from 'lucide-vue-next';
+import IconPalette from '~/components/Icons/IconPalette.vue';
+import IconPersonCircle from '~/components/Icons/IconPersonCircle.vue';
+import IconBell from '~/components/Icons/IconBell.vue';
+import IconDatabase from '~/components/Icons/IconDatabase.vue';
 import { useWindowSize } from '@vueuse/core';
 
 definePageMeta({

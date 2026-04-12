@@ -39,14 +39,23 @@
       <Transition name="guided-slide" mode="out-in">
         <div
           :key="currentIndex"
-          class="h-[70vh] max-h-[760px] lg:h-[64vh] rounded-2xl border border-default/60 bg-default p-5 sm:p-7 shadow-sm overflow-y-auto">
-          <component
-            :is="renderSlide((item as any)?.content?.type)"
-            :currentIndex
-            :index="carouselItems.indexOf(item as any)"
-            :content="(item as any)?.content"
-            :slideGroupContext="activeSlideGroup"
-            :collectionTitle="currentCollecton?.title"></component>
+          class="h-[70vh] max-h-[760px] lg:h-[64vh] rounded-2xl border border-default/60 bg-default shadow-sm overflow-hidden flex flex-col">
+          <!-- Per-slide illustration (shown when slide has illustration field) -->
+          <div
+            v-if="currentSlideIllustration"
+            class="flex items-center justify-center bg-illus-dark shrink-0 h-36">
+            <component :is="currentSlideIllustration" class="w-28 h-28" />
+          </div>
+          <!-- Slide content -->
+          <div class="flex-1 overflow-y-auto p-5 sm:p-7">
+            <component
+              :is="renderSlide((item as any)?.content?.type)"
+              :currentIndex
+              :index="carouselItems.indexOf(item as any)"
+              :content="(item as any)?.content"
+              :slideGroupContext="activeSlideGroup"
+              :collectionTitle="currentCollecton?.title"></component>
+          </div>
         </div>
       </Transition>
       <!-- <CommonMarkdownEditor v-model="item.currentNote"></CommonMarkdownEditor> -->
@@ -80,6 +89,7 @@
 </template>
 <script lang="ts" setup>
 import { ChevronRight, ChevronLeft, X } from "lucide-vue-next";
+import { getIllustrationComponent } from '~/components/Illustrations/index';
 import Document from "@/components/Slide/Document.vue";
 import CTA from "@/components/Slide/CTA.vue";
 import FurtherReading from "@/components/Slide/FutherReading.vue";
@@ -96,6 +106,13 @@ import SegmentedProgress from "~/components/Slide/SegmentedProgress.vue";
 const props = defineProps(["templateId"]);
 const carousel = useTemplateRef("carousel");
 const currentIndex = ref(0);
+
+// Per-slide illustration — resolved from slide's `illustration` field (keyword string)
+const currentSlideIllustration = computed(() => {
+  const slide = carouselItems.value[currentIndex.value]?.content;
+  if (!slide?.illustration) return null;
+  return getIllustrationComponent(slide.illustration);
+});
 
 // Use the prop instead of route params
 const {

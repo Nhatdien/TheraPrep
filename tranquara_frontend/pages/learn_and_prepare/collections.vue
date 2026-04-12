@@ -31,26 +31,16 @@
       </div>
 
       <!-- Learn Collections -->
-      <div class="px-4 flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
-        <div
+      <div class="px-4 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <LearnCollectionCard
           v-for="collection in learnCollections"
           :key="collection.id"
-          class="p-5 rounded-2xl border border-default bg-elevated cursor-pointer hover:bg-muted hover:shadow-sm transition-all"
-          @click="navigateTo(`/learn_and_prepare/collection/${collection.id}`)">
-          <div class="flex items-center gap-5">
-            <!-- Icon -->
-            <div class="w-20 h-28 flex items-center justify-center shrink-0">
-              <component :is="getCollectionIcon(collection.category, collection.title)" class="w-14 h-20 text-default" />
-            </div>
-            
-            <!-- Content -->
-            <div class="flex-1">
-              <h3 class="font-semibold text-lg mb-1">{{ collection.title }}</h3>
-              <p class="text-sm text-muted mb-4">{{ $t('learnSub.chapters', { count: collection.slide_groups?.length || 0 }) }}</p>
-              <UProgress :model-value="getCollectionProgress(collection.id)" size="md" color="neutral" />
-            </div>
-          </div>
-        </div>
+          :title="collection.title"
+          :category="collection.category"
+          :chapter-count="collection.slide_groups?.length || 0"
+          :progress="getCollectionProgress(collection.id)"
+          @click="navigateTo(`/learn_and_prepare/collection/${collection.id}`)"
+        />
       </div>
 
       <!-- Journal Templates Section -->
@@ -62,22 +52,15 @@
           </p>
         </div>
 
-        <div class="px-4 flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
-          <div
+        <div class="px-4 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <LearnCollectionCard
             v-for="collection in journalCollections"
             :key="collection.id"
-            class="p-5 rounded-2xl border border-default bg-elevated cursor-pointer hover:bg-muted hover:shadow-sm transition-all"
-            @click="navigateTo(`/learn_and_prepare/collection/${collection.id}`)">
-            <div class="flex items-center gap-5">
-              <div class="w-20 h-28 flex items-center justify-center shrink-0">
-                <component :is="getCollectionIcon(collection.category, collection.title)" class="w-14 h-20 text-default" />
-              </div>
-              <div class="flex-1">
-                <h3 class="font-semibold text-lg mb-1">{{ collection.title }}</h3>
-                <p class="text-sm text-muted mb-4">{{ $t('learnSub.chapters', { count: collection.slide_groups?.length || 0 }) }}</p>
-              </div>
-            </div>
-          </div>
+            :title="collection.title"
+            :category="collection.category"
+            :chapter-count="collection.slide_groups?.length || 0"
+            @click="navigateTo(`/learn_and_prepare/collection/${collection.id}`)"
+          />
         </div>
       </div>
     </template>

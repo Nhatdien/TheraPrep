@@ -6,11 +6,12 @@
         :key="item.link"
         :to="item.link"
         class="flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors"
-        :class="{ 'text-primary': isActive(item.link), 'text-muted': !isActive(item.link) }"
+        :class="isActive(item.link) ? 'text-[#F59E0B]' : 'text-muted'"
       >
         <component 
-          :is="resolveNavIcon(item.icon)" 
+          :is="resolveNavIcon(item.icon)"
           :size="24"
+          :active="isActive(item.link)"
           :stroke-width="isActive(item.link) ? 2.5 : 2"
         />
         <span class="text-xs font-medium">{{ $t(item.titleKey) }}</span>

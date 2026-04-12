@@ -8,7 +8,15 @@ export default {
     './src/**/*.{js,ts,jsx,tsx,vue}', // adjust to your file types
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        illus: {
+          amber: '#F59E0B',
+          cream: '#FEF3C7',
+          dark: '#18181b',
+        },
+      },
+    },
   },
   plugins: [
     typography,
