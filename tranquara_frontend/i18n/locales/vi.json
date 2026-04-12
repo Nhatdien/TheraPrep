@@ -83,7 +83,17 @@
       "gratitude": "Biết ơn",
       "mindfulness": "Chánh niệm",
       "relationships": "Mối quan hệ",
-      "selfCare": "Chăm sóc bản thân"
+      "selfCare": "Chăm sóc bản thân",
+      "checkIns": "Ghi nhận",
+      "daily": "Hàng ngày",
+      "wellBeing": "Sức khoẻ",
+      "mentalHealth": "Sức khoẻ tâm thần",
+      "sleep": "Giấc ngủ",
+      "therapy": "Trị liệu",
+      "journal": "Nhật ký",
+      "meditation": "Thiền",
+      "positivity": "Tích cực",
+      "emotions": "Cảm xúc"
     }
   },
   "progress": {
@@ -258,9 +268,9 @@
     }
   },
   "common": {
-    "add": "Add",
-    "done": "Done",
-    "step": "Step {count} of {total}",
+    "add": "Thêm",
+    "done": "Xong",
+    "step": "Bước {count} / {total}",
     "cancel": "Huỷ",
     "save": "Lưu",
     "delete": "Xoá",
@@ -467,20 +477,20 @@
       "overallProgress": "Hoàn thành {percent}%",
       "chaptersProgress": "{completed}/{total} chương",
       "step1": {
-        "label": "Learn About Therapy",
-        "description": "Signs you need therapy, first session, what to expect"
+        "label": "Tìm hiểu về trị liệu",
+        "description": "Dấu hiệu cần trị liệu, buổi đầu tiên, những gì cần kỳ vọng"
       },
       "step2": {
-        "label": "Your Mental Health History",
-        "description": "Diagnoses, past treatment, medications, crisis history"
+        "label": "Tiền sử sức khoẻ tâm thần",
+        "description": "Chẩn đoán, điều trị trước đó, thuốc, lịch sử khủng hoảng"
       },
       "step3": {
-        "label": "Your Lifestyle & Support",
-        "description": "Sleep, diet, social support, daily routines"
+        "label": "Lối sống & Hỗ trợ",
+        "description": "Giấc ngủ, chế độ ăn, hỗ trợ xã hội, thói quen hàng ngày"
       },
       "step4": {
-        "label": "Prepare for Your Session",
-        "description": "Goals, concerns, what your therapist should know"
+        "label": "Chuẩn bị cho buổi trị liệu",
+        "description": "Mục tiêu, lo ngại, những gì nhà trị liệu cần biết"
       }
     },
     "prepPack": {
@@ -571,35 +581,35 @@
     "grounding": {
       "fiveSenses": {
         "title": "5-4-3-2-1",
-        "description": "Ground yourself by naming what you can sense",
+        "description": "Kết nối với hiện tại bằng cách gọi tên giác quan",
         "steps": {
-          "see": "Name 5 things you can see",
-          "touch": "Name 4 things you can touch",
-          "hear": "Name 3 things you can hear",
-          "smell": "Name 2 things you can smell",
-          "taste": "Name 1 thing you can taste"
+          "see": "Kể 5 thứ bạn có thể nhìn thấy",
+          "touch": "Kể 4 thứ bạn có thể chạm vào",
+          "hear": "Kể 3 thứ bạn có thể nghe thấy",
+          "smell": "Kể 2 thứ bạn có thể ngửi thấy",
+          "taste": "Kể 1 thứ bạn có thể nếm"
         },
-        "inputPlaceholder": "Type here...",
-        "complete": "You are here. You are present. You are safe."
+        "inputPlaceholder": "Nhập tại đây...",
+        "complete": "Bạn đang ở đây. Bạn đang hiện diện. Bạn an toàn."
       },
       "bodyScan": {
-        "title": "Body Scan",
-        "description": "Bring attention to each part of your body",
-        "focusOn": "Focus on",
-        "prompt": "Notice any tension and breathe into it.",
-        "complete": "Nice work. Take a moment to notice how you feel."
+        "title": "Quét cơ thể",
+        "description": "Chú ý đến từng phần cơ thể của bạn",
+        "focusOn": "Tập trung vào",
+        "prompt": "Nhận biết sự căng thẳng và hít thở vào đó.",
+        "complete": "Tuyệt vời. Hãy dành một chút để cảm nhận bạn đang thế nào."
       },
       "affirmations": {
-        "title": "Safety Affirmations",
-        "description": "Calming reminders you can return to anytime",
-        "addPlaceholder": "Add your own affirmation...",
-        "favorites": "Favorites",
-        "myAffirmations": "My Affirmations",
-        "defaults": "Suggested"
+        "title": "Lời khẳng định an toàn",
+        "description": "Lời nhắc nhở thư giãn bạn có thể quay lại bất cứ lúc nào",
+        "addPlaceholder": "Thêm lời khẳng định của bạn...",
+        "favorites": "Yêu thích",
+        "myAffirmations": "Lời khẳng định của tôi",
+        "defaults": "Gợi ý"
       },
       "quickJournal": {
-        "title": "Quick Journal",
-        "description": "Start a quick free-form entry"
+        "title": "Nhật ký nhanh",
+        "description": "Bắt đầu viết nhật ký tự do"
       },
       "title": "Bài tập hít thở",
       "breathing": {

@@ -201,7 +201,7 @@
               <!-- Mood Tag -->
               <span v-if="entry.mood_label" class="px-3 py-1 bg-accented rounded-full text-xs text-default flex items-center gap-1">
                 <Icon :name="getMoodIcon(entry.mood_score)" class="w-3 h-3" />
-                {{ entry.mood_label }}
+                {{ entry.mood_score ? $t(`journal.moodLabels.${entry.mood_score}`) : entry.mood_label }}
               </span>
               
               <!-- Template Tag (if different from title) -->

@@ -129,6 +129,7 @@ import {
 
 const journalStore = userJournalStore();
 const learnedStore = useLearnedStore();
+const { t } = useI18n();
 const isLoading = ref(true);
 const selectedCategory = ref("check-ins");
 
@@ -228,6 +229,35 @@ const getCategoryIcon = (category: string) => {
   return Leaf; // Default icon
 };
 
+// Translate category name using i18n lookup
+const categoryKeyMap: Record<string, string> = {
+  'check-in': 'checkIns', 'check-ins': 'checkIns',
+  'daily': 'daily', 'essential': 'daily', 'daily-essentials': 'daily',
+  'well-being': 'wellBeing', 'wellbeing': 'wellBeing', 'wellness': 'wellBeing', 'sos': 'wellBeing',
+  'mental_health': 'mentalHealth', 'mental-health': 'mentalHealth',
+  'bedtime': 'sleep', 'sleep': 'sleep', 'night': 'sleep',
+  'therapy': 'therapy', 'prepare': 'therapy',
+  'journal': 'journal',
+  'mindfulness': 'mindfulness', 'meditation': 'meditation',
+  'anxiety': 'anxiety', 'worry': 'anxiety',
+  'relationship': 'relationships', 'relationships': 'relationships', 'connection': 'relationships',
+  'gratitude': 'gratitude', 'positivity': 'positivity',
+  'emotion': 'emotions', 'emotions': 'emotions',
+  'self_care': 'selfCare', 'self-care': 'selfCare', 'compassion': 'selfCare',
+  'morning': 'morning', 'evening': 'evening',
+  'stress': 'stress', 'mood': 'mood',
+};
+
+const getCategoryLabel = (rawCategory: string) => {
+  const lower = rawCategory.toLowerCase().replace(/\s+/g, '-');
+  const key = categoryKeyMap[lower];
+  if (key) {
+    const translated = t(`learn.categories.${key}`);
+    if (translated !== `learn.categories.${key}`) return translated;
+  }
+  return rawCategory;
+};
+
 // Dynamic categories from journal-type templates — count slide groups, not collections
 const categories = computed(() => {
   const uniqueCategories = new Map<string, { id: string; label: string; icon: any; count: number }>();
@@ -240,7 +270,7 @@ const categories = computed(() => {
       if (!uniqueCategories.has(id)) {
         uniqueCategories.set(id, {
           id,
-          label: category,
+          label: getCategoryLabel(category),
           icon: getCategoryIcon(category),
           count: slideGroupCount,
         });

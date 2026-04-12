@@ -83,7 +83,17 @@
       "gratitude": "Gratitude",
       "mindfulness": "Mindfulness",
       "relationships": "Relationships",
-      "selfCare": "Self-Care"
+      "selfCare": "Self-Care",
+      "checkIns": "Check-ins",
+      "daily": "Daily",
+      "wellBeing": "Well-being",
+      "mentalHealth": "Mental Health",
+      "sleep": "Sleep",
+      "therapy": "Therapy",
+      "journal": "Journal",
+      "meditation": "Meditation",
+      "positivity": "Positivity",
+      "emotions": "Emotions"
     }
   },
   "progress": {

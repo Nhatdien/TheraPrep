@@ -161,21 +161,9 @@ const onSliderInput = (event: Event) => {
   currentValue.value = parseInt(target.value);
 };
 
-// Mood labels (1-10 scale)
-const moodLabels: Record<number, string> = {
-  1: 'Terrible',
-  2: 'Very Bad',
-  3: 'Bad',
-  4: 'Poor',
-  5: 'Okay',
-  6: 'Fine',
-  7: 'Good',
-  8: 'Very Good',
-  9: 'Great',
-  10: 'Fantastic',
-};
-
-const moodLabel = computed(() => moodLabels[currentValue.value] || 'Okay');
+// Mood labels (1-10 scale) — use i18n
+const { t } = useI18n();
+const moodLabel = computed(() => t(`slide.moodLabels.${currentValue.value}`));
 </script>
 
 <style scoped>

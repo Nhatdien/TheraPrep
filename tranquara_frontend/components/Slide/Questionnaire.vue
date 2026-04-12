@@ -167,7 +167,8 @@ const saveSelection = () => {
 
 .choice-card--active {
   border-color: rgb(var(--ui-primary));
-  background: rgb(var(--ui-primary) / 0.1);
+  background: rgb(var(--ui-primary) / 0.15);
   color: rgb(var(--ui-text-highlighted));
+  box-shadow: 0 0 0 1px rgb(var(--ui-primary) / 0.3), 0 0 12px rgb(var(--ui-primary) / 0.15);
 }
 </style>
