@@ -26,7 +26,7 @@
     <!-- Recommended next -->
     <div v-if="recommendedNext.length > 0" class="w-full space-y-3 relative z-10">
       <p class="text-xs uppercase tracking-wide text-toned text-center mb-2">
-        {{ locale === 'vi' ? 'Tiếp tục với' : 'Continue with' }}
+        {{ $t('slide.completion.continueWith') }}
       </p>
       <button
         v-for="item in recommendedNext"
@@ -77,12 +77,12 @@ const props = defineProps({
   },
 });
 
-const { locale } = useI18n();
+const { locale, t } = useI18n();
 const { openSlideGroup } = useSlideGroup();
 
 const displayTitle = computed(() => {
   if (locale.value === 'vi' && props.content?.title_vi) return props.content.title_vi;
-  return props.content?.title || (locale.value === 'vi' ? 'Tuyệt vời!' : 'Well done!');
+  return props.content?.title || t('slide.completion.wellDone');
 });
 
 const displayContent = computed(() => {

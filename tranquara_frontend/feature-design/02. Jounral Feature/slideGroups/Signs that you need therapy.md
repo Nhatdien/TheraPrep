@@ -20,9 +20,7 @@
 
               "type": "doc",
 
-              "header": "You're tearful for no reason",
-
-              "body": "<p>When doing everyday activities like reading or watching a movie, if you find yourself tearful for no clear reason, it may be a sign your emotions are full and you need someone to talk to.</p>"
+              "illustration": "therapy",
 
             },
 

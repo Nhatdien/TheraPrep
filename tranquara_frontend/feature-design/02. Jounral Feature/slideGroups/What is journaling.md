@@ -20,9 +20,7 @@
 
               "type": "doc",
 
-              "header": "What journaling is",
-
-              "body": "<p>Journaling is simply writing down your <strong>thoughts</strong>, <strong>feelings</strong>, and <strong>experiences</strong> — kind of like having a quiet chat with yourself in a notebook or on your phone.</p>"
+              "illustration": "journal",
 
             },
 

@@ -20,9 +20,7 @@
 
               "type": "doc",
 
-              "header": "Getting started",
-
-              "body": "<p>Your first session is often about getting to know your therapist and giving them a chance to know you. You’ll talk about your background, what brought you to therapy, and your goals.</p>"
+              "illustration": "therapy",
 
             },
 

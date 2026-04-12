@@ -348,8 +348,12 @@ const tempSelectedCollection = ref<string | null>(null);
 const tempDateRange = ref<any>(null); // Using any for UCalendar compatibility
 
 // Date range proxy — routes to tempDateRange (mobile drawer) or dateRange (desktop panel)
+// Returns undefined (not null) so UCalendar/RangeCalendarRoot doesn't crash on empty state
 const desktopDateRangeProxy = computed({
-  get: () => isFilterDrawerOpen.value ? tempDateRange.value : dateRange.value,
+  get: () => {
+    const val = isFilterDrawerOpen.value ? tempDateRange.value : dateRange.value;
+    return val ?? undefined;
+  },
   set: (val) => {
     if (isFilterDrawerOpen.value) {
       tempDateRange.value = val;

@@ -12,7 +12,7 @@
           </p>
           <h1
             class="text-base sm:text-lg font-semibold text-highlighted truncate">
-            {{ activeSlideGroup?.title || "Guided Flow" }}
+            {{ activeSlideGroup?.title || $t('slide.guidedFlow') }}
           </h1>
         </div>
         <UButton variant="ghost" size="sm" @click="closeSlideGroup">
@@ -69,10 +69,10 @@
       <div
         class="flex justify-between items-center rounded-2xl py-3">
         <UButton variant="ghost" :disabled="!canGoPrev" @click="prevNode"
-          >Back</UButton
+          >{{ $t('common.back') }}</UButton
         >
         <UButton :variant="isLastSlide ? 'solid' : 'soft'" @click="nextNode">
-          <span>{{ isLastSlide ? "Finish" : "Continue" }}</span>
+          <span>{{ isLastSlide ? $t('slide.finish') : $t('slide.continue') }}</span>
           <ChevronRight class="ml-1 w-4 h-4" />
         </UButton>
       </div>
@@ -81,7 +81,7 @@
     <button
       type="button"
       class="floating-next-btn flex md:hidden"
-      :aria-label="isLastSlide ? 'Finish' : 'Continue'"
+      :aria-label="isLastSlide ? $t('slide.finish') : $t('slide.continue')"
       @click="nextNode">
       <ChevronRight class="w-5 h-5" />
     </button>
@@ -89,6 +89,7 @@
 </template>
 <script lang="ts" setup>
 import { ChevronRight, ChevronLeft, X } from "lucide-vue-next";
+const { t } = useI18n();
 import { getIllustrationComponent } from '~/components/Illustrations/index';
 import Document from "@/components/Slide/Document.vue";
 import CTA from "@/components/Slide/CTA.vue";
@@ -160,7 +161,7 @@ const carouselItems = ref(
 
 const totalSlides = computed(() => carouselItems.value.length || 1);
 const currentSlideMeta = computed(
-  () => `Slide ${currentIndex.value + 1} of ${totalSlides.value}`,
+  () => t('slide.meta', { current: currentIndex.value + 1, total: totalSlides.value }),
 );
 const isLastSlide = computed(() => currentIndex.value >= totalSlides.value - 1);
 const canGoPrev = computed(() => currentIndex.value > 0);

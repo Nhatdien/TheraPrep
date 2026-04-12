@@ -62,6 +62,7 @@ import {
 
 definePageMeta({ layout: 'slide-group' });
 
+const { t } = useI18n();
 const route = useRoute();
 const toolkitStore = useToolkitStore();
 const journalStore = userJournalStore();
@@ -78,7 +79,7 @@ const staticGroup = computed(() =>
 );
 
 const collectionTitle = computed(() =>
-  step.value === 'after' ? 'After Your Session' : 'Before Your Session'
+  step.value === 'after' ? t('toolkit.session.after.title') : t('toolkit.session.before.title')
 );
 
 // Use the composable in static mode
@@ -136,7 +137,7 @@ const handleBeforeComplete = async () => {
       content: generateJournalHtml(journalStore.currentWritingContent),
       mood_score: journalStore.currentMoodScore,
       mood_label: journalStore.currentMoodLabel,
-      title: activeSlideGroup.value?.title || 'Before Session',
+      title: activeSlideGroup.value?.title || t('toolkit.session.before.title'),
     });
   }
 
@@ -162,7 +163,7 @@ const handleAfterComplete = async () => {
       content: generateJournalHtml(journalStore.currentWritingContent),
       mood_score: journalStore.currentMoodScore,
       mood_label: journalStore.currentMoodLabel,
-      title: activeSlideGroup.value?.title || 'After Session',
+      title: activeSlideGroup.value?.title || t('toolkit.session.after.title'),
     });
   }
 

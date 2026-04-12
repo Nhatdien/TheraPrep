@@ -40,10 +40,10 @@
           <div
             class="w-5 h-5 rounded border-2 shrink-0 flex items-center justify-center transition-colors duration-150"
             :class="selected.has(option.id)
-              ? 'border-[rgb(var(--ui-primary))] bg-[rgb(var(--ui-primary))]'
-              : 'border-[rgb(var(--ui-border))]'"
+              ? 'border-[var(--ui-primary)] bg-[var(--ui-primary)]'
+              : 'border-[var(--ui-border)]'"
           >
-            <svg v-if="selected.has(option.id)" class="w-3 h-3 text-[rgb(var(--ui-bg))]" viewBox="0 0 12 12" fill="none">
+            <svg v-if="selected.has(option.id)" class="w-3 h-3 text-[var(--ui-bg)]" viewBox="0 0 12 12" fill="none">
               <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
@@ -155,20 +155,20 @@ const saveSelection = () => {
 }
 
 .choice-card--inactive {
-  border-color: rgb(var(--ui-border));
-  background: rgb(var(--ui-bg-elevated));
-  color: rgb(var(--ui-text-muted));
+  border-color: var(--ui-border);
+  background: var(--ui-bg-elevated);
+  color: var(--ui-text-muted);
 }
 
 .choice-card--inactive:hover {
-  border-color: rgb(var(--ui-border-accented));
-  background: rgb(var(--ui-bg-accented));
+  border-color: var(--ui-border-accented);
+  background: var(--ui-bg-accented);
 }
 
 .choice-card--active {
-  border-color: rgb(var(--ui-primary));
-  background: rgb(var(--ui-primary) / 0.15);
-  color: rgb(var(--ui-text-highlighted));
-  box-shadow: 0 0 0 1px rgb(var(--ui-primary) / 0.3), 0 0 12px rgb(var(--ui-primary) / 0.15);
+  border-color: var(--ui-primary);
+  background: color-mix(in oklab, var(--ui-primary) 15%, transparent);
+  color: var(--ui-text-highlighted);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--ui-primary) 30%, transparent), 0 0 12px color-mix(in oklab, var(--ui-primary) 15%, transparent);
 }
 </style>

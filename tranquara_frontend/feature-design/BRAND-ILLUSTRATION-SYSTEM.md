@@ -31,7 +31,7 @@
 ## Phase 2: Collection Illustration Components ✅
 
 ### 2.1 — Individual Illustration SVGs ✅
-All 10 created in `components/Illustrations/`:
+All 14 created in `components/Illustrations/`:
 | Component | Status |
 |-----------|--------|
 | `IlluJournaling.vue` | ✅ |
@@ -43,10 +43,15 @@ All 10 created in `components/Illustrations/`:
 | `IlluDaily.vue` | ✅ |
 | `IlluBreathing.vue` | ✅ |
 | `IlluProgress.vue` | ✅ |
+| `IlluEmotions.vue` | ✅ (NEW — 3 faces representing emotional range) |
+| `IlluSelfCompassion.vue` | ✅ (NEW — figure in self-hug with warmth glow) |
+| `IlluGratitude.vue` | ✅ (NEW — cupped hands holding radiating light) |
+| `IlluBodyScan.vue` | ✅ (NEW — figure with scanning attention points) |
 | `IlluFallback.vue` | ✅ |
 
 ### 2.2 — Illustration Resolver ✅
 - **Created** `components/Illustrations/index.ts` — `getIllustrationComponent(text)` keyword fuzzy matcher
+- **Updated** resolver with 4 new keyword entries: `emotion/feeling/trigger/mood`, `compassion/kindness/forgive/critic`, `gratitude/grateful/appreciate`, `body scan/tension/physical`
 
 ---
 
@@ -84,7 +89,15 @@ All 10 created in `components/Illustrations/`:
 }
 ```
 
-**Available illustration keywords:** `sleep`, `adhd/brain/focus`, `breathing/grounding`, `anxiety/stress`, `mindfulness/meditation`, `therapy/relationship`, `daily/routine`, `progress/growth`, `journal/reflect`
+**Available illustration keywords:** `sleep`, `adhd/brain/focus`, `body scan/tension/physical`, `breathing/grounding`, `emotion/feeling/trigger/mood`, `anxiety/stress`, `compassion/kindness/forgive/critic`, `gratitude/grateful/appreciate`, `mindfulness/meditation`, `therapy/relationship`, `daily/routine`, `progress/growth`, `journal/reflect`
+
+### 4.2 — SQL Migration for Slide Data ✅
+- **Created** `tranquara_core_service/migrations/000031_add_slide_illustrations.up.sql`
+  - PL/pgSQL function iterates through all learn-type collections' JSONB `slide_groups`
+  - Adds `"illustration": "keyword"` to the first `doc` slide in each slide group
+  - 8 collections updated: Therapy Preparation, Stress Management, Intro to Journaling, Understanding Anxiety, Better Sleep, Understanding Emotions, Mindfulness, Self-Compassion
+  - Journal-only collections (Daily Reflection, Relationships, Gratitude, Check-Ins) skipped — no doc slides
+- **Created** matching `.down.sql` — removes `illustration` field from all affected slides
 
 ---
 
