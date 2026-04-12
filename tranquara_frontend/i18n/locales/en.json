@@ -83,7 +83,17 @@
       "gratitude": "Gratitude",
       "mindfulness": "Mindfulness",
       "relationships": "Relationships",
-      "selfCare": "Self-Care"
+      "selfCare": "Self-Care",
+      "checkIns": "Check-ins",
+      "daily": "Daily",
+      "wellBeing": "Well-being",
+      "mentalHealth": "Mental Health",
+      "sleep": "Sleep",
+      "therapy": "Therapy",
+      "journal": "Journal",
+      "meditation": "Meditation",
+      "positivity": "Positivity",
+      "emotions": "Emotions"
     }
   },
   "progress": {
@@ -97,6 +107,7 @@
     "longestStreak": "Longest streak",
     "averageMood": "Average mood",
     "emotionDistribution": "Emotion Distribution",
+    "emptyMoodData": "No mood data yet. Start journaling to see your emotion distribution.",
     "journalingActivity": "Journaling Activity",
     "emptyState": "Your progress journey starts here. Write your first journal to begin tracking your reflections.",
     "startJournaling": "Start Journaling",
@@ -441,6 +452,10 @@
     }
   },
   "slide": {
+    "meta": "Slide {current} of {total}",
+    "guidedFlow": "Guided Flow",
+    "finish": "Finish",
+    "continue": "Continue",
     "moodInstruction": "Move the slider to reflect how you're feeling",
     "defaultMoodQuestion": "How are you feeling right now?",
     "sleepQuestion": "How was your sleep yesterday",
@@ -456,6 +471,10 @@
       "8": "Very Good",
       "9": "Great",
       "10": "Fantastic"
+    },
+    "completion": {
+      "wellDone": "Well done!",
+      "continueWith": "Continue with"
     }
   },
   "toolkit": {

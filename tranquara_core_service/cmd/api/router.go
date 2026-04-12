@@ -17,6 +17,9 @@ func (app *application) routes() http.Handler {
 
 	// Auth routes (public - no auth middleware)
 	router.HandlerFunc(http.MethodPost, "/v1/auth/register", app.registerUserHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/auth/oauth/google/callback", app.googleOAuthCallbackHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/auth/forgot-password/request", app.forgotPasswordRequestHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/auth/forgot-password/reset", app.forgotPasswordResetHandler)
 
 	// User sync route (requires auth)
 	router.HandlerFunc(http.MethodPost, "/v1/users/sync", app.authMiddleWare(app.syncUserHandler))

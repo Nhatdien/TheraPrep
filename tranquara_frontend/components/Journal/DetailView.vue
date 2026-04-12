@@ -30,7 +30,7 @@
           <span
             class="px-3 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-full text-sm font-medium flex items-center gap-2">
             <Icon name="i-lucide-smile" class="w-4 h-4" />
-            {{ journal.mood_label }}
+            {{ journal.mood_score ? $t(`journal.moodLabels.${journal.mood_score}`) : journal.mood_label }}
           </span>
           <span
             v-if="journal.mood_score !== null && journal.mood_score !== undefined"

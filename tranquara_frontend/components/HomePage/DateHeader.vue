@@ -29,6 +29,7 @@
 import { Flame, User } from "lucide-vue-next";
 import { computed } from 'vue';
 import { useUserStreakStore } from "~/stores/stores/user_streak";
+import { useLocalizedDate } from '~/composables/useLocalizedDate';
 
 const router = useRouter();
 const streakStore = useUserStreakStore();
@@ -45,9 +46,11 @@ const navigateToProgress = () => {
   router.push('/progress');
 };
 
+const { dateLocale } = useLocalizedDate();
+
 const formattedDate = computed(() => {
   const date = new Date();
-  const month = date.toLocaleDateString('en-US', { month: 'long' }).toLowerCase();
+  const month = date.toLocaleDateString(dateLocale.value, { month: 'long' }).toLowerCase();
   const day = date.getDate().toString().padStart(2, '0');
   return `${month}, ${day}`;
 });

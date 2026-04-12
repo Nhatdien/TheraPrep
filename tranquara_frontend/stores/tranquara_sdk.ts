@@ -4,7 +4,7 @@ import { applyMixins } from "./utils/utils";
 import { UserStreaks } from "./user_streak";
 import { UserJournals } from "./user_journal";
 import { UserLearned } from "./user_learned";
-import { Auth } from "./auth";
+import { Auth } from "./auth/index";
 import { AIService } from "./ai_service";
 import { AIMemories } from "./ai_memories";
 import { TherapyToolkit } from "./therapy_toolkit";

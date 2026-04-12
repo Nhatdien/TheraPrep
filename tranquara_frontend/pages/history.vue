@@ -201,7 +201,7 @@
               <!-- Mood Tag -->
               <span v-if="entry.mood_label" class="px-3 py-1 bg-accented rounded-full text-xs text-default flex items-center gap-1">
                 <Icon :name="getMoodIcon(entry.mood_score)" class="w-3 h-3" />
-                {{ entry.mood_label }}
+                {{ entry.mood_score ? $t(`journal.moodLabels.${entry.mood_score}`) : entry.mood_label }}
               </span>
               
               <!-- Template Tag (if different from title) -->
@@ -348,8 +348,12 @@ const tempSelectedCollection = ref<string | null>(null);
 const tempDateRange = ref<any>(null); // Using any for UCalendar compatibility
 
 // Date range proxy — routes to tempDateRange (mobile drawer) or dateRange (desktop panel)
+// Returns undefined (not null) so UCalendar/RangeCalendarRoot doesn't crash on empty state
 const desktopDateRangeProxy = computed({
-  get: () => isFilterDrawerOpen.value ? tempDateRange.value : dateRange.value,
+  get: () => {
+    const val = isFilterDrawerOpen.value ? tempDateRange.value : dateRange.value;
+    return val ?? undefined;
+  },
   set: (val) => {
     if (isFilterDrawerOpen.value) {
       tempDateRange.value = val;

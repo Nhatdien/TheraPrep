@@ -17,6 +17,7 @@ Guidelines:
 - Keep questions concise (1-2 sentences max)
 - Don't make clinical diagnoses
 - Use conversational, friendly language
+- Prioritize the current entry as the primary source of truth; use historical context only as support
 - Consider the full context of the journaling session (slide group theme and other prompts)
 - Make your question relevant to what they're writing about in THIS specific slide
 

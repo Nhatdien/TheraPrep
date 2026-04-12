@@ -20,9 +20,7 @@
 
               "type": "doc",
 
-              "header": "Promotes self-awareness and reflection",
-
-              "body": "<p>Writing down thoughts and emotions helps identify patterns, triggers, and behaviors, enhancing understanding and self-awareness. This can also help track mental health progress over time.</p>"
+              "illustration": "journal",
 
             },
 

@@ -25,11 +25,19 @@ interface KeycloakTokenResponse {
   scope: string;
 }
 
+interface OAuthExchangeResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  refresh_expires_in: number;
+}
+
 export class AuthService {
   private static instance: AuthService;
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
   private tokenExpiry: number | null = null;
+  private readonly googlePkceVerifierStorageKey = 'google_oauth_pkce_verifier';
 
   // Keycloak configuration - get from environment at runtime
   private get KEYCLOAK_URL(): string {
@@ -141,6 +149,159 @@ export class AuthService {
       console.error('Registration error:', error);
       throw error;
     }
+  }
+
+  private generatePkceVerifier(length: number = 64): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    const random = new Uint8Array(length);
+    crypto.getRandomValues(random);
+
+    let verifier = '';
+    for (let i = 0; i < random.length; i++) {
+      verifier += chars[random[i] % chars.length];
+    }
+    return verifier;
+  }
+
+  private base64UrlEncode(bytes: Uint8Array): string {
+    let binary = '';
+    bytes.forEach((b) => {
+      binary += String.fromCharCode(b);
+    });
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  private async createCodeChallenge(verifier: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return this.base64UrlEncode(new Uint8Array(digest));
+  }
+
+  async getGoogleOAuthStartURL(redirectUri: string): Promise<string> {
+    const query = new URLSearchParams({
+      client_id: this.CLIENT_ID,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'openid email profile',
+      kc_idp_hint: 'google',
+    });
+
+    if (process.client) {
+      const verifier = this.generatePkceVerifier();
+      const challenge = await this.createCodeChallenge(verifier);
+      sessionStorage.setItem(this.googlePkceVerifierStorageKey, verifier);
+      query.set('code_challenge', challenge);
+      query.set('code_challenge_method', 'S256');
+    }
+
+    return `${this.KEYCLOAK_URL}/realms/${this.REALM}/protocol/openid-connect/auth?${query.toString()}`;
+  }
+
+  async exchangeGoogleOAuthCode(code: string, redirectUri: string): Promise<boolean> {
+    const query = new URLSearchParams({
+      code,
+      redirect_uri: redirectUri,
+    });
+
+    if (process.client) {
+      const verifier = sessionStorage.getItem(this.googlePkceVerifierStorageKey);
+      if (verifier) {
+        query.set('code_verifier', verifier);
+      }
+    }
+
+    const baseUrl = this.BACKEND_URL.replace(/\/+$/, '');
+    const callbackPaths = [`${baseUrl}/auth/oauth/google/callback`];
+
+    // Compatibility: some environments set baseURL without /v1 while backend routes are mounted under /v1.
+    if (!/\/v1$/i.test(baseUrl)) {
+      callbackPaths.push(`${baseUrl}/v1/auth/oauth/google/callback`);
+    }
+
+    let exchangeError: string = 'Google OAuth exchange failed';
+    let exchangeSucceeded = false;
+
+    for (const path of callbackPaths) {
+      const callbackUrl = `${path}?${query.toString()}`;
+      const response = await fetch(callbackUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      let payload: any = null;
+      try {
+        payload = await response.json();
+      } catch {
+        payload = null;
+      }
+
+      if (!response.ok) {
+        const serverError = payload?.error || payload?.message || payload?.detail;
+        exchangeError = serverError || `${response.status} ${response.statusText}`;
+        continue;
+      }
+
+      const tokens: OAuthExchangeResponse = payload?.data;
+      if (!tokens?.access_token || !tokens?.refresh_token) {
+        exchangeError = 'OAuth exchange returned invalid token payload';
+        continue;
+      }
+
+      await this.storeTokens(tokens as KeycloakTokenResponse);
+      exchangeSucceeded = true;
+      break;
+    }
+
+    if (!exchangeSucceeded) {
+      throw new Error(exchangeError);
+    }
+
+    if (process.client) {
+      sessionStorage.removeItem(this.googlePkceVerifierStorageKey);
+    }
+
+    return true;
+  }
+
+  async requestPasswordReset(email: string): Promise<boolean> {
+    const response = await fetch(`${this.BACKEND_URL}/auth/forgot-password/request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to request password reset');
+    }
+
+    return true;
+  }
+
+  async resetPassword(token: string, newPassword: string, confirmPassword: string): Promise<boolean> {
+    const response = await fetch(`${this.BACKEND_URL}/auth/forgot-password/reset`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token,
+        new_password: newPassword,
+        confirm_password: confirmPassword,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to reset password');
+    }
+
+    return true;
   }
 
   /**

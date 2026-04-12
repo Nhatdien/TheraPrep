@@ -19,9 +19,7 @@
 
               "type": "doc",
 
-              "header": "What is your goal for therapy",
-
-              "body": "<p>You should address your goal before a therapy, who you want to become after that.</p>"
+              "illustration": "therapy",
 
             },
 

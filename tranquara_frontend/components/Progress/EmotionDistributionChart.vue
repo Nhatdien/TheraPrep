@@ -9,7 +9,7 @@
     <div v-else class="flex flex-col items-center justify-center py-8 text-center">
       <UIcon name="i-lucide-pie-chart" class="w-10 h-10 text-muted mb-3" />
       <p class="text-sm text-muted">
-        No mood data yet. Start journaling to see your emotion distribution.
+        {{ $t('progress.emptyMoodData') }}
       </p>
     </div>
   </div>
@@ -27,55 +27,54 @@ import type { LocalJournal } from '~/types/user_journal'
 
 use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer])
 
+const { t } = useI18n()
+
 const props = defineProps<{
   journals: LocalJournal[]
 }>()
 
 /**
- * Color palette mapping mood labels to colors.
+ * Color palette mapping mood score (1-10) to colors.
  * Goes from red (negative) through yellow (neutral) to green (positive).
  */
-const moodColors: Record<string, string> = {
-  'Terrible': '#e74c3c',
-  'Very Bad': '#e85d4a',
-  'Bad': '#e96f58',
-  'Poor': '#e67e22',
-  'Okay': '#f39c12',
-  'Fine': '#d4ac0d',
-  'Good': '#52be80',
-  'Very Good': '#27ae60',
-  'Great': '#2ecc71',
-  'Fantastic': '#1abc9c',
+const scoreColors: Record<number, string> = {
+  1: '#e74c3c',
+  2: '#e85d4a',
+  3: '#e96f58',
+  4: '#e67e22',
+  5: '#f39c12',
+  6: '#d4ac0d',
+  7: '#52be80',
+  8: '#27ae60',
+  9: '#2ecc71',
+  10: '#1abc9c',
 }
 
 /**
- * Mood order for consistent sorting (negative → positive).
- */
-const moodOrder: string[] = [
-  'Terrible', 'Very Bad', 'Bad', 'Poor', 'Okay',
-  'Fine', 'Good', 'Very Good', 'Great', 'Fantastic',
-]
-
-/**
- * Compute emotion frequency from journal mood_label values.
+ * Compute emotion frequency from journal mood_score values.
+ * Uses mood_score (1-10) for reliable language-independent matching.
  */
 const emotionDistribution = computed(() => {
-  const counts: Record<string, number> = {}
+  const counts: Record<number, number> = {}
 
   props.journals
-    .filter(j => !j.is_deleted && j.mood_label)
+    .filter(j => !j.is_deleted && j.mood_score)
     .forEach(j => {
-      const label = j.mood_label!
-      counts[label] = (counts[label] || 0) + 1
+      const score = j.mood_score!
+      counts[score] = (counts[score] || 0) + 1
     })
 
   return Object.entries(counts)
-    .map(([name, value]) => ({
-      name,
-      value,
-      itemStyle: { color: moodColors[name] || '#94a3b8' },
-    }))
-    .sort((a, b) => moodOrder.indexOf(a.name) - moodOrder.indexOf(b.name))
+    .map(([score, value]) => {
+      const s = Number(score)
+      return {
+        name: t(`progress.mood.${s}`),
+        value,
+        score: s,
+        itemStyle: { color: scoreColors[s] || '#94a3b8' },
+      }
+    })
+    .sort((a, b) => a.score - b.score)
 })
 
 const hasData = computed(() => emotionDistribution.value.length > 0)

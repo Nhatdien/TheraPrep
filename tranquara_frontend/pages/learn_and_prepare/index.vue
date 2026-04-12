@@ -27,8 +27,8 @@
           :key="featured.id"
           class="flex items-center rounded-xl border border-default bg-elevated overflow-hidden cursor-pointer hover:bg-muted hover:shadow-sm transition-all"
           @click="navigateTo(`/learn_and_prepare/collection/${featured.id}`)">
-          <div class="w-24 h-20 flex items-center justify-center bg-accented shrink-0">
-            <component :is="getFeaturedIcon(featured.category)" class="w-10 h-10 text-default" />
+          <div class="w-24 h-20 flex items-center justify-center bg-illus-dark shrink-0">
+            <component :is="getFeaturedIllustration(featured.category, featured.title)" class="w-16 h-16" />
           </div>
           <div class="flex-1 px-4 py-3">
             <p class="text-xs text-muted mb-1">{{ $t('learn.featured') }}</p>
@@ -48,24 +48,17 @@
           </NuxtLink>
         </div>
         
-        <!-- Collection Cards (Horizontal Scroll → Grid on desktop) -->
-        <div class="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:overflow-visible">
-          <div
+        <!-- Collection Cards (2-col portrait grid) -->
+        <div class="grid grid-cols-2 gap-4 xl:grid-cols-3">
+          <LearnCollectionCard
             v-for="collection in displayedCollections"
             :key="collection.id"
-            class="w-72 p-5 rounded-xl border border-default bg-elevated cursor-pointer hover:bg-muted hover:shadow-sm transition-all"
-            @click="navigateTo(`/learn_and_prepare/collection/${collection.id}`)">
-            <div class="flex items-start gap-4">
-              <div class="w-16 h-24 flex items-center justify-center">
-                <component :is="getCollectionIcon(collection.category)" class="w-12 h-20 text-default" />
-              </div>
-              <div class="flex-1">
-                <h3 class="font-semibold mb-1">{{ collection.title }}</h3>
-                <p class="text-sm text-muted mb-3">{{ $t('learn.chapters', { count: collection.slide_groups?.length || 0 }) }}</p>
-                <UProgress :model-value="getCollectionProgress(collection.id)" size="sm" color="neutral" />
-              </div>
-            </div>
-          </div>
+            :title="collection.title"
+            :category="collection.category"
+            :chapter-count="collection.slide_groups?.length || 0"
+            :progress="getCollectionProgress(collection.id)"
+            @click="navigateTo(`/learn_and_prepare/collection/${collection.id}`)"
+          />
         </div>
       </div>
 
@@ -115,10 +108,8 @@
 import { userJournalStore } from "~/stores/stores/user_journal";
 import { useLearnedStore } from "~/stores/stores/user_learned";
 import { TOOLKIT_COLLECTION_IDS } from "~/types/therapy_toolkit";
+import { getIllustrationComponent } from '~/components/Illustrations/index';
 import { 
-  Feather, 
-  Sun, 
-  Leaf, 
   CheckSquare, 
   Umbrella, 
   Cloud, 
@@ -129,12 +120,16 @@ import {
   Brain,
   Sparkles,
   AlertCircle,
+  Leaf,
+  Sun,
+  Feather,
   Users,
   Smile
 } from "lucide-vue-next";
 
 const journalStore = userJournalStore();
 const learnedStore = useLearnedStore();
+const { t } = useI18n();
 const isLoading = ref(true);
 const selectedCategory = ref("check-ins");
 
@@ -234,6 +229,35 @@ const getCategoryIcon = (category: string) => {
   return Leaf; // Default icon
 };
 
+// Translate category name using i18n lookup
+const categoryKeyMap: Record<string, string> = {
+  'check-in': 'checkIns', 'check-ins': 'checkIns',
+  'daily': 'daily', 'essential': 'daily', 'daily-essentials': 'daily',
+  'well-being': 'wellBeing', 'wellbeing': 'wellBeing', 'wellness': 'wellBeing', 'sos': 'wellBeing',
+  'mental_health': 'mentalHealth', 'mental-health': 'mentalHealth',
+  'bedtime': 'sleep', 'sleep': 'sleep', 'night': 'sleep',
+  'therapy': 'therapy', 'prepare': 'therapy',
+  'journal': 'journal',
+  'mindfulness': 'mindfulness', 'meditation': 'meditation',
+  'anxiety': 'anxiety', 'worry': 'anxiety',
+  'relationship': 'relationships', 'relationships': 'relationships', 'connection': 'relationships',
+  'gratitude': 'gratitude', 'positivity': 'positivity',
+  'emotion': 'emotions', 'emotions': 'emotions',
+  'self_care': 'selfCare', 'self-care': 'selfCare', 'compassion': 'selfCare',
+  'morning': 'morning', 'evening': 'evening',
+  'stress': 'stress', 'mood': 'mood',
+};
+
+const getCategoryLabel = (rawCategory: string) => {
+  const lower = rawCategory.toLowerCase().replace(/\s+/g, '-');
+  const key = categoryKeyMap[lower];
+  if (key) {
+    const translated = t(`learn.categories.${key}`);
+    if (translated !== `learn.categories.${key}`) return translated;
+  }
+  return rawCategory;
+};
+
 // Dynamic categories from journal-type templates — count slide groups, not collections
 const categories = computed(() => {
   const uniqueCategories = new Map<string, { id: string; label: string; icon: any; count: number }>();
@@ -246,7 +270,7 @@ const categories = computed(() => {
       if (!uniqueCategories.has(id)) {
         uniqueCategories.set(id, {
           id,
-          label: category,
+          label: getCategoryLabel(category),
           icon: getCategoryIcon(category),
           count: slideGroupCount,
         });
@@ -318,20 +342,9 @@ const mindfulExercises = [
   { id: "meditation", title: "Meditation", icon: CircleDot },
 ];
 
-// Helper functions
-const getFeaturedIcon = (category: string) => {
-  const lower = category?.toLowerCase() || "";
-  if (lower.includes("therapy")) return Feather;
-  if (lower.includes("ode")) return Sun;
-  return Leaf;
-};
-
-const getCollectionIcon = (category: string) => {
-  const lower = category?.toLowerCase() || "";
-  if (lower.includes("adhd")) return Leaf;
-  if (lower.includes("anxiety")) return Cloud;
-  return Feather;
-};
+// Featured illustration resolver
+const getFeaturedIllustration = (category: string, title: string) =>
+  getIllustrationComponent(`${category || ''} ${title || ''}`);
 
 const getCollectionProgress = (collectionId: string) => {
   const collection = learnCollections.value.find(c => c.id === collectionId);

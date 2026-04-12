@@ -9,7 +9,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const authStore = useAuthStore();
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/login', '/register', '/forgot-password'];
+  const publicRoutes = [
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/oauth/google/callback',
+  ];
 
   // Check if the route requires authentication
   const isPublicRoute = publicRoutes.some(route => to.path.startsWith(route));

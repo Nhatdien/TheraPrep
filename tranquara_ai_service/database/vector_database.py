@@ -37,6 +37,20 @@ _embeddings = None
 _journal_vector_store = None
 _memory_vector_store = None
 
+DEFAULT_DIRECTION_TOP_K = {
+    "why": 5,
+    "emotions": 4,
+    "challenge": 5,
+    "growth": 6,
+    "patterns": 8,
+    "default": 5,
+}
+
+
+def get_top_k_for_direction(direction: str | None) -> int:
+    key = (direction or "").strip().lower()
+    return DEFAULT_DIRECTION_TOP_K.get(key, DEFAULT_DIRECTION_TOP_K["default"])
+
 
 def _get_embeddings():
     """Lazily create the shared OpenAIEmbeddings instance."""

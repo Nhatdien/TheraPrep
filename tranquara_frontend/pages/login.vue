@@ -85,6 +85,18 @@
           >
             {{ $t('auth.signIn') }}
           </UButton>
+
+          <UButton
+            type="button"
+            block
+            size="xl"
+            variant="outline"
+            class="w-full mt-3 py-4 text-base"
+            icon="i-lucide-circle"
+            @click="handleGoogleLogin"
+          >
+            Continue with Google
+          </UButton>
         </form>
       </div>
 
@@ -149,5 +161,11 @@ const handleLogin = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const handleGoogleLogin = async () => {
+  const redirectUri = `${window.location.origin}/oauth/google/callback`;
+  const oauthUrl = await authStore.getGoogleOAuthStartURL(redirectUri);
+  window.location.href = oauthUrl;
 };
 </script>

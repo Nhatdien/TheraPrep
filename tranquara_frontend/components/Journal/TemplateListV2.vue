@@ -26,6 +26,11 @@
 
     <!-- Collection Detail -->
     <template v-else>
+      <!-- Full-width illustration banner -->
+      <div class="flex items-center justify-center bg-illus-dark w-full" style="min-height:180px;">
+        <component :is="collectionIllustration" class="w-40 h-40" />
+      </div>
+
       <!-- Header -->
       <div class="px-6 pt-8 pb-12 text-center max-w-4xl mx-auto">
         <p class="text-xs text-muted tracking-[0.3em] uppercase mb-2">{{ $t('common.collection') }}</p>
@@ -36,11 +41,11 @@
       </div>
 
       <!-- Slide Groups Carousel -->
-      <div class="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:overflow-visible lg:snap-none">
+      <div class="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory lg:grid lg:grid-cols-2 lg:overflow-visible lg:snap-none">
         <div
           v-for="(slideGroup, index) in currentCollection.slide_groups"
           :key="slideGroup.id"
-          class="shrink-0 w-[85vw] max-w-md lg:w-auto lg:max-w-none min-h-[320px] p-6 rounded-2xl border border-default bg-elevated flex flex-col snap-center lg:snap-align-none">
+          class="shrink-0 w-[85vw] max-w-md lg:w-auto lg:max-w-none min-h-[320px] p-6 rounded-2xl border border-default bg-elevated flex flex-col snap-center lg:snap-align-none overflow-hidden">
           <!-- Chapter Number -->
           <div class="flex justify-end mb-8">
             <span class="text-dimmed text-sm font-medium">
@@ -50,7 +55,7 @@
 
           <!-- Content -->
           <div class="flex-1">
-            <h2 class="text-xl font-bold mb-3 uppercase">{{ slideGroup.title }}</h2>
+            <h2 class="text-xl font-bold mb-3 uppercase wrap-break-word">{{ slideGroup.title }}</h2>
             <p class="text-muted text-sm leading-relaxed">
               {{ slideGroup.description }}
             </p>
@@ -81,6 +86,7 @@
 import { ref, computed, onMounted } from "vue";
 import { userJournalStore } from "~/stores/stores/user_journal";
 import { useLearnedStore } from "~/stores/stores/user_learned";
+import { getIllustrationComponent } from '~/components/Illustrations/index';
 import type { LocalTemplate } from "~/types/user_journal";
 
 const { openSlideGroup } = useSlideGroup();
@@ -121,6 +127,13 @@ const currentCollection = computed(() => {
     (template: LocalTemplate) => template.id === collectionId.value
   );
 });
+
+// Illustration for collection banner
+const collectionIllustration = computed(() =>
+  getIllustrationComponent(
+    `${currentCollection.value?.category || ''} ${currentCollection.value?.title || ''}`
+  )
+);
 </script>
 
 <style scoped>

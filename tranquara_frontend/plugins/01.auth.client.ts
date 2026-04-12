@@ -20,15 +20,37 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     await authStore.initialize();
   }
 
-  // Set up smart token refresh
-  // Refresh when token is about to expire (30 seconds before expiry)
+  // Set up proactive token refresh and session re-check on app resume.
   if (import.meta.client) {
-    setInterval(async () => {
+    const runSessionCheck = async () => {
       if (authStore.isAuthenticated) {
-        // This will auto-refresh if token is expired or about to expire
         await authStore.getAccessToken();
       }
-    }, 60 * 1000); // Check every 1 minute (much less frequent than before)
+    };
+
+    // Initial pass after plugin init to reduce first-request 401s.
+    await runSessionCheck();
+
+    const refreshInterval = setInterval(runSessionCheck, 30 * 1000);
+
+    const onFocus = () => {
+      runSessionCheck();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        runSessionCheck();
+      }
+    };
+
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    nuxtApp.hook('app:beforeUnmount', () => {
+      clearInterval(refreshInterval);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    });
   }
 
   console.log('Authentication initialized:', authStore.isAuthenticated);

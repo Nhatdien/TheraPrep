@@ -1,11 +1,11 @@
 <template>
   <aside class="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-64 bg-elevated border-r border-default z-50">
-    <!-- Logo / Branding -->
+    <!-- Brand mark -->
     <div class="px-6 py-6">
-      <NuxtLink to="/" class="flex items-center gap-2">
-        <h1 class="text-xl font-bold text-primary">TheraPrep</h1>
+      <NuxtLink to="/" class="flex items-center gap-3">
+        <BrandLogoMark :size="36" color="#F59E0B" variant="mark" />
+        <span class="text-base font-bold tracking-widest uppercase text-highlighted" style="letter-spacing:0.15em;">Tranquara</span>
       </NuxtLink>
-      <p class="text-xs text-muted mt-1">{{ $t('app.name') }}</p>
     </div>
 
     <!-- New Journal Action -->
@@ -18,7 +18,7 @@
         class="justify-start gap-2"
         @click="navigateTo('/journaling')"
       >
-        <PenLine :size="18" />
+        <IconQuickJournal :size="18" />
         <span>{{ $t('nav.newJournal') }}</span>
       </UButton>
     </div>
@@ -31,14 +31,14 @@
         :to="item.link"
         class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
         :class="isActive(item.link)
-          ? 'bg-primary/10 text-primary'
+          ? 'text-[#F59E0B] bg-[#F59E0B]/10'
           : 'text-muted hover:bg-accented hover:text-default'
         "
       >
         <component
-          :is="iconComponents[item.icon]"
+          :is="resolveNavIcon(item.icon)"
           :size="20"
-          :stroke-width="isActive(item.link) ? 2.5 : 2"
+          :active="isActive(item.link)"
         />
         <span class="text-sm font-medium">{{ $t(item.titleKey) }}</span>
       </NuxtLink>
@@ -50,11 +50,11 @@
         to="/profile"
         class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
         :class="isActive('/profile')
-          ? 'bg-primary/10 text-primary'
+          ? 'text-[#F59E0B] bg-[#F59E0B]/10'
           : 'text-muted hover:bg-accented hover:text-default'
         "
       >
-        <User :size="20" :stroke-width="isActive('/profile') ? 2.5 : 2" />
+        <IconProfile :size="20" :active="isActive('/profile')" />
         <span class="text-sm font-medium">{{ $t('nav.profile') }}</span>
       </NuxtLink>
     </div>
@@ -63,16 +63,12 @@
 
 <script setup lang="ts">
 import { bottomNavSchema } from "./bottomNavSchema";
-import { Home, HeartHandshake, BookOpen, Clock, User, PenLine } from "lucide-vue-next";
+import { PenLine } from "lucide-vue-next";
+import { resolveNavIcon } from "./navIcons";
+import IconProfile from '~/components/Icons/IconProfile.vue';
+import IconQuickJournal from '~/components/Icons/IconQuickJournal.vue';
 
 const route = useRoute();
-
-const iconComponents: Record<string, any> = {
-  "home": Home,
-  "heart-handshake": HeartHandshake,
-  "book-open": BookOpen,
-  "clock": Clock,
-};
 
 const isActive = (link: string) => {
   if (link === '/') {

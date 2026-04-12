@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 
 	"tranquara.net/internal/data"
 )
@@ -21,6 +23,20 @@ type RegisterInput struct {
 // KeycloakAdminTokenResponse represents the Keycloak admin token response
 type KeycloakAdminTokenResponse struct {
 	AccessToken string `json:"access_token"`
+}
+
+type ForgotPasswordRequestInput struct {
+	Email string `json:"email"`
+}
+
+type ForgotPasswordResetInput struct {
+	Token           string `json:"token"`
+	NewPassword     string `json:"new_password"`
+	ConfirmPassword string `json:"confirm_password"`
+}
+
+type keycloakUserSummary struct {
+	ID string `json:"id"`
 }
 
 // getKeycloakAdminToken gets an admin access token from Keycloak
@@ -50,6 +66,42 @@ func (app *application) getKeycloakAdminToken() (string, error) {
 	}
 
 	return tokenResp.AccessToken, nil
+}
+
+func (app *application) getKeycloakUserIDByEmail(adminToken string, email string) (string, error) {
+	keycloakURL := fmt.Sprintf("%s/admin/realms/%s/users?email=%s&exact=true",
+		os.Getenv("KEYCLOAK_URL"),
+		os.Getenv("KEYCLOAK_REALM"),
+		email,
+	)
+
+	req, err := http.NewRequest(http.MethodGet, keycloakURL, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Authorization", "Bearer "+adminToken)
+
+	resp, err := (&http.Client{}).Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("failed to search user by email: %s", string(body))
+	}
+
+	var users []keycloakUserSummary
+	if err := json.NewDecoder(resp.Body).Decode(&users); err != nil {
+		return "", err
+	}
+
+	if len(users) == 0 || users[0].ID == "" {
+		return "", data.ErrRecordNotFound
+	}
+
+	return users[0].ID, nil
 }
 
 // registerUserHandler creates a new user in Keycloak via Admin API
@@ -226,4 +278,143 @@ func (app *application) syncUserHandler(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+// googleOAuthCallbackHandler exchanges Keycloak authorization code for tokens.
+// This endpoint is implementation-ready and depends on Keycloak IdP setup.
+func (app *application) googleOAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	redirectURI := r.URL.Query().Get("redirect_uri")
+	codeVerifier := r.URL.Query().Get("code_verifier")
+
+	if code == "" || redirectURI == "" {
+		app.badRequestResponse(w, r, fmt.Errorf("code and redirect_uri are required"))
+		return
+	}
+
+	tokenURL := fmt.Sprintf("%s/realms/%s/protocol/openid-connect/token",
+		os.Getenv("KEYCLOAK_URL"),
+		os.Getenv("KEYCLOAK_REALM"),
+	)
+
+	formData := url.Values{}
+	formData.Set("grant_type", "authorization_code")
+	formData.Set("client_id", os.Getenv("KEYCLOAK_CLIENT_ID"))
+	formData.Set("code", code)
+	formData.Set("redirect_uri", redirectURI)
+	if codeVerifier != "" {
+		formData.Set("code_verifier", codeVerifier)
+	}
+
+	if os.Getenv("KEYCLOAK_CLIENT_SECRET") != "" {
+		formData.Set("client_secret", os.Getenv("KEYCLOAK_CLIENT_SECRET"))
+	}
+
+	resp, err := http.Post(tokenURL, "application/x-www-form-urlencoded", bytes.NewBufferString(formData.Encode()))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		app.serverErrorResponse(w, r, fmt.Errorf("oauth callback exchange failed: %s", string(body)))
+		return
+	}
+
+	var tokenPayload map[string]interface{}
+	if err := json.Unmarshal(body, &tokenPayload); err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJson(w, http.StatusOK, envolope{"data": tokenPayload}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// forgotPasswordRequestHandler triggers Keycloak reset-password email action.
+func (app *application) forgotPasswordRequestHandler(w http.ResponseWriter, r *http.Request) {
+	var input ForgotPasswordRequestInput
+	err := app.readJson(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if strings.TrimSpace(input.Email) == "" {
+		app.badRequestResponse(w, r, fmt.Errorf("email is required"))
+		return
+	}
+
+	adminToken, err := app.getKeycloakAdminToken()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	userID, err := app.getKeycloakUserIDByEmail(adminToken, input.Email)
+	if err == data.ErrRecordNotFound {
+		// Do not leak account existence.
+		_ = app.writeJson(w, http.StatusOK, envolope{"data": map[string]interface{}{"success": true}}, nil)
+		return
+	}
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	actionsURL := fmt.Sprintf("%s/admin/realms/%s/users/%s/execute-actions-email",
+		os.Getenv("KEYCLOAK_URL"),
+		os.Getenv("KEYCLOAK_REALM"),
+		userID,
+	)
+
+	body, _ := json.Marshal([]string{"UPDATE_PASSWORD"})
+	req, err := http.NewRequest(http.MethodPut, actionsURL, bytes.NewBuffer(body))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+adminToken)
+
+	resp, err := (&http.Client{}).Do(req)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		respBody, _ := io.ReadAll(resp.Body)
+		app.serverErrorResponse(w, r, fmt.Errorf("failed to trigger reset email: %s", string(respBody)))
+		return
+	}
+
+	err = app.writeJson(w, http.StatusOK, envolope{"data": map[string]interface{}{"success": true}}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// forgotPasswordResetHandler is a guarded placeholder for token-table based reset flow.
+// Current deployment uses Keycloak execute-actions-email for secure reset lifecycle.
+func (app *application) forgotPasswordResetHandler(w http.ResponseWriter, r *http.Request) {
+	var input ForgotPasswordResetInput
+	err := app.readJson(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if strings.TrimSpace(input.Token) == "" || strings.TrimSpace(input.NewPassword) == "" {
+		app.badRequestResponse(w, r, fmt.Errorf("token and new_password are required"))
+		return
+	}
+
+	app.errorResponse(w, r, http.StatusNotImplemented, "reset-password token lifecycle is not enabled on this deployment")
 }

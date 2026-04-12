@@ -9,10 +9,29 @@ export type SlideConfig = {
   [key: string]: any;
 }
 
+// Questionnaire option for choice slides
+export type QuestionnaireOption = {
+  id: string;
+  label: string;
+  label_vi?: string;
+  description?: string;
+  description_vi?: string;
+}
+
+// Recommended next item for completion slides
+export type RecommendedNext = {
+  slide_group_id: string;
+  collection_id: string;
+  title: string;
+  title_vi?: string;
+  description?: string;
+  description_vi?: string;
+}
+
 // Individual slide definition
 export type SlideData = {
   id: string;
-  type: 'emotion_log' | 'sleep_check' | 'journal_prompt' | 'doc' | 'further_reading' | 'cta' | 'date_picker' | 'star_rating' | 'checklist_input';
+  type: 'emotion_log' | 'sleep_check' | 'journal_prompt' | 'doc' | 'further_reading' | 'cta' | 'date_picker' | 'star_rating' | 'checklist_input' | 'questionnaire' | 'completion';
   question?: string;
   question_vi?: string;
   title?: string;
@@ -20,6 +39,14 @@ export type SlideData = {
   content?: string;
   content_vi?: string;
   config?: SlideConfig;
+  // Questionnaire fields
+  options?: QuestionnaireOption[];
+  mode?: 'single' | 'multi';
+  allow_other?: boolean;
+  // Completion fields
+  recommended_next?: RecommendedNext[];
+  metric_label?: string;
+  metric_label_vi?: string;
 }
 
 // Slide group definition
