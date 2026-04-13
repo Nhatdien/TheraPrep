@@ -77,7 +77,7 @@
       <div class="text-center py-6 space-y-3">
         <div class="flex flex-col items-center gap-1">
           <BrandLogoMark :size="36" color="#F59E0B" variant="mark" />
-          <p class="text-xs text-muted tracking-widest uppercase" style="letter-spacing:0.15em;">Tranquara v1.0.0</p>
+          <p class="text-xs text-muted tracking-widest uppercase" style="letter-spacing:0.15em;">Theraprep v1.0.0</p>
         </div>
         <div class="flex items-center justify-center gap-3">
           <UButton to="/terms" size="xs" color="neutral" variant="link">{{ $t('profile.terms') }}</UButton>

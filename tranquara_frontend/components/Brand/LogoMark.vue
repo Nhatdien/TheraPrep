@@ -5,7 +5,7 @@
     viewBox="0 0 80 80"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    :aria-label="variant === 'full' ? 'Tranquara' : undefined"
+    :aria-label="variant === 'full' ? 'Theraprep' : undefined"
     role="img"
   >
     <!-- Abstract leaf cluster: 5 rotated rhombus shapes converging at apex -->
@@ -65,7 +65,7 @@
       font-size="11"
       :fill="color"
       letter-spacing="2"
-    >TRANQUARA</text>
+    >THERAPREP</text>
   </svg>
 </template>
 
