@@ -127,9 +127,15 @@ The prep pack helps users prepare for therapy by summarizing their emotional sta
 identifying patterns, and suggesting discussion topics.
 
 Be warm, insightful, and non-judgmental. Focus on actionable insights the user
-can bring to their therapist."""
+can bring to their therapist.
 
-PREP_PACK_PROMPT = """Analyze the following journal entries and user memories to generate
+You will receive a LANGUAGE REQUIREMENT at the start of the user message.
+You MUST follow that language requirement exactly for all free-text content."""
+
+PREP_PACK_PROMPT = """LANGUAGE REQUIREMENT (CRITICAL — read this first):
+{language_instruction}
+
+Analyze the following journal entries and user memories to generate
 a comprehensive Therapy Session Prep Pack.
 
 RECENT JOURNAL ENTRIES:
@@ -158,26 +164,25 @@ Generate a prep pack with the following sections:
 6. GROWTH MOMENTS: Identify positive changes, self-awareness moments, or healthy
    coping behaviors.
 
-LANGUAGE: Respond in {language} (if "vi", use Vietnamese; if "en", use English).
-
 Respond ONLY with valid JSON using this exact structure:
 {{
   "mood_overview": {{
     "average": <number 1-10>,
     "trend": "improving" | "declining" | "stable",
     "data_points": [{{"date": "ISO string", "score": <number>}}],
-    "highest": {{"score": <number>, "date": "ISO string", "title": "string"}},
-    "lowest": {{"score": <number>, "date": "ISO string", "title": "string"}}
+    "highest": {{"score": <number>, "date": "ISO string", "title": "<in target language>"}},
+    "lowest": {{"score": <number>, "date": "ISO string", "title": "<in target language>"}}
   }},
-  "key_themes": ["string"],
+  "key_themes": ["<in target language>"],
   "emotional_highlights": [{{
-    "date": "ISO string", "title": "string", "mood": <number>,
-    "excerpt": "string", "significance": "string"
+    "date": "ISO string", "title": "<in target language>", "mood": <number>,
+    "excerpt": "<in target language>", "significance": "<in target language>"
   }}],
   "patterns": [{{
-    "pattern": "string", "category": "triggers" | "patterns" | "coping" | "relationships" | "growth",
+    "pattern": "<in target language>",
+    "category": "triggers" | "patterns" | "coping" | "relationships" | "growth",
     "confidence": <number 0.5-1.0>
   }}],
-  "discussion_points": ["string"],
-  "growth_moments": ["string"]
+  "discussion_points": ["<in target language>"],
+  "growth_moments": ["<in target language>"]
 }}"""

@@ -183,9 +183,11 @@ const moodDelta = computed(() => {
   return session.value.mood_after - session.value.mood_before;
 });
 
+const { dateLocale } = useLocalizedDate();
+
 const formatDate = (date?: string): string => {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(undefined, {
+  return new Date(date).toLocaleDateString(dateLocale.value, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',

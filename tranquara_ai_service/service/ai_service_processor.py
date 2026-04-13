@@ -379,6 +379,17 @@ Generate the question now:"""
         Returns:
             Structured prep pack dict matching the PrepPack TypeScript type
         """
+        # Build language instruction
+        if language == 'vi':
+            language_instruction = (
+                "Write ALL free-text content in Vietnamese (tiếng Việt). "
+                "Use natural, conversational Vietnamese — not word-for-word translations from English. "
+                "EXCEPTION: The following JSON field values are system identifiers and MUST remain in English exactly as shown: "
+                "trend ('improving', 'declining', 'stable') and category ('triggers', 'patterns', 'coping', 'relationships', 'growth')."
+            )
+        else:
+            language_instruction = "Write all content in English."
+
         # Format journal entries
         entries_text = "\n\n".join([
             f"Date: {e.get('created_at', 'unknown')}\n"
@@ -396,7 +407,7 @@ Generate the question now:"""
         prompt = PREP_PACK_PROMPT.format(
             journal_entries=entries_text,
             memories=memories_text,
-            language=language,
+            language_instruction=language_instruction,
         )
 
         try:

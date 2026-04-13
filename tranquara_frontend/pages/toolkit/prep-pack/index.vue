@@ -109,6 +109,7 @@ import { userJournalStore } from "~/stores/stores/user_journal";
 import { useToolkitStore } from "~/stores/stores/therapy_toolkit_store";
 
 const { t } = useI18n();
+const { dateLocale } = useLocalizedDate();
 const journalStore = userJournalStore();
 const toolkitStore = useToolkitStore();
 
@@ -150,7 +151,7 @@ const handleDelete = async (id: string) => {
 
 const formatDate = (date?: string): string => {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(undefined, {
+  return new Date(date).toLocaleDateString(dateLocale.value, {
     month: 'short',
     day: 'numeric',
   });
@@ -160,7 +161,7 @@ const formatDateRange = (start: string, end: string): string => {
   const s = new Date(start);
   const e = new Date(end);
   const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-  return `${s.toLocaleDateString(undefined, opts)} – ${e.toLocaleDateString(undefined, opts)}`;
+  return `${s.toLocaleDateString(dateLocale.value, opts)} – ${e.toLocaleDateString(dateLocale.value, opts)}`;
 };
 
 onMounted(async () => {

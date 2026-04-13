@@ -138,7 +138,7 @@
             />
             <div class="flex-1 min-w-0">
               <p class="text-sm">{{ pattern.pattern }}</p>
-              <span class="text-xs text-dimmed capitalize">{{ pattern.category }}</span>
+              <span class="text-xs text-dimmed">{{ $t('toolkit.prepPack.patternCategories.' + pattern.category, pattern.category) }}</span>
             </div>
           </div>
         </div>
@@ -261,6 +261,7 @@ import { JOURNEY_STEPS } from "~/types/therapy_toolkit";
 import type { PrepPack } from "~/types/therapy_toolkit";
 
 const { t } = useI18n();
+const { dateLocale } = useLocalizedDate();
 const route = useRoute();
 const toolkitStore = useToolkitStore();
 const learnedStore = useLearnedStore();
@@ -297,7 +298,7 @@ const patternCategoryColor = (category: string): string => {
 
 const formatDate = (date?: string): string => {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(undefined, {
+  return new Date(date).toLocaleDateString(dateLocale.value, {
     month: 'short',
     day: 'numeric',
   });
@@ -307,7 +308,7 @@ const formatDateRange = (start: string, end: string): string => {
   const s = new Date(start);
   const e = new Date(end);
   const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-  return `${s.toLocaleDateString(undefined, opts)} – ${e.toLocaleDateString(undefined, opts)}`;
+  return `${s.toLocaleDateString(dateLocale.value, opts)} – ${e.toLocaleDateString(dateLocale.value, opts)}`;
 };
 
 // ─── Preparation Journey Status ────────────────────────

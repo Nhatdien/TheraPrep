@@ -535,6 +535,13 @@
       "deleteConfirm": "Delete this prep pack?",
       "errorGenerate": "Failed to generate prep pack. Please try again.",
       "pastPacks": "Past Prep Packs",
+      "patternCategories": {
+        "triggers": "Triggers",
+        "patterns": "Patterns",
+        "coping": "Coping",
+        "relationships": "Relationships",
+        "growth": "Growth"
+      },
       "preparation": {
         "title": "Preparation Journey",
         "overall": "Overall progress"

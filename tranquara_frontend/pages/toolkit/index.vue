@@ -419,9 +419,11 @@ const navigateToCollection = (collectionId: string) => {
 };
 
 // Format session date for display
+const { dateLocale } = useLocalizedDate();
+
 const formatDate = (date?: string): string => {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(undefined, {
+  return new Date(date).toLocaleDateString(dateLocale.value, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
