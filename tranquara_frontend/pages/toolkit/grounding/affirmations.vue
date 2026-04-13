@@ -112,7 +112,7 @@ import { useToolkitStore } from "~/stores/stores/therapy_toolkit_store";
 
 definePageMeta({ layout: 'detail' });
 
-const { t } = useI18n();
+const { t, tm } = useI18n();
 const toolkitStore = useToolkitStore();
 const newAffirmation = ref('');
 
@@ -121,13 +121,10 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
   { label: t('toolkit.grounding.affirmations.title') },
 ])
 
-const defaultAffirmations = [
-  'This feeling is temporary.',
-  'I am safe in this moment.',
-  'I can take this one breath at a time.',
-  'It is okay to feel what I am feeling.',
-  'I am doing the best I can.',
-];
+const defaultAffirmations = computed<string[]>(() => {
+  const list = tm('toolkit.grounding.affirmations.defaultList');
+  return Array.isArray(list) ? list as string[] : [];
+});
 
 const userAffirmations = computed(() =>
   toolkitStore.affirmations.filter(a => !a.is_favorite)

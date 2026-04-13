@@ -621,15 +621,22 @@
         "addPlaceholder": "Thêm lời động viên của bạn...",
         "favorites": "Yêu thích",
         "myAffirmations": "Lời động viên của tôi",
-        "defaults": "Gợi ý"
+        "defaults": "Gợi ý",
+        "defaultList": [
+          "Cảm giác này chỉ là tạm thời.",
+          "Mình đang an toàn trong khoảnh khắc này.",
+          "Mình có thể đi qua từng bước một.",
+          "Được phép cảm thấy những gì mình đang cảm thấy.",
+          "Mình đang cố gắng hết sức có thể."
+        ]
       },
       "quickJournal": {
         "title": "Nhật ký nhanh",
         "description": "Bắt đầu viết nhật ký tự do"
       },
-      "title": "Bài tập hít thở",
+      "title": "Bài tập bình tâm",
       "breathing": {
-        "title": "Hít thở vuông",
+        "title": "Box Breathing",
         "description": "Kỹ thuật thư giãn với nhịp 4 giây",
         "start": "Bắt đầu hít thở",
         "stop": "Dừng",

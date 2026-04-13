@@ -51,8 +51,9 @@ const greeting = computed(() => {
 });
 
 // Pick the right slide group based on time of day
+// Morning & afternoon (0–16) → daily check-in; evening (17+) → evening reflection
 const activeSlideGroupId = computed(() => {
-  return currentHour.value < 12 ? MORNING_SLIDE_GROUP : EVENING_SLIDE_GROUP;
+  return currentHour.value >= 17 ? EVENING_SLIDE_GROUP : MORNING_SLIDE_GROUP;
 });
 
 // Update hour every minute to keep greeting fresh

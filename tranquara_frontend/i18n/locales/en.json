@@ -634,7 +634,14 @@
         "addPlaceholder": "Add your own affirmation...",
         "favorites": "Favorites",
         "myAffirmations": "My Affirmations",
-        "defaults": "Suggested"
+        "defaults": "Suggested",
+        "defaultList": [
+          "This feeling is temporary.",
+          "I am safe in this moment.",
+          "I can take this one breath at a time.",
+          "It is okay to feel what I am feeling.",
+          "I am doing the best I can."
+        ]
       },
       "quickJournal": {
         "title": "Quick Journal",
