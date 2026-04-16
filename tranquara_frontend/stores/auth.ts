@@ -144,6 +144,15 @@ export class Auth {
       });
 
       if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        if (errorBody.error === 'invalid_grant') {
+          // Refresh token is expired or revoked on the server — session is truly dead.
+          // Clear local tokens so the app knows to re-authenticate.
+          await this.clearTokens();
+          const sessionError = new Error('Session expired. Please log in again.');
+          (sessionError as any).code = 'SESSION_EXPIRED';
+          throw sessionError;
+        }
         throw new Error('Token refresh failed');
       }
 
@@ -153,6 +162,10 @@ export class Auth {
       return true;
     } catch (error) {
       console.error('Token refresh error:', error);
+      // Re-throw SESSION_EXPIRED so callers can handle it explicitly
+      if ((error as any).code === 'SESSION_EXPIRED') {
+        throw error;
+      }
       return false;
     }
   }

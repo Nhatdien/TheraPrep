@@ -28,6 +28,7 @@
           :content="item?.content"
           :slideGroupContext="activeSlideGroup"
           :collectionTitle="collectionTitle"
+          :initialContent="journalStore.currentWritingContent[item?.content?.question || item?.content?.question_content] || ''"
         />
       </div>
     </UCarousel>

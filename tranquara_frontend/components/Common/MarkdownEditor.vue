@@ -122,12 +122,9 @@ const emits = defineEmits(["onUpdate"]);
 const editor = useEditor({
   editorProps: {
     attributes: {},
-    transformPastedText(text) {
-      return text.toUpperCase();
-    },
   },
   content: modelValue.value || "",
-  extensions: [StarterKit, CustomParagraph],
+  extensions: [StarterKit.configure({ paragraph: false }), CustomParagraph],
   onUpdate: ({ editor }) => {
     modelValue.value = editor.getHTML();
     emits("onUpdate");

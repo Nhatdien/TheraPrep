@@ -54,7 +54,8 @@
               :index="carouselItems.indexOf(item as any)"
               :content="(item as any)?.content"
               :slideGroupContext="activeSlideGroup"
-              :collectionTitle="currentCollecton?.title"></component>
+              :collectionTitle="currentCollecton?.title"
+              :initialContent="userJournalStore().currentWritingContent[(item as any)?.content?.question || (item as any)?.content?.question_content] || ''"></component>
           </div>
         </div>
       </Transition>

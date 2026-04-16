@@ -231,10 +231,20 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /**
-     * Get access token (refreshes if needed)
+     * Get access token (refreshes if needed).
+     * If the server-side session is fully expired (invalid_grant), forces logout.
      */
     async getAccessToken(): Promise<string | null> {
-      return await TranquaraSDK.getInstance().getAccessToken();
+      try {
+        return await TranquaraSDK.getInstance().getAccessToken();
+      } catch (error: any) {
+        if (error?.code === 'SESSION_EXPIRED') {
+          console.warn('[AuthStore] Session expired on server — forcing logout');
+          await this.logout();
+          return null;
+        }
+        throw error;
+      }
     },
 
     /**
