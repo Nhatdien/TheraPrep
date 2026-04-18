@@ -2,6 +2,7 @@ import { Node, mergeAttributes } from '@tiptap/core'
 
 export const CustomParagraph = Node.create({
   name: 'paragraph',
+  priority: 200,
   group: 'block',
   content: 'inline*',
   parseHTML() {

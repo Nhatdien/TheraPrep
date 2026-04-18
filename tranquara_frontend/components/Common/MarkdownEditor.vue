@@ -134,7 +134,7 @@ const editor = useEditor({
 defineExpose({ editor });
 
 onMounted(() => {
-  console.log(editor.value.content);
+  // editor initialized
 });
 </script>
 <style scoped lang="scss">
