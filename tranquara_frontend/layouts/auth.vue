@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-default p-4">
+  <div class="min-h-screen flex items-center justify-center bg-default px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]">
     <div class="w-full max-w-md flex flex-col">
       <!-- Brand mark -->
       <div class="flex flex-col items-center mb-8 gap-3">

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-default flex">
+  <div class="min-h-screen bg-default flex pt-[env(safe-area-inset-top)]">
     <!-- Desktop Sidebar Navigation (shared across layouts) -->
     <SidebarNavigation />
 

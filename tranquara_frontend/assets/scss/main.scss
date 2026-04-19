@@ -14,7 +14,7 @@
 .body-container {
   width: 100%;
   overflow-y: auto;
-  padding-top: 4.75rem;
+  padding-top: calc(4.75rem + env(safe-area-inset-top, 0px));
   min-height: 100vh;
   position: relative;
 }

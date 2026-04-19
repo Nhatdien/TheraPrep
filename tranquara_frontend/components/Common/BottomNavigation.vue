@@ -1,6 +1,6 @@
 <template>
-  <nav class="fixed bottom-0 left-0 w-full h-16 bg-elevated border-t z-50 lg:hidden">
-    <div class="flex h-full items-center justify-around px-2">
+  <nav class="fixed bottom-0 left-0 w-full bg-elevated border-t z-50 lg:hidden pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
+    <div class="flex h-16 items-center justify-around px-2">
       <NuxtLink
         v-for="item in bottomNavSchema"
         :key="item.link"

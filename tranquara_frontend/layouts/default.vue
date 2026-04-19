@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-default flex">
+  <div class="min-h-screen bg-default flex pt-[env(safe-area-inset-top)]">
     <!-- Desktop Sidebar Navigation (hidden on mobile, visible at lg:) -->
     <SidebarNavigation />
 
     <!-- Main Content Area (offset for sidebar on desktop) -->
     <div class="flex-1 flex flex-col lg:ml-64">
-      <main class="flex-1 overflow-y-auto">
+      <main class="flex-1 overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
         <div class="mx-auto w-screen lg:w-full max-w-5xl">
           <slot />
         </div>
