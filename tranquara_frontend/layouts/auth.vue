@@ -5,7 +5,7 @@
       <div class="flex flex-col items-center mb-8 gap-3">
         <BrandLogoMark :size="64" color="#F59E0B" variant="mark" />
         <span class="text-xl font-bold tracking-widest text-highlighted uppercase" style="letter-spacing:0.18em;">
-          Tranquara
+          Theraprep
         </span>
         <p class="text-sm text-muted">Your mental wellness companion</p>
       </div>

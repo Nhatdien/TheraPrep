@@ -4,7 +4,7 @@
     <div class="px-6 py-6">
       <NuxtLink to="/" class="flex items-center gap-3">
         <BrandLogoMark :size="36" color="#F59E0B" variant="mark" />
-        <span class="text-base font-bold tracking-widest uppercase text-highlighted" style="letter-spacing:0.15em;">Tranquara</span>
+        <span class="text-base font-bold tracking-widest uppercase text-highlighted" style="letter-spacing:0.15em;">Theraprep</span>
       </NuxtLink>
     </div>
 

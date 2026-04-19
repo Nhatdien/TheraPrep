@@ -121,7 +121,12 @@ const modelValue = defineModel();
 const emits = defineEmits(["onUpdate"]);
 const editor = useEditor({
   editorProps: {
-    attributes: {},
+    attributes: {
+      autocorrect: 'off',
+      autocomplete: 'off',
+      autocapitalize: 'off',
+      spellcheck: 'false',
+    },
   },
   content: modelValue.value || "",
   extensions: [StarterKit.configure({ paragraph: false }), CustomParagraph],

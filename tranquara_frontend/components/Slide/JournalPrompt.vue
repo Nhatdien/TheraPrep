@@ -144,14 +144,16 @@ onMounted(() => {
 
 // Watch for initialContent changes (in case it's provided after mount)
 watch(() => props.initialContent, (newContent) => {
-  if (newContent && editor.value?.editor) {
-    currentNote.value = newContent;
-    editor.value.editor.commands.setContent(newContent);
-    userJournalStore().updateCurrentWritingContent(
-      props.content?.question || props.content?.question_content,
-      newContent
-    );
-  }
+  if (!newContent || !editor.value?.editor) return;
+  // Skip if this update was triggered by our own typing (prevents feedback loop
+  // where onEditorUpdate → store → initialContent prop → setContent → space lost)
+  if (newContent === currentNote.value) return;
+  currentNote.value = newContent;
+  editor.value.editor.commands.setContent(newContent);
+  userJournalStore().updateCurrentWritingContent(
+    props.content?.question || props.content?.question_content,
+    newContent
+  );
 }, { immediate: true });
 
 watch(() => [props.currentIndex, props.index], () => {
