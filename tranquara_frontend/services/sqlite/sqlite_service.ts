@@ -60,10 +60,20 @@ export class SQLiteService {
       }
 
       // Create/open database connection
-      const ret = await this.sqliteConnection.checkConnectionsConsistency();
-      const isConn = (await this.sqliteConnection.isConnection(DB_NAME, false)).result;
+      // checkConnectionsConsistency can throw on a fresh install (e.g., after wiping
+      // app data on Android or reinstalling on iOS where Keychain tokens survive).
+      // Fall back to createConnection on any error so init always proceeds.
+      let consistencyOk = false;
+      let isConn = false;
+      try {
+        const ret = await this.sqliteConnection.checkConnectionsConsistency();
+        isConn = (await this.sqliteConnection.isConnection(DB_NAME, false)).result ?? false;
+        consistencyOk = (ret.result ?? false) && isConn;
+      } catch (consistencyError) {
+        console.warn('[SQLite] checkConnectionsConsistency failed (fresh install?), will create new connection:', consistencyError);
+      }
 
-      if (ret.result && isConn) {
+      if (consistencyOk) {
         this.db = await this.sqliteConnection.retrieveConnection(DB_NAME, false);
       } else {
         this.db = await this.sqliteConnection.createConnection(
@@ -120,6 +130,10 @@ export class SQLiteService {
       this.isInitialized = true;
       console.log('[SQLite] Database initialized successfully');
     } catch (error) {
+      // Reset state so a subsequent call can retry initialization (important when
+      // the failure was transient, e.g., plugin not yet ready on first cold start).
+      this.isInitialized = false;
+      this.db = null;
       console.error('[SQLite] Initialization error:', error);
       throw new Error(`Failed to initialize SQLite database: ${error}`);
     }
