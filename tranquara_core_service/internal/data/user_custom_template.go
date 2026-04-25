@@ -62,10 +62,6 @@ func (m UserCustomTemplateModel) Upsert(userID uuid.UUID, title string, slideGro
 	query := `
 		INSERT INTO user_custom_templates (user_id, title, slide_groups, created_at, updated_at)
 		VALUES ($1, $2, $3, NOW(), NOW())
-		ON CONFLICT (user_id) DO UPDATE
-		    SET title        = EXCLUDED.title,
-		        slide_groups = EXCLUDED.slide_groups,
-		        updated_at   = NOW()
 		RETURNING id, user_id, title, slide_groups, created_at, updated_at
 	`
 
