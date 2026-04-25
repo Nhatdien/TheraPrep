@@ -44,13 +44,16 @@ export class JournalsRepository {
    * Insert new journal entry
    * Auto-generates client ID and timestamps
    */
-  async create(journal: Omit<LocalJournal, 'id' | 'created_at' | 'updated_at' | 'needs_sync' | 'is_deleted'>): Promise<LocalJournal> {
+  async create(
+    journal: Omit<LocalJournal, 'id' | 'created_at' | 'updated_at' | 'needs_sync' | 'is_deleted'>,
+    createdAt?: string
+  ): Promise<LocalJournal> {
     const db = this.getDb();
     
     const newJournal: LocalJournal = {
       ...journal,
       id: this.generateClientId(),
-      created_at: new Date().toISOString(),
+      created_at: createdAt ?? new Date().toISOString(),
       updated_at: new Date().toISOString(),
       needs_sync: 1,
       is_deleted: 0,

@@ -6,6 +6,8 @@
  */
 
 import { useAuthStore } from '~/stores/stores/auth_store';
+import { useSettingsStore } from '~/stores/stores/settings_store';
+import NotificationService from '~/services/notifications/notification_service';
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   const authStore = useAuthStore();
@@ -18,6 +20,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   if (!isAuthPage) {
     // Initialize auth state from stored tokens
     await authStore.initialize();
+  }
+
+  // Re-hydrate local notifications after app start (handles reinstall / device restart)
+  if (import.meta.client && authStore.isAuthenticated) {
+    const settingsStore = useSettingsStore();
+    if (!settingsStore.initialized) {
+      await settingsStore.loadSettings();
+    }
+    await NotificationService.rehydrateFromSettings(settingsStore.notifications);
   }
 
   // Set up proactive token refresh and session re-check on app resume.

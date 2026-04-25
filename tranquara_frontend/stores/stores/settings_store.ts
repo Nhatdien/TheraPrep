@@ -12,6 +12,7 @@
 
 import { defineStore } from 'pinia';
 import { storage } from '~/utils/storage';
+import NotificationService from '~/services/notifications/notification_service';
 import type {
   SettingsState,
   GlobalSettings,
@@ -180,12 +181,30 @@ export const useSettingsStore = defineStore('settings', {
       this.device.notifications.morning_enabled = enabled;
       if (time) this.device.notifications.morning_time = time;
       await this._saveDevice();
+      // Wire up device notification
+      if (enabled) {
+        const granted = await NotificationService.requestPermission();
+        if (granted) {
+          await NotificationService.scheduleReminder('morning', this.device.notifications.morning_time);
+        }
+      } else {
+        await NotificationService.cancelReminder('morning');
+      }
     },
 
     async setEveningReminder(enabled: boolean, time?: string) {
       this.device.notifications.evening_enabled = enabled;
       if (time) this.device.notifications.evening_time = time;
       await this._saveDevice();
+      // Wire up device notification
+      if (enabled) {
+        const granted = await NotificationService.requestPermission();
+        if (granted) {
+          await NotificationService.scheduleReminder('evening', this.device.notifications.evening_time);
+        }
+      } else {
+        await NotificationService.cancelReminder('evening');
+      }
     },
 
     // ─── Bulk Update ────────────────────────────────────────────────────

@@ -452,6 +452,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/local-notifications@npm:^8.0.2":
+  version: 8.0.2
+  resolution: "@capacitor/local-notifications@npm:8.0.2"
+  peerDependencies:
+    "@capacitor/core": ">=8.0.0"
+  checksum: 10c0/e53b3770c00fee0c632098085e5148ce76f78337a74009b91902dbb031ae39196962332460c0738b038c54d4d948603216e0a4c985af759b0f9594af13105e89
+  languageName: node
+  linkType: hard
+
 "@capacitor/network@npm:^7.0.0":
   version: 7.0.4
   resolution: "@capacitor/network@npm:7.0.4"
@@ -4142,6 +4151,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/sortablejs@npm:^1.15.9":
+  version: 1.15.9
+  resolution: "@types/sortablejs@npm:1.15.9"
+  checksum: 10c0/d8ddf3da28a84a023d3003aa64b6495a7112e3945ac05d937afdb7c182b04a1025f126b2977ed8d5a9ede229b4bab85f037efbc97fde8a71128e056ac3122fa9
+  languageName: node
+  linkType: hard
+
 "@types/web-bluetooth@npm:^0.0.20":
   version: 0.0.20
   resolution: "@types/web-bluetooth@npm:0.0.20"
@@ -4602,6 +4618,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vueuse/core@npm:14.2.1, @vueuse/core@npm:^14.1.0":
+  version: 14.2.1
+  resolution: "@vueuse/core@npm:14.2.1"
+  dependencies:
+    "@types/web-bluetooth": "npm:^0.0.21"
+    "@vueuse/metadata": "npm:14.2.1"
+    "@vueuse/shared": "npm:14.2.1"
+  peerDependencies:
+    vue: ^3.5.0
+  checksum: 10c0/cd6f01fb074d423bdab324d8f262ff2597d6ce397d6fd139f3fe741e3e4f636b3481456e12b265021bf3626026410df1c3635981c1912648d80581cf066a3bf4
+  languageName: node
+  linkType: hard
+
 "@vueuse/core@npm:^10.11.0, @vueuse/core@npm:^10.8.0":
   version: 10.11.1
   resolution: "@vueuse/core@npm:10.11.1"
@@ -4623,19 +4652,6 @@ __metadata:
     "@vueuse/shared": "npm:12.8.2"
     vue: "npm:^3.5.13"
   checksum: 10c0/79c74c7daa471bbf6d51bf83d3750105074d83f6628fcdf41828e9f87977de4a4744968f48ad2d13597e758baf1a0aa5fe4f348dbecf093c9437bd8fd9937b73
-  languageName: node
-  linkType: hard
-
-"@vueuse/core@npm:^14.1.0":
-  version: 14.2.1
-  resolution: "@vueuse/core@npm:14.2.1"
-  dependencies:
-    "@types/web-bluetooth": "npm:^0.0.21"
-    "@vueuse/metadata": "npm:14.2.1"
-    "@vueuse/shared": "npm:14.2.1"
-  peerDependencies:
-    vue: ^3.5.0
-  checksum: 10c0/cd6f01fb074d423bdab324d8f262ff2597d6ce397d6fd139f3fe741e3e4f636b3481456e12b265021bf3626026410df1c3635981c1912648d80581cf066a3bf4
   languageName: node
   linkType: hard
 
@@ -4685,6 +4701,55 @@ __metadata:
     universal-cookie:
       optional: true
   checksum: 10c0/5b36a677cc7325168658594ecab813b22da8c3fe6ec51b73164c197d90f5d772f7127facc4007a46f1ca96e918df9757c4909dc36c87d32e8be0bba2128cba8c
+  languageName: node
+  linkType: hard
+
+"@vueuse/integrations@npm:^14.2.1":
+  version: 14.2.1
+  resolution: "@vueuse/integrations@npm:14.2.1"
+  dependencies:
+    "@vueuse/core": "npm:14.2.1"
+    "@vueuse/shared": "npm:14.2.1"
+  peerDependencies:
+    async-validator: ^4
+    axios: ^1
+    change-case: ^5
+    drauu: ^0.4
+    focus-trap: ^7 || ^8
+    fuse.js: ^7
+    idb-keyval: ^6
+    jwt-decode: ^4
+    nprogress: ^0.2
+    qrcode: ^1.5
+    sortablejs: ^1
+    universal-cookie: ^7 || ^8
+    vue: ^3.5.0
+  peerDependenciesMeta:
+    async-validator:
+      optional: true
+    axios:
+      optional: true
+    change-case:
+      optional: true
+    drauu:
+      optional: true
+    focus-trap:
+      optional: true
+    fuse.js:
+      optional: true
+    idb-keyval:
+      optional: true
+    jwt-decode:
+      optional: true
+    nprogress:
+      optional: true
+    qrcode:
+      optional: true
+    sortablejs:
+      optional: true
+    universal-cookie:
+      optional: true
+  checksum: 10c0/296115b82386f95c30d67c9c26370c7e73228361b8e9be12fb98dbfa401344345b278ce95c2dcc2e41d3def8d56510e141b2bb65e24d9dd6238ef5e0c0815d6a
   languageName: node
   linkType: hard
 
@@ -9857,6 +9922,7 @@ __metadata:
     "@capacitor/assets": "npm:^3.0.5"
     "@capacitor/cli": "npm:^7.0.0"
     "@capacitor/core": "npm:^7.0.0"
+    "@capacitor/local-notifications": "npm:^8.0.2"
     "@capacitor/network": "npm:^7.0.0"
     "@capacitor/preferences": "npm:^7.0.0"
     "@capacitor/splash-screen": "npm:^7.0.0"
@@ -9869,10 +9935,12 @@ __metadata:
     "@tiptap/pm": "npm:^2.25.0"
     "@tiptap/starter-kit": "npm:^2.25.0"
     "@tiptap/vue-3": "npm:^2.25.0"
+    "@types/sortablejs": "npm:^1.15.9"
     "@vue/server-renderer": "npm:^3.5.13"
     "@vuelidate/core": "npm:^2.0.3"
     "@vuelidate/validators": "npm:^2.0.4"
     "@vueuse/core": "npm:^12.0.0"
+    "@vueuse/integrations": "npm:^14.2.1"
     autoprefixer: "npm:^10.4.20"
     capacitor-secure-storage-plugin: "npm:^0.12.0"
     class-variance-authority: "npm:^0.7.0"
@@ -9890,6 +9958,7 @@ __metadata:
     prettier-plugin-tailwindcss: "npm:^0.6.14"
     radix-vue: "npm:^1.9.11"
     sass: "npm:^1.80.5"
+    sortablejs: "npm:^1.15.7"
     sql.js: "npm:1.12.0"
     tailwind-merge: "npm:^2.5.4"
     tailwindcss: "npm:^4.1.10"
@@ -12404,6 +12473,13 @@ __metadata:
     ip-address: "npm:^10.0.1"
     smart-buffer: "npm:^4.2.0"
   checksum: 10c0/2805a43a1c4bcf9ebf6e018268d87b32b32b06fbbc1f9282573583acc155860dc361500f89c73bfbb157caa1b4ac78059eac0ef15d1811eb0ca75e0bdadbc9d2
+  languageName: node
+  linkType: hard
+
+"sortablejs@npm:^1.15.7":
+  version: 1.15.7
+  resolution: "sortablejs@npm:1.15.7"
+  checksum: 10c0/6bfec9876bb66cb401377a52d5b4f832b8841ea55e3d290e4a885e129233558e91253f1e539a3a6374fb0a4575d6fb91567d6f46ebcb3613a808a6562dea4a76
   languageName: node
   linkType: hard
 

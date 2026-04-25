@@ -100,5 +100,9 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/prep-packs/detail", app.authMiddleWare(app.getPrepPackHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/prep-packs", app.authMiddleWare(app.deletePrepPackHandler))
 
+	// Custom Template routes
+	router.HandlerFunc(http.MethodGet, "/v1/custom-template", app.authMiddleWare(app.getCustomTemplateHandler))
+	router.HandlerFunc(http.MethodPut, "/v1/custom-template", app.authMiddleWare(app.upsertCustomTemplateHandler))
+
 	return app.recoverPanic(app.rateLimit(router))
 }

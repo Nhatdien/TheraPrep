@@ -219,26 +219,59 @@ func (journal UserJournalModel) GetList(userId uuid.UUID) ([]*UserJournal, error
 }
 
 func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, error) {
-	query := `
-		INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at, updated_at
-	`
-
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	args := []any{
-		userJournal.UserID,
-		userJournal.CollectionID,
-		userJournal.Title,
-		userJournal.Content,
-		userJournal.ContentHTML,
-		userJournal.MoodScore,
-		userJournal.MoodLabel,
+	// If the client supplied a created_at, validate and use it; otherwise default to NOW()
+	var query string
+	var args []any
+	var argsResponse []any
+
+	zeroTime := time.Time{}
+	if userJournal.CreatedAt != zeroTime {
+		// Reject dates older than 30 days
+		maxAge := time.Now().UTC().AddDate(0, 0, -30)
+		if userJournal.CreatedAt.Before(maxAge) {
+			return nil, fmt.Errorf("created_at cannot be more than 30 days in the past")
+		}
+		// Reject future dates
+		if userJournal.CreatedAt.After(time.Now().UTC().Add(5 * time.Minute)) {
+			return nil, fmt.Errorf("created_at cannot be in the future")
+		}
+
+		query = `
+			INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at, updated_at
+		`
+		args = []any{
+			userJournal.UserID,
+			userJournal.CollectionID,
+			userJournal.Title,
+			userJournal.Content,
+			userJournal.ContentHTML,
+			userJournal.MoodScore,
+			userJournal.MoodLabel,
+			userJournal.CreatedAt.UTC(),
+		}
+	} else {
+		query = `
+			INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)
+			RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at, updated_at
+		`
+		args = []any{
+			userJournal.UserID,
+			userJournal.CollectionID,
+			userJournal.Title,
+			userJournal.Content,
+			userJournal.ContentHTML,
+			userJournal.MoodScore,
+			userJournal.MoodLabel,
+		}
 	}
 
-	argsResponse := []any{
+	argsResponse = []any{
 		&userJournal.ID,
 		&userJournal.UserID,
 		&userJournal.CollectionID,
@@ -252,7 +285,6 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 	}
 
 	err := journal.DB.QueryRowContext(ctx, query, args...).Scan(argsResponse...)
-
 	if err != nil {
 		return nil, err
 	}

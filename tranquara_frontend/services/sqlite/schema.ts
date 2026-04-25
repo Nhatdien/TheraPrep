@@ -207,8 +207,18 @@ CREATE INDEX IF NOT EXISTS idx_ai_memories_user ON ai_memories(user_id);`;
 export const CREATE_AI_MEMORIES_INDEX_CATEGORY = `
 CREATE INDEX IF NOT EXISTS idx_ai_memories_category ON ai_memories(user_id, category);`;
 
+// User Custom Template (one row per user)
+export const CREATE_USER_CUSTOM_TEMPLATE_TABLE = `
+CREATE TABLE IF NOT EXISTS user_custom_template (
+  user_id    TEXT PRIMARY KEY,
+  title      TEXT NOT NULL DEFAULT 'My Daily Template',
+  slide_groups TEXT NOT NULL DEFAULT '[]',
+  updated_at TEXT NOT NULL,
+  needs_sync INTEGER NOT NULL DEFAULT 1
+);`;
+
 // Database version tracking
-export const DB_VERSION = 8;
+export const DB_VERSION = 9;
 export const DB_NAME = 'tranquara_journals.db';
 
 /**
@@ -279,5 +289,9 @@ export const MIGRATIONS: Record<number, string[]> = {
     CREATE_AI_MEMORIES_TABLE,
     CREATE_AI_MEMORIES_INDEX_USER,
     CREATE_AI_MEMORIES_INDEX_CATEGORY,
+  ],
+  // v9: Add user custom template table
+  9: [
+    CREATE_USER_CUSTOM_TEMPLATE_TABLE,
   ],
 };

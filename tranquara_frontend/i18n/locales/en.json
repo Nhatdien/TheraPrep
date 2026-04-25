@@ -22,6 +22,7 @@
     "dailyPrompt": "Daily Prompt",
     "startWriting": "Start Writing",
     "dayOf": "Day {day} of {total}",
+    "editTemplate": "Edit my template",
     "homework": {
       "title": "Therapy Homework",
       "viewAll": "View all",
@@ -693,6 +694,28 @@
         "description": "Start a quick free-form entry"
       }
     }
+  },
+  "myTemplate": {
+    "pageTitle": "My Daily Template",
+    "titlePlaceholder": "Template title...",
+    "addSlide": "Add slide",
+    "save": "Save template",
+    "saving": "Saving...",
+    "saved": "Template saved!",
+    "deleteSlide": "Delete",
+    "noSlides": "No slides yet. Tap \"Add slide\" to begin.",
+    "slideTypes": {
+      "journal_prompt": "Journal Prompt",
+      "emotion_log": "Emotion Check",
+      "sleep_check": "Sleep Check"
+    },
+    "promptPlaceholder": "Enter your prompt question...",
+    "pickSlideType": "Choose a slide type"
+  },
+  "datePicker": {
+    "title": "Select Date",
+    "today": "Today",
+    "hasEntries": "Has journal entries"
   }
 }
 

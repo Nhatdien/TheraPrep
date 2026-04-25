@@ -22,6 +22,7 @@
     "dailyPrompt": "Câu hỏi hàng ngày",
     "startWriting": "Bắt đầu viết",
     "dayOf": "Ngày {day} / {total}",
+    "editTemplate": "Chỉnh sửa mẫu của tôi",
     "homework": {
       "title": "Bài tập trị liệu",
       "viewAll": "Xem tất cả",
@@ -693,6 +694,28 @@
         "complete": "Tuyệt vời! Bạn đã tập {duration}."
       }
     }
+  },
+  "myTemplate": {
+    "pageTitle": "Mẫu của tôi",
+    "titlePlaceholder": "Tiêu đề mẫu...",
+    "addSlide": "Thêm trang",
+    "save": "Lưu mẫu",
+    "saving": "Đang lưu...",
+    "saved": "Mẫu đã được lưu!",
+    "deleteSlide": "Xóa",
+    "noSlides": "Chưa có trang nào. Nhấn \"Thêm trang\" để bắt đầu.",
+    "slideTypes": {
+      "journal_prompt": "Câu hỏi nhật ký",
+      "emotion_log": "Kiểm tra cảm xúc",
+      "sleep_check": "Kiểm tra giấc ngủ"
+    },
+    "promptPlaceholder": "Nhập câu hỏi...",
+    "pickSlideType": "Chọn loại trang"
+  },
+  "datePicker": {
+    "title": "Chọn ngày",
+    "today": "Hôm nay",
+    "hasEntries": "Có nhật ký"
   }
 }
 
