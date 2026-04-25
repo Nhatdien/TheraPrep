@@ -480,6 +480,42 @@
   "toolkit": {
     "title": "Bộ công cụ trị liệu",
     "subtitle": "Hỗ trợ bạn chuẩn bị cho buổi trị liệu",
+    "tabs": {
+      "prepare": "Chuẩn bị",
+      "track": "Theo dõi",
+      "ground": "Bình tâm"
+    },
+    "emptyState": {
+      "insights": "Tạo bản phân tích AI từ nhật ký để sẵn sàng cho buổi trị liệu.",
+      "session": "Theo dõi buổi trị liệu — từ chuẩn bị đến phản ánh.",
+      "homework": "Bài tập từ buổi trị liệu sẽ xuất hiện tại đây."
+    },
+    "sessionFlow": {
+      "title": "Quy trình theo dõi buổi trị liệu",
+      "step1": "Lên lịch",
+      "step2": "Chuẩn bị",
+      "step3": "Tham gia",
+      "step4": "Phản ánh"
+    },
+    "countdown": {
+      "today": "Hôm nay!",
+      "tomorrow": "Ngày mai",
+      "inDays": "Còn {count} ngày"
+    },
+    "completion": {
+      "title": "Tuyệt vời",
+      "breathingDuration": "Bạn đã tập {duration}",
+      "bodyScanDone": "Bạn đã lắng nghe toàn bộ cơ thể",
+      "fiveSensesDone": "Bạn đang hiện diện trong khoảnh khắc này",
+      "done": "Xong",
+      "encouragements": [
+        "Mang theo sự bình yên này bên bạn.",
+        "Bạn đã dành thời gian cho chính mình hôm nay.",
+        "Mỗi bước nhỏ đều có ý nghĩa.",
+        "Hãy cảm nhận bạn đang thế nào lúc này.",
+        "Bạn đang xây dựng thói quen hiện diện."
+      ]
+    },
     "journey": {
       "title": "Hành trình chuẩn bị",
       "description": "Hướng dẫn từng bước để chuẩn bị cho buổi trị liệu.",
@@ -503,14 +539,14 @@
       }
     },
     "prepPack": {
-      "title": "Gói chuẩn bị",
+      "title": "Phân tích nhật ký",
       "description": "Tóm tắt thông minh từ nhật ký của bạn — giúp bạn bước vào buổi trị liệu sẵn sàng và tự tin hơn.",
-      "generate": "Tạo gói chuẩn bị",
+      "generate": "Tạo phân tích",
       "generating": "Đang phân tích nhật ký của bạn...",
-      "noJournals": "Bạn chưa có nhật ký nào. Hãy bắt đầu viết để tạo gói chuẩn bị nhé.",
+      "noJournals": "Bạn chưa có nhật ký nào. Hãy bắt đầu viết để tạo phân tích nhé.",
       "lastGenerated": "Lần tạo gần nhất",
-      "viewAll": "Xem tất cả gói chuẩn bị",
-      "new": "Tạo gói mới",
+      "viewAll": "Xem tất cả",
+      "new": "Tạo phân tích mới",
       "selectRange": "Chọn khoảng thời gian phân tích",
       "last7Days": "7 ngày gần đây",
       "last14Days": "14 ngày gần đây",
@@ -531,10 +567,10 @@
       "discussionPoints": "Chủ đề nên nói với nhà trị liệu",
       "growthMoments": "Khoảnh khắc trưởng thành",
       "personalNotes": "Ghi chú của bạn",
-      "notFound": "Không tìm thấy gói này.",
-      "deleteConfirm": "Bạn có chắc muốn xóa gói chuẩn bị này không?",
-      "errorGenerate": "Tạo gói thất bại. Vui lòng thử lại sau.",
-      "pastPacks": "Các gói đã tạo trước đây",
+      "notFound": "Không tìm thấy báo cáo này.",
+      "deleteConfirm": "Bạn có chắc muốn xóa phân tích này không?",
+      "errorGenerate": "Tạo phân tích thất bại. Vui lòng thử lại sau.",
+      "pastPacks": "Các phân tích trước đây",
       "patternCategories": {
         "triggers": "Tác nhân",
         "patterns": "Khuôn mẫu",
@@ -613,7 +649,16 @@
         "description": "Chú ý đến từng phần cơ thể của bạn",
         "focusOn": "Tập trung vào",
         "prompt": "Nhận biết sự căng thẳng và hít thở vào đó.",
-        "complete": "Tuyệt vời. Hãy dành một chút để cảm nhận bạn đang thế nào."
+        "complete": "Tuyệt vời. Hãy dành một chút để cảm nhận bạn đang thế nào.",
+        "parts": {
+          "head": "Đầu",
+          "shoulders": "Vai",
+          "chest": "Ngực",
+          "arms": "Tay",
+          "stomach": "Bụng",
+          "legs": "Chân",
+          "feet": "Bàn chân"
+        }
       },
       "affirmations": {
         "title": "Lời động viên bản thân",

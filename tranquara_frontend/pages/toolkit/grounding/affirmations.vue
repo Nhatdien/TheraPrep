@@ -33,20 +33,20 @@
 
     <!-- Favorites -->
     <div v-if="favoriteAffirmations.length > 0" class="mb-6">
-      <h2 class="text-xs text-dimmed uppercase tracking-wider mb-2">
+      <h2 class="text-xs text-dimmed uppercase tracking-wider mb-3">
         {{ $t('toolkit.grounding.affirmations.favorites') }}
       </h2>
       <div class="space-y-2">
         <div
           v-for="item in favoriteAffirmations"
           :key="item.id"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl border border-muted bg-muted"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl border border-yellow-500/20 bg-yellow-500/5"
         >
           <button
             class="text-yellow-400"
             @click="toolkitStore.toggleAffirmationFavorite(item.id)"
           >
-            <Star class="w-4 h-4" />
+            <Star class="w-4 h-4 fill-yellow-400" />
           </button>
           <span class="text-sm flex-1">{{ item.content }}</span>
           <button
@@ -61,14 +61,14 @@
 
     <!-- My affirmations -->
     <div v-if="userAffirmations.length > 0" class="mb-6">
-      <h2 class="text-xs text-dimmed uppercase tracking-wider mb-2">
+      <h2 class="text-xs text-dimmed uppercase tracking-wider mb-3">
         {{ $t('toolkit.grounding.affirmations.myAffirmations') }}
       </h2>
       <div class="space-y-2">
         <div
           v-for="item in userAffirmations"
           :key="item.id"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl border border-muted bg-muted"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl border border-default bg-elevated"
         >
           <button
             class="text-toned hover:text-yellow-400 transition-colors"
@@ -89,16 +89,16 @@
 
     <!-- Default affirmations -->
     <div class="mb-6">
-      <h2 class="text-xs text-dimmed uppercase tracking-wider mb-2">
+      <h2 class="text-xs text-dimmed uppercase tracking-wider mb-3">
         {{ $t('toolkit.grounding.affirmations.defaults') }}
       </h2>
-      <div class="space-y-2">
+      <div class="grid gap-2 sm:grid-cols-2">
         <div
           v-for="(item, i) in defaultAffirmations"
           :key="i"
-          class="px-4 py-3 rounded-xl border border-muted bg-muted text-sm text-default"
+          class="px-4 py-3 rounded-xl border border-amber-500/10 bg-amber-500/5 text-sm text-default italic"
         >
-          {{ item }}
+          "{{ item }}"
         </div>
       </div>
     </div>
@@ -112,7 +112,7 @@ import { useToolkitStore } from "~/stores/stores/therapy_toolkit_store";
 
 definePageMeta({ layout: 'detail' });
 
-const { t, tm } = useI18n();
+const { t, tm, rt } = useI18n();
 const toolkitStore = useToolkitStore();
 const newAffirmation = ref('');
 
@@ -122,8 +122,9 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 ])
 
 const defaultAffirmations = computed<string[]>(() => {
-  const list = tm('toolkit.grounding.affirmations.defaultList');
-  return Array.isArray(list) ? list as string[] : [];
+  const raw = tm('toolkit.grounding.affirmations.defaultList');
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item: any) => rt(item));
 });
 
 const userAffirmations = computed(() =>

@@ -1,10 +1,18 @@
 <template>
   <div class="flex flex-col min-h-screen bg-background">
     <!-- Header -->
-    <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
-      <UButton variant="ghost" icon="i-lucide-arrow-left" @click="router.back()" />
-      <h1 class="text-lg font-semibold">{{ $t('journal.newJournal') }}</h1>
-      <UButton variant="ghost" icon="i-lucide-check" @click="saveAndClose" :disabled="!hasContent" />
+    <header
+      class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+      <UButton
+        variant="ghost"
+        icon="i-lucide-arrow-left"
+        @click="router.back()" />
+      <h1 class="text-lg font-semibold">{{ $t("journal.newJournal") }}</h1>
+      <UButton
+        variant="ghost"
+        icon="i-lucide-check"
+        @click="saveAndClose"
+        :disabled="!hasContent" />
     </header>
 
     <!-- Title Input -->
@@ -13,8 +21,7 @@
         v-model="title"
         type="text"
         :placeholder="$t('journal.titlePlaceholder')"
-        class="w-full text-xl font-semibold bg-transparent border-none outline-none placeholder-gray-400 dark:placeholder-gray-600"
-      />
+        class="w-full text-xl font-semibold bg-transparent border-none outline-none placeholder-gray-400 dark:placeholder-gray-600" />
     </div>
 
     <!-- Date Display -->
@@ -27,23 +34,19 @@
       <CommonMarkdownEditor
         ref="editorRef"
         v-model="content"
-        @on-update="onContentUpdate"
-      />
+        @on-update="onContentUpdate" />
     </div>
 
     <!-- Bottom Toolbar -->
-    <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-gray-200 dark:border-gray-800 p-4 flex items-center justify-between">
+    <div
+      class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-gray-200 dark:border-gray-800 p-4 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <!-- Mood Selector -->
-        <UButton 
-          variant="ghost" 
-          size="sm"
-          @click="showMoodPicker = true"
-        >
+        <UButton variant="ghost" size="sm" @click="showMoodPicker = true">
           <span class="text-lg">{{ selectedMoodEmoji }}</span>
           <span class="ml-1 text-sm text-muted">{{ moodLabel }}</span>
         </UButton>
-        
+
         <!-- Go Deeper Button -->
         <UButton
           variant="ghost"
@@ -51,12 +54,11 @@
           :loading="isGeneratingQuestion"
           :disabled="!hasContent || isGeneratingQuestion"
           @click="handleGoDeeper"
-          icon="i-lucide-sparkles"
-        >
-          <span class="text-sm">{{ $t('journal.goDeeper') }}</span>
+          icon="i-lucide-sparkles">
+          <span class="text-sm">{{ $t("journal.goDeeper") }}</span>
         </UButton>
       </div>
-      
+
       <div class="flex items-center gap-2">
         <span class="text-xs text-muted">{{ autoSaveStatusText }}</span>
       </div>
@@ -66,9 +68,13 @@
     <UModal v-model:open="showMoodPicker">
       <template #content>
         <div class="p-6 w-full max-w-md mx-auto">
-          <h3 class="text-lg font-semibold mb-4 text-center">{{ $t('journal.howFeeling') }}</h3>
+          <h3 class="text-lg font-semibold mb-4 text-center">
+            {{ $t("journal.howFeeling") }}
+          </h3>
           <EmotionSliderV2 v-model="moodScore" />
-          <UButton block class="mt-4" @click="confirmMood">{{ $t('common.confirm') }}</UButton>
+          <UButton block class="mt-4" @click="confirmMood">{{
+            $t("common.confirm")
+          }}</UButton>
         </div>
       </template>
     </UModal>
@@ -81,6 +87,10 @@ import { useAuthStore } from "~/stores/stores/auth_store";
 import EmotionSliderV2 from "~/components/Common/EmotionSliderV2.vue";
 import TranquaraSDK from "~/stores/tranquara_sdk";
 import { useAIGuard } from "~/composables/useAIGuard";
+
+definePageMeta({
+  layout: "detail",
+});
 
 const router = useRouter();
 const journalStore = userJournalStore();
@@ -135,18 +145,20 @@ const selectedMoodEmoji = computed(() => {
 
 // Mood labels for 1-10 scale (use i18n)
 const computedMoodLabel = computed(() => {
-  return t(`journal.moodLabels.${moodScore.value}`) || t('journal.moodLabels.5');
+  return (
+    t(`journal.moodLabels.${moodScore.value}`) || t("journal.moodLabels.5")
+  );
 });
 
 // Methods
 const onContentUpdate = () => {
   // Debounced auto-save indicator
   autoSaveStatus.value = "typing";
-  
+
   if (autoSaveTimeout) {
     clearTimeout(autoSaveTimeout);
   }
-  
+
   autoSaveTimeout = setTimeout(() => {
     autoSaveStatus.value = "autoSaved";
     lastSavedAt.value = new Date();
@@ -161,38 +173,40 @@ const confirmMood = () => {
 const handleGoDeeper = async () => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
-  
+
   try {
     isGeneratingQuestion.value = true;
     autoSaveStatus.value = "thinking";
-    
+
     const sdk = TranquaraSDK.getInstance();
-    
+
     // Get plain text content from editor
-    const plainText = content.value.replace(/<[^>]*>/g, '').trim();
+    const plainText = content.value.replace(/<[^>]*>/g, "").trim();
     const userId = useAuthStore().getUserUUID;
-    
+
     const response = await sdk.analyzeJournal({
-      user_id: userId || '',
+      user_id: userId || "",
       content: plainText,
       mood_score: moodScore.value,
       slide_prompt: undefined, // No template for free-form journaling
       your_story: yourStory.value || undefined,
     });
-    
+
     // Insert AI question into editor with muted styling
     if (editorRef.value?.editor) {
       const editor = editorRef.value.editor;
-      
+
       editor
         .chain()
-        .focus('end')
-        .insertContent('<p></p>') // Add empty line
-        .insertContent(`<p class="ai-suggestion" style="color: #888; font-style: italic;">${response.question}</p>`)
-        .insertContent('<p></p>') // Add empty line for user to type
+        .focus("end")
+        .insertContent("<p></p>") // Add empty line
+        .insertContent(
+          `<p class="ai-suggestion" style="color: #888; font-style: italic;">${response.question}</p>`,
+        )
+        .insertContent("<p></p>") // Add empty line for user to type
         .run();
     }
-    
+
     autoSaveStatus.value = "questionAdded";
     setTimeout(() => {
       autoSaveStatus.value = "ready";
@@ -213,15 +227,15 @@ const saveAndClose = async () => {
 
   try {
     autoSaveStatus.value = "saving";
-    
+
     // Ensure database is initialized
     if (!journalStore.isInitialized) {
       await journalStore.initializeDatabase();
     }
-    
+
     await journalStore.createJournal({
       collection_id: null, // Free-form journal has no collection
-      title: title.value || t('journal.untitledJournal'),
+      title: title.value || t("journal.untitledJournal"),
       content: content.value,
       content_html: content.value, // For free-form, content IS html
       mood_score: moodScore.value,
@@ -229,7 +243,7 @@ const saveAndClose = async () => {
     });
 
     autoSaveStatus.value = "saved";
-    
+
     // Navigate back after short delay to show "Saved!" status
     setTimeout(() => {
       router.push("/history");

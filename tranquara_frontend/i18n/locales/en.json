@@ -480,6 +480,42 @@
   "toolkit": {
     "title": "Therapy Toolkit",
     "subtitle": "Your companion for therapy preparation",
+    "tabs": {
+      "prepare": "Prepare",
+      "track": "Track",
+      "ground": "Ground"
+    },
+    "emptyState": {
+      "insights": "Generate an AI summary of your journals to walk into your session prepared.",
+      "session": "Track your therapy sessions — from preparation to reflection.",
+      "homework": "Homework items from your sessions will appear here."
+    },
+    "sessionFlow": {
+      "title": "How session tracking works",
+      "step1": "Schedule",
+      "step2": "Prepare",
+      "step3": "Attend",
+      "step4": "Reflect"
+    },
+    "countdown": {
+      "today": "Today!",
+      "tomorrow": "Tomorrow",
+      "inDays": "In {count} days"
+    },
+    "completion": {
+      "title": "Well done",
+      "breathingDuration": "You practiced for {duration}",
+      "bodyScanDone": "You’ve checked in with your whole body",
+      "fiveSensesDone": "You’re grounded in the present moment",
+      "done": "Done",
+      "encouragements": [
+        "Take this calm feeling with you.",
+        "You showed up for yourself today.",
+        "Every small step counts.",
+        "Notice how you feel right now.",
+        "You’re building a practice of presence."
+      ]
+    },
     "journey": {
       "title": "Preparation Journey",
       "description": "Your step-by-step guide to preparing for therapy sessions.",
@@ -503,14 +539,14 @@
       }
     },
     "prepPack": {
-      "title": "Prep Pack",
-      "description": "Generate an AI summary of your recent journals to prepare for your next session.",
-      "generate": "Generate Prep Pack",
+      "title": "My Insights",
+      "description": "An AI summary of your recent journals — helping you walk into your session feeling prepared and confident.",
+      "generate": "Generate Insights",
       "generating": "Analyzing your journals...",
-      "noJournals": "Write some journal entries first to generate a prep pack",
+      "noJournals": "Write some journal entries first to generate your insights",
       "lastGenerated": "Last generated",
-      "viewAll": "View All Prep Packs",
-      "new": "New Prep Pack",
+      "viewAll": "View All Insights",
+      "new": "New Insight Report",
       "selectRange": "Select date range",
       "last7Days": "Last 7 days",
       "last14Days": "Last 14 days",
@@ -531,10 +567,10 @@
       "discussionPoints": "Discussion Points",
       "growthMoments": "Growth Moments",
       "personalNotes": "Personal Notes",
-      "notFound": "Prep pack not found.",
-      "deleteConfirm": "Delete this prep pack?",
-      "errorGenerate": "Failed to generate prep pack. Please try again.",
-      "pastPacks": "Past Prep Packs",
+      "notFound": "Insight report not found.",
+      "deleteConfirm": "Delete this insight report?",
+      "errorGenerate": "Failed to generate insights. Please try again.",
+      "pastPacks": "Previous Insights",
       "patternCategories": {
         "triggers": "Triggers",
         "patterns": "Patterns",
@@ -626,7 +662,16 @@
         "description": "Bring attention to each part of your body",
         "focusOn": "Focus on",
         "prompt": "Notice any tension and breathe into it.",
-        "complete": "Nice work. Take a moment to notice how you feel."
+        "complete": "Nice work. Take a moment to notice how you feel.",
+        "parts": {
+          "head": "Head",
+          "shoulders": "Shoulders",
+          "chest": "Chest",
+          "arms": "Arms",
+          "stomach": "Stomach",
+          "legs": "Legs",
+          "feet": "Feet"
+        }
       },
       "affirmations": {
         "title": "Safety Affirmations",
