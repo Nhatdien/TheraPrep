@@ -14,6 +14,7 @@
 
 import { useAuthStore } from '~/stores/stores/auth_store';
 import { userJournalStore } from '~/stores/stores/user_journal';
+import { useCustomTemplateStore } from '~/stores/stores/custom_template_store';
 import NetworkMonitor from '~/services/sync/network_monitor';
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -26,6 +27,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       console.log('[Database Plugin] Initializing SQLite database...');
       await journalStore.initializeDatabase();
       console.log('[Database Plugin] Database initialized successfully');
+
+      // Load custom template from SQLite after DB is ready
+      const customTemplateStore = useCustomTemplateStore();
+      customTemplateStore.loadCustomTemplate().catch((err) => {
+        console.warn('[Database Plugin] Custom template load failed (non-blocking):', err);
+      });
       
       // Only sync user to backend if online (don't block offline startup)
       if (NetworkMonitor.isConnected()) {
@@ -49,6 +56,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         try {
           console.log('[Database Plugin] User logged in, initializing database...');
           await journalStore.initializeDatabase();
+          // Also load custom template on login
+          const customTemplateStore = useCustomTemplateStore();
+          customTemplateStore.loadCustomTemplate().catch(() => {});
         } catch (error) {
           console.error('[Database Plugin] Error initializing database after login:', error);
         }

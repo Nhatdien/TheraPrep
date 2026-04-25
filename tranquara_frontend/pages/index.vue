@@ -28,7 +28,7 @@
       <h3 class="text-xs font-semibold text-gray-500 tracking-wide uppercase mb-4 text-center">
         {{ $t('home.yourEntries') }}
       </h3>
-      <HomePageLatestEntries :date="selectedDate" />
+      <HomePageLatestEntries />
     </div>
     
     <!-- Floating Action Button -->

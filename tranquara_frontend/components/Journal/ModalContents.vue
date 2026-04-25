@@ -105,7 +105,7 @@ import Questionnaire from "~/components/Slide/Questionnaire.vue";
 import CompletionSlide from "~/components/Slide/CompletionSlide.vue";
 import SegmentedProgress from "~/components/Slide/SegmentedProgress.vue";
 
-const props = defineProps(["templateId"]);
+const props = defineProps(["templateId", "staticSlideGroup", "staticCollectionTitle"]);
 const carousel = useTemplateRef("carousel");
 const currentIndex = ref(0);
 
@@ -124,7 +124,9 @@ const {
   currentCollecton,
   markSlideGroupCompleted,
 } = useSlideGroup({
-  collectionId: props.templateId,
+  collectionId: props.templateId || undefined,
+  staticSlideGroup: props.staticSlideGroup || undefined,
+  staticCollectionTitle: props.staticCollectionTitle || undefined,
 });
 
 const componentMapping: any = {

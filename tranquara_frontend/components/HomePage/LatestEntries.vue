@@ -12,16 +12,16 @@
 
     <!-- Featured First Entry (spans 2 cols on desktop) -->
     <div
-      v-if="filteredJournals.length > 0"
-      @click="() => openEntry(filteredJournals[0])"
+      v-if="userJournalStore()?.journals?.length > 0"
+      @click="() => openEntry(userJournalStore().journals[0])"
       class="bg-muted rounded-xl p-4 cursor-pointer hover:bg-accented hover:shadow-sm transition-all border relative lg:col-span-2 lg:p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
       tabindex="0"
-      @keydown.enter="() => openEntry(filteredJournals[0])"
+      @keydown.enter="() => openEntry(userJournalStore().journals[0])"
     >
       <!-- Sync Status Badge (top right) -->
       <div class="absolute top-3 right-3 lg:top-5 lg:right-5">
         <SyncBadge
-          :needs-sync="filteredJournals[0].needs_sync"
+          :needs-sync="userJournalStore().journals[0].needs_sync"
           :syncing="userJournalStore().isSyncing"
         />
       </div>
@@ -32,32 +32,32 @@
           {{ $t('entries.reflection') }}
         </span>
         <span class="text-xs text-muted">
-          {{ formatTime(filteredJournals[0].created_at) }}
+          {{ formatTime(userJournalStore().journals[0].created_at) }}
         </span>
       </div>
 
       <!-- Title -->
       <h3 class="font-semibold text-highlighted mb-3 text-lg lg:text-xl">
-        {{ filteredJournals[0].title }}
+        {{ userJournalStore().journals[0].title }}
       </h3>
 
       <!-- Mood Tag + Word Count (desktop) -->
       <div class="flex flex-wrap gap-2 mb-3">
-        <span v-if="filteredJournals[0].mood_label" class="px-3 py-1 bg-accented rounded-full text-xs text-default flex items-center gap-1">
-          {{ filteredJournals[0].mood_score ? $t(`journal.moodLabels.${filteredJournals[0].mood_score}`) : filteredJournals[0].mood_label }}
+        <span v-if="userJournalStore().journals[0].mood_label" class="px-3 py-1 bg-accented rounded-full text-xs text-default flex items-center gap-1">
+          {{ userJournalStore().journals[0].mood_score ? $t(`journal.moodLabels.${userJournalStore().journals[0].mood_score}`) : userJournalStore().journals[0].mood_label }}
         </span>
         <span class="hidden lg:flex px-3 py-1 bg-accented rounded-full text-xs text-dimmed items-center gap-1">
-          {{ getWordCount(filteredJournals[0].content) }} words
+          {{ getWordCount(userJournalStore().journals[0].content) }} words
         </span>
       </div>
 
       <!-- Content Preview (longer on desktop) -->
-      <div class="text-sm text-muted line-clamp-3 lg:line-clamp-4" v-html="getContentPreview(filteredJournals[0].content)"></div>
+      <div class="text-sm text-muted line-clamp-3 lg:line-clamp-4" v-html="getContentPreview(userJournalStore().journals[0].content)"></div>
     </div>
 
     <!-- Remaining Entry Cards -->
     <div 
-      v-for="journal in filteredJournals.slice(1)" 
+      v-for="journal in userJournalStore()?.journals?.slice(1)" 
       :key="journal.id"
       @click="() => openEntry(journal)"
       class="bg-muted rounded-xl p-4 cursor-pointer hover:bg-accented hover:shadow-sm transition-all border relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
@@ -100,7 +100,7 @@
 
     <!-- Empty State -->
     <!-- Empty State -->
-    <div v-if="filteredJournals.length === 0" class="text-center py-16 md:col-span-2 xl:col-span-3">
+    <div v-if="!userJournalStore().journals || userJournalStore().journals.length === 0" class="text-center py-16 md:col-span-2 xl:col-span-3">
       <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
         <Icon name="i-lucide-pen-line" class="w-8 h-8 text-dimmed" />
       </div>
@@ -112,7 +112,7 @@
     </div>
 
     <!-- See All Button -->
-    <div v-if="filteredJournals.length > 0" class="text-center pt-4 md:col-span-2 xl:col-span-3">
+    <div v-if="userJournalStore().journals && userJournalStore().journals.length > 0" class="text-center pt-4 md:col-span-2 xl:col-span-3">
       <UButton 
         variant="ghost" 
         @click="navigateTo('/history')"
@@ -131,37 +131,8 @@
 import { CreateJournalRequest, LocalJournal } from '~/types/user_journal';
 import { ChevronRight } from 'lucide-vue-next';
 import { useAuthStore } from '~/stores/stores/auth_store';
-import JournalsRepository from '~/services/sqlite/journals_repository';
-
-const props = defineProps<{ date?: string }>();
 
 const authStore = useAuthStore();
-
-// Journals filtered by the selected date (or all journals when date = today with no filter)
-const filteredJournals = ref<LocalJournal[]>([]);
-
-async function loadJournalsForDate() {
-  const userId = authStore.getUserUUID;
-  if (!userId) return;
-  const targetDate = props.date ?? new Date().toISOString().split('T')[0];
-  try {
-    const { journals } = await JournalsRepository.getWithFilter(userId, {
-      startTime: targetDate,
-      endTime: targetDate + 'T23:59:59Z',
-      pageSize: 50,
-      sortDirection: 'DESC',
-    });
-    filteredJournals.value = journals;
-    // Keep store.journals in sync when showing today so other components still work
-    if (!props.date || props.date === new Date().toISOString().split('T')[0]) {
-      userJournalStore().journals = journals;
-    }
-  } catch {
-    filteredJournals.value = [];
-  }
-}
-
-watch(() => props.date, loadJournalsForDate, { immediate: false });
 
 // Computed property for pending sync count
 const pendingSyncCount = computed(() => userJournalStore().pendingSyncCount);
@@ -208,7 +179,7 @@ onMounted(async () => {
     if (!userJournalStore().isInitialized) {
       await userJournalStore().initializeDatabase();
     }
-    await loadJournalsForDate();
+    await userJournalStore().getJournals();
   } catch (error) {
     console.error('[LatestEntries] Error loading journals:', error);
   }
