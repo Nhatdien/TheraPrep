@@ -109,6 +109,7 @@
 import type { BreadcrumbItem } from '@nuxt/ui'
 import { Star, X } from "lucide-vue-next";
 import { useToolkitStore } from "~/stores/stores/therapy_toolkit_store";
+import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
 
 definePageMeta({ layout: 'detail' });
 

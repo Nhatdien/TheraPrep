@@ -13,6 +13,7 @@ import { Network } from '@capacitor/network';
 import NetworkMonitor from '~/services/sync/network_monitor';
 import KeycloakService from '~/stores/auth/keycloak_service';
 import { userJournalStore } from '~/stores/stores/user_journal';
+import { useToolkitStore } from '~/stores/stores/therapy_toolkit_store';
 
 export default defineNuxtPlugin(() => {
   console.log('[BackgroundSync] Plugin initializing...');
@@ -39,15 +40,20 @@ export default defineNuxtPlugin(() => {
 
       console.log('[BackgroundSync] Triggering bi-directional sync...');
       
-      // Use the journal store's full bi-directional sync
-      // This downloads from server AND uploads pending local changes
+      // Sync journals: download from server + upload pending local changes
       const store = userJournalStore();
       if (store.isInitialized) {
         const result = await store.fullBiDirectionalSync();
-        console.log('[BackgroundSync] Sync complete:', result);
+        console.log('[BackgroundSync] Journal sync complete:', result);
       } else {
-        console.log('[BackgroundSync] Store not initialized - skipping sync');
+        console.log('[BackgroundSync] Journal store not initialized - skipping journal sync');
       }
+
+      // Sync toolkit items (sessions, homework, prep packs) — full bi-directional
+      const toolkitStore = useToolkitStore();
+      toolkitStore.setOnline(true);
+      await toolkitStore.fullBiDirectionalSync();
+      console.log('[BackgroundSync] Toolkit sync complete');
     } catch (error) {
       console.error('[BackgroundSync] Sync error:', error);
     }
@@ -78,6 +84,14 @@ export default defineNuxtPlugin(() => {
    */
   Network.addListener('networkStatusChange', (status) => {
     console.log('[BackgroundSync] Network status changed:', status.connected ? 'online' : 'offline');
+
+    // Keep toolkit store's isOnline flag in sync
+    try {
+      const toolkitStore = useToolkitStore();
+      toolkitStore.setOnline(status.connected);
+    } catch (e) {
+      // Store may not be initialized yet
+    }
 
     if (status.connected && isAppActive) {
       // Just came online and app is active

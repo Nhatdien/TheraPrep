@@ -622,6 +622,7 @@
         "talkingPoints": "Talking Points",
         "priority": "Top Priority",
         "takeaways": "Key Takeaways",
+        "relatedJournals": "Journals Around This Session",
         "notFound": "Session not found."
       }
     },

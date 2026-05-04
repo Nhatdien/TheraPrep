@@ -41,6 +41,7 @@ import { userJournalStore } from "~/stores/stores/user_journal";
 import { useLearnedStore } from "~/stores/stores/user_learned";
 import { JOURNEY_STEPS } from "~/types/therapy_toolkit";
 import type { LocalTemplate } from "~/types/user_journal";
+import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
 
 definePageMeta({ layout: "default" });
 

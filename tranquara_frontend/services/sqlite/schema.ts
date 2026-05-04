@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS user_custom_template (
 );`;
 
 // Database version tracking
-export const DB_VERSION = 9;
+export const DB_VERSION = 10;
 export const DB_NAME = 'tranquara_journals.db';
 
 /**
@@ -293,5 +293,9 @@ export const MIGRATIONS: Record<number, string[]> = {
   // v9: Add user custom template table
   9: [
     CREATE_USER_CUSTOM_TEMPLATE_TABLE,
+  ],
+  // v10: Add server_id to prep_packs for sync tracking
+  10: [
+    `ALTER TABLE prep_packs ADD COLUMN server_id TEXT;`,
   ],
 };

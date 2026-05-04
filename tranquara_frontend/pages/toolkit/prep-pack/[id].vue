@@ -259,6 +259,7 @@ import { useLearnedStore } from "~/stores/stores/user_learned";
 import { userJournalStore } from "~/stores/stores/user_journal";
 import { JOURNEY_STEPS } from "~/types/therapy_toolkit";
 import type { PrepPack } from "~/types/therapy_toolkit";
+import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
 
 const { t } = useI18n();
 const { dateLocale } = useLocalizedDate();

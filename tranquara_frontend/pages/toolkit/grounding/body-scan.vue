@@ -78,6 +78,7 @@
 
 <script lang="ts" setup>
 import type { BreadcrumbItem } from '@nuxt/ui'
+import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
 
 definePageMeta({ layout: 'detail' });
 

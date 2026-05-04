@@ -107,6 +107,7 @@ import type { BreadcrumbItem } from '@nuxt/ui'
 import { ChevronLeft, Trash2, Sparkles } from "lucide-vue-next";
 import { userJournalStore } from "~/stores/stores/user_journal";
 import { useToolkitStore } from "~/stores/stores/therapy_toolkit_store";
+import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
 
 const { t } = useI18n();
 const { dateLocale } = useLocalizedDate();
