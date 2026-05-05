@@ -19,6 +19,28 @@ class NotificationService {
   }
 
   /**
+   * Ensure the Android notification channel exists.
+   * Must be called before scheduling on Android — no-op on iOS/web.
+   * Safe to call multiple times (createChannel is idempotent).
+   */
+  private async ensureChannel(): Promise<void> {
+    if (Capacitor.getPlatform() !== 'android') return;
+    try {
+      await LocalNotifications.createChannel({
+        id: 'reminders',
+        name: 'Daily Reminders',
+        description: 'Morning and evening check-in reminders',
+        importance: 4, // IMPORTANCE_HIGH
+        visibility: 1, // VISIBILITY_PUBLIC
+        vibration: true,
+        sound: 'default',
+      });
+    } catch (e) {
+      console.warn('[NotificationService] createChannel failed:', e);
+    }
+  }
+
+  /**
    * Request local notification permission.
    * Must be called before scheduling on first app launch.
    * Returns true if granted, false otherwise.
@@ -65,10 +87,25 @@ class NotificationService {
     }
 
     const id = type === 'morning' ? MORNING_NOTIFICATION_ID : EVENING_NOTIFICATION_ID;
-    const title = type === 'morning' ? '🌅 Morning Check-In' : '🌙 Evening Reflection';
-    const body = type === 'morning'
-      ? 'Start your day with a quick mindfulness check-in.'
-      : 'Take a moment to reflect on your day.';
+
+    // Use i18n translations for notification content
+    let title: string;
+    let body: string;
+    try {
+      const { $i18n } = useNuxtApp();
+      const t = ($i18n as any).t;
+      title = type === 'morning' ? t('settings.notifications.morningCheckin') : t('settings.notifications.eveningReflection');
+      body = type === 'morning' ? t('settings.notifications.morningCheckinDesc') : t('settings.notifications.eveningReflectionDesc');
+    } catch {
+      // Fallback if i18n is not available
+      title = type === 'morning' ? '🌅 Morning Check-In' : '🌙 Evening Reflection';
+      body = type === 'morning'
+        ? 'Start your day with a quick mindfulness check-in.'
+        : 'Take a moment to reflect on your day.';
+    }
+
+    // Ensure the Android notification channel exists before scheduling
+    await this.ensureChannel();
 
     // Cancel existing before rescheduling to avoid duplicates
     await this.cancelReminder(type);

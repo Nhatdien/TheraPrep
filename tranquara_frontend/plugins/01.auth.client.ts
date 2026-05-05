@@ -5,6 +5,8 @@
  * Sets up automatic token refresh based on token expiry time
  */
 
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { useAuthStore } from '~/stores/stores/auth_store';
 import { useSettingsStore } from '~/stores/stores/settings_store';
 import NotificationService from '~/services/notifications/notification_service';
@@ -29,6 +31,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       await settingsStore.loadSettings();
     }
     await NotificationService.rehydrateFromSettings(settingsStore.notifications);
+  }
+
+  // Navigate to journal/daily when user taps a reminder notification
+  if (import.meta.client && Capacitor.isNativePlatform()) {
+    LocalNotifications.addListener('localNotificationActionPerformed', () => {
+      navigateTo('/journal/daily');
+    });
   }
 
   // Set up proactive token refresh and session re-check on app resume.

@@ -117,12 +117,13 @@ import type { SlideData } from '~/types/user_journal';
 
 definePageMeta({ layout: 'default' });
 
+const { t } = useI18n();
 const SLIDE_TYPES = ['journal_prompt', 'emotion_log', 'sleep_check'] as const;
 type TemplateSlideType = typeof SLIDE_TYPES[number];
 
 const templateStore = useCustomTemplateStore();
 
-const localTitle = ref(templateStore.title || 'My Daily Template');
+const localTitle = ref(templateStore.title || t('myTemplate.pageTitle'));
 const localSlides = ref<SlideData[]>(
   templateStore.slideGroups.flatMap(g => g.slides).map(s => ({ ...s }))
 );

@@ -50,9 +50,9 @@ const displayDescription = computed(() =>
 );
 
 const scoreLabel = computed(() => {
-  if (sleepScore.value < 35) return 'You may need gentle recovery today.';
-  if (sleepScore.value < 70) return 'A steady day with mindful pacing can help.';
-  return 'Great foundation for focus and calm energy.';
+  if (sleepScore.value < 35) return t('slide.sleepScoreLabels.low');
+  if (sleepScore.value < 70) return t('slide.sleepScoreLabels.mid');
+  return t('slide.sleepScoreLabels.high');
 });
 
 const scoreTone = computed(() => {

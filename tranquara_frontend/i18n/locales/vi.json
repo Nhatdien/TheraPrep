@@ -72,7 +72,7 @@
     "allCategories": "Tất cả danh mục",
     "chapters": "{count} chương",
     "questions": "{count} câu hỏi",
-    "seeAllOnCategory": "Xem tất cả {count} Nhật ký về {category}",
+    "seeAllOnCategory": "Xem tất cả {count} nhật ký về {category}",
     "mindfulExercises": "Bài tập chánh niệm",
     "categories": {
       "all": "Tất cả",
@@ -110,7 +110,15 @@
     "emotionDistribution": "Phân bố cảm xúc",
     "emptyMoodData": "Chưa có dữ liệu tâm trạng. Viết nhật ký để xem phân bố cảm xúc.",
     "journalingActivity": "Hoạt động viết nhật ký",
-    "emptyState": "Bắt đầu viết nhật ký để theo dõi quá trình của bạn.",
+    "heatmap": {
+      "entry": "bài viết",
+      "entries": "bài viết",
+      "noActivity": "Chưa có hoạt động viết nhật ký. Bắt đầu viết để xem lịch hoạt động."
+    },
+    "sleepQuality": "Chất lượng giấc ngủ",
+    "avgSleep": "Ngủ TB",
+    "noSleepData": "Chưa có dữ liệu giấc ngủ.",
+    "emptyState": "Hành trình phát triển bắt đầu từ đây. Viết nhật ký đầu tiên để bắt đầu nhé.",
     "startJournaling": "Bắt đầu viết nhật ký",
     "day": "ngày | ngày",
     "mood": {
@@ -132,7 +140,7 @@
     "account": "Tài khoản",
     "colorTheme": "Giao diện màu",
     "aboutYou": "Về bạn",
-    "aboutYouSubtitle": "Cá nhân hoá AI & ghi nhớ",
+    "aboutYouSubtitle": "Tuỳ chỉnh AI & trí nhớ",
     "notifications": "Thông báo",
     "notificationsSubtitle": "Nhắc nhở buổi sáng & tối",
     "yourData": "Dữ liệu của bạn",
@@ -140,7 +148,7 @@
     "dataSync": "dữ liệu & đồng bộ.",
     "logout": "Đăng xuất",
     "terms": "Điều khoản",
-    "privacy": "Bảo mật",
+    "privacy": "Quyền riêng tư",
     "support": "Hỗ trợ"
   },
   "settings": {
@@ -162,17 +170,17 @@
     "language": "Ngôn ngữ",
     "languageSubtitle": "Ngôn ngữ hiển thị",
     "aiPrivacy": {
-      "heading": "AI & bảo mật.",
+      "heading": "AI & riêng tư.",
       "aiPersonalization": "Cá nhân hoá AI",
-      "aiPersonalizationDesc": "Câu hỏi & phân tích cá nhân",
+      "aiPersonalizationDesc": "Câu hỏi & phân tích được cá nhân hoá",
       "yourStory": "Câu chuyện của bạn",
-      "yourStoryDesc": "Giúp AI hiểu về bạn hơn",
+      "yourStoryDesc": "Giúp AI hiểu bạn hơn",
       "yourStoryPlaceholder": "VD: Tôi đang chuẩn bị cho buổi trị liệu đầu tiên và đang đối mặt với lo âu công việc...",
       "yourStoryUpdated": "Đã cập nhật câu chuyện",
       "analytics": "Phân tích",
       "analyticsDesc": "Giúp cải thiện ứng dụng",
       "aiDisabledTitle": "Tính năng AI đã tắt",
-      "aiDisabledDesc": "Bài viết nhật ký vẫn được lưu bình thường nhưng sẽ không nhận câu hỏi theo dõi cá nhân hoá hoặc phân tích AI."
+      "aiDisabledDesc": "Nhật ký vẫn được lưu bình thường nhưng sẽ không có câu hỏi gợi mở hay phân tích từ AI."
     },
     "dataManagement": {
       "heading": "quản lý dữ liệu.",
@@ -426,7 +434,7 @@
       "selfReflection": "Tự suy ngẫm",
       "other": "Khác"
     },
-    "experienceQuestion": "Bạn đã có kinh nghiệm với trị liệu tâm lý chưa?",
+    "experienceQuestion": "Bạn đã từng tham gia trị liệu tâm lý chưa?",
     "experience": {
       "yes": "Có",
       "no": "Không",
@@ -445,10 +453,10 @@
     "chapters": "{count} chương",
     "noTemplatesFound": "Không tìm thấy mẫu trong danh mục này",
     "categoryDescriptions": {
-      "check": "Ghi nhận nhanh và suy ngẫm giúp bạn kết nối với suy nghĩ và cảm xúc trong suốt cả ngày.",
-      "daily": "Thực hành hàng ngày và câu hỏi gợi ý để xây dựng thói quen lành mạnh và duy trì sức khỏe tinh thần.",
-      "well": "Hỗ trợ và hướng dẫn cho những khoảnh khắc khó khăn khi bạn cần giúp đỡ và an ủi ngay lập tức.",
-      "sleep": "Bài tập thư giãn và suy ngẫm giúp bạn thả lỏng và chuẩn bị cho giấc ngủ ngon.",
+      "check": "Ghi nhận nhanh và suy ngẫm — giúp bạn kết nối với suy nghĩ và cảm xúc mỗi ngày.",
+      "daily": "Thực hành hàng ngày và câu hỏi gợi mở — giúp bạn xây dựng thói quen lành mạnh.",
+      "well": "Bài tập hỗ trợ bạn qua những lúc khó khăn — khi cần được an ủi và đồng hành ngay.",
+      "sleep": "Bài tập thư giãn giúp bạn thả lỏng và đi vào giấc ngủ dễ dàng hơn.",
       "default": "Bộ sưu tập bài học và câu hỏi nhật ký giúp bạn khám phá và hiểu về {category}."
     }
   },
@@ -460,6 +468,14 @@
     "moodInstruction": "Di chuyển thanh trượt để phản ánh cảm xúc của bạn",
     "defaultMoodQuestion": "Bạn đang cảm thấy thế nào?",
     "sleepQuestion": "Giấc ngủ của bạn hôm qua thế nào",
+    "sleepInstruction": "Bạn cảm thấy thế nào khi thức dậy?",
+    "badSleep": "Khó ngủ",
+    "goodSleep": "Ngủ ngon",
+    "sleepScoreLabels": {
+      "low": "Hôm nay bạn nên nghỉ ngơi nhẹ nhàng.",
+      "mid": "Hãy giữ nhịp độ vừa phải để cơ thể phục hồi tốt hơn.",
+      "high": "Nền tảng tốt cho sự tập trung và năng lượng bình tĩnh."
+    },
     "furtherReading": "Đọc thêm",
     "moodLabels": {
       "1": "Rất tồi tệ",
@@ -650,8 +666,8 @@
         "title": "Quét cơ thể",
         "description": "Chú ý đến từng phần cơ thể của bạn",
         "focusOn": "Tập trung vào",
-        "prompt": "Nhận biết sự căng thẳng và hít thở vào đó.",
-        "complete": "Tuyệt vời. Hãy dành một chút để cảm nhận bạn đang thế nào.",
+        "prompt": "Cảm nhận vùng căng thẳng và thở sâu vào đó.",
+        "complete": "Tuyệt vời. Hãy dành một chút để cảm nhận cơ thể bạn lúc này.",
         "parts": {
           "head": "Đầu",
           "shoulders": "Vai",
@@ -663,8 +679,8 @@
         }
       },
       "affirmations": {
-        "title": "Lời động viên bản thân",
-        "description": "Những lời động viên giúp bạn bình tĩnh hơn",
+        "title": "Lời tự trấn an",
+        "description": "Những lời nhắc nhẹ nhàng giúp bạn an tâm hơn",
         "addPlaceholder": "Thêm lời động viên của bạn...",
         "favorites": "Yêu thích",
         "myAffirmations": "Lời động viên của tôi",
@@ -683,8 +699,8 @@
       },
       "title": "Bài tập bình tâm",
       "breathing": {
-        "title": "Box Breathing",
-        "description": "Kỹ thuật thư giãn với nhịp 4 giây",
+        "title": "Hít thở theo nhịp",
+        "description": "Kỹ thuật thư giãn theo chu kỳ 4 giây",
         "start": "Bắt đầu hít thở",
         "stop": "Dừng",
         "inhale": "Hít vào",
@@ -692,7 +708,7 @@
         "exhale": "Thở ra",
         "holdOut": "Giữ",
         "elapsed": "Đã {time}",
-        "complete": "Tuyệt vời! Bạn đã tập {duration}."
+        "complete": "Tuyệt vời! Bạn đã luyện tập được {duration}."
       }
     }
   },

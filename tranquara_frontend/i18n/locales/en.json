@@ -110,6 +110,14 @@
     "emotionDistribution": "Emotion Distribution",
     "emptyMoodData": "No mood data yet. Start journaling to see your emotion distribution.",
     "journalingActivity": "Journaling Activity",
+    "heatmap": {
+      "entry": "entry",
+      "entries": "entries",
+      "noActivity": "No journaling activity yet. Start writing to see your activity calendar."
+    },
+    "sleepQuality": "Sleep Quality",
+    "avgSleep": "Avg Sleep",
+    "noSleepData": "No sleep data yet.",
     "emptyState": "Your progress journey starts here. Write your first journal to begin tracking your reflections.",
     "startJournaling": "Start Journaling",
     "day": "day | days",
@@ -460,6 +468,14 @@
     "moodInstruction": "Move the slider to reflect how you're feeling",
     "defaultMoodQuestion": "How are you feeling right now?",
     "sleepQuestion": "How was your sleep yesterday",
+    "sleepInstruction": "How restored did you feel when you woke up?",
+    "badSleep": "Restless",
+    "goodSleep": "Restful",
+    "sleepScoreLabels": {
+      "low": "You may need gentle recovery today.",
+      "mid": "A steady day with mindful pacing can help.",
+      "high": "Great foundation for focus and calm energy."
+    },
     "furtherReading": "Further reading",
     "moodLabels": {
       "1": "Terrible",

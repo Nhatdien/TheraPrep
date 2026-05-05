@@ -329,6 +329,7 @@ interface DateRangeValue {
 
 const journalStore = userJournalStore();
 const authStore = useAuthStore();
+const { t } = useI18n();
 const { formatDateGroupHeader, formatTime } = useLocalizedDate();
 
 // Filter drawer state
@@ -382,8 +383,8 @@ const confirmDateRangeProxy = () => {
 // Collection options for dropdown (compact display)
 const collectionOptions = computed(() => {
   const options = [
-    { label: 'All Entries', value: null },
-    { label: 'Journal (Free-form)', value: 'free-form' },
+    { label: t('history.allEntries'), value: null },
+    { label: t('history.journalFreeForm'), value: 'free-form' },
   ];
   
   // Add templates from store

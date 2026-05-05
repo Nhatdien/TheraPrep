@@ -20,12 +20,15 @@ const templateStore = useCustomTemplateStore();
 // Wait for template to load, then redirect if none exists
 const DAILY_REFLECTION_ID = '55555555-5555-5555-5555-555555555555';
 
+// Mirror the same time logic as DailyCheckIn: 0–16h → morning-prep, 17h+ → evening-reflection
+const activeSlideGroup = new Date().getHours() >= 17 ? 'evening-reflection' : 'morning-prep';
+
 onMounted(async () => {
   if (!templateStore.isLoaded) {
     await templateStore.loadCustomTemplate();
   }
   if (!templateStore.hasTemplate) {
-    navigateTo(`/learn_and_prepare/collection/${DAILY_REFLECTION_ID}/morning-prep`, { replace: true });
+    navigateTo(`/learn_and_prepare/collection/${DAILY_REFLECTION_ID}/${activeSlideGroup}`, { replace: true });
   }
 });
 
