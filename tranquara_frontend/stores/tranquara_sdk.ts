@@ -9,6 +9,7 @@ import { AIService } from './ai_service';
 import { AIMemories } from './ai_memories';
 import { TherapyToolkit } from './therapy_toolkit';
 import { UserCustomTemplate } from './user_custom_template';
+import { AdminTemplates } from './admin_templates';
 
 class TranquaraSDK extends Base {
   constructor(config?: null | Config) {
@@ -37,8 +38,8 @@ class TranquaraSDK extends Base {
 
 }
 
-interface TranquaraSDK extends UserStreaks, UserJournals, UserLearned, Auth, AIService, AIMemories, TherapyToolkit, UserCustomTemplate {}
+interface TranquaraSDK extends UserStreaks, UserJournals, UserLearned, Auth, AIService, AIMemories, TherapyToolkit, UserCustomTemplate, AdminTemplates {}
 
-applyMixins(TranquaraSDK, [UserStreaks, UserJournals, UserLearned, Auth, AIService, AIMemories, TherapyToolkit, UserCustomTemplate]);
+applyMixins(TranquaraSDK, [UserStreaks, UserJournals, UserLearned, Auth, AIService, AIMemories, TherapyToolkit, UserCustomTemplate, AdminTemplates]);
 
 export default TranquaraSDK;

@@ -104,5 +104,17 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/custom-template", app.authMiddleWare(app.getCustomTemplateHandler))
 	router.HandlerFunc(http.MethodPut, "/v1/custom-template", app.authMiddleWare(app.upsertCustomTemplateHandler))
 
+	// Admin — Template management routes
+	// NOTE: export/import use a separate prefix to avoid httprouter wildcard conflict with /:id
+	router.HandlerFunc(http.MethodGet, "/v1/admin/templates", app.adminMiddleware(app.adminListTemplates))
+	router.HandlerFunc(http.MethodPost, "/v1/admin/templates", app.adminMiddleware(app.adminCreateTemplate))
+	router.HandlerFunc(http.MethodGet, "/v1/admin/templates/:id", app.adminMiddleware(app.adminGetTemplate))
+	router.HandlerFunc(http.MethodPut, "/v1/admin/templates/:id", app.adminMiddleware(app.adminUpdateTemplate))
+	router.HandlerFunc(http.MethodDelete, "/v1/admin/templates/:id", app.adminMiddleware(app.adminDeleteTemplate))
+	router.HandlerFunc(http.MethodPost, "/v1/admin/templates/:id/duplicate", app.adminMiddleware(app.adminDuplicateTemplate))
+	router.HandlerFunc(http.MethodPatch, "/v1/admin/templates/:id/toggle-active", app.adminMiddleware(app.adminToggleActiveTemplate))
+	router.HandlerFunc(http.MethodGet, "/v1/admin/templates-export", app.adminMiddleware(app.adminExportTemplates))
+	router.HandlerFunc(http.MethodPost, "/v1/admin/templates-import", app.adminMiddleware(app.adminImportTemplates))
+
 	return app.recoverPanic(app.rateLimit(router))
 }
