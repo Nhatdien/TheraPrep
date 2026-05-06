@@ -109,20 +109,20 @@ onMounted(() => {
 });
 
 const typeOptions = [
-  { label: 'All Types', value: '' },
+  { label: 'All Types', value: '__all__' },
   { label: 'Learn', value: 'learn' },
   { label: 'Journal', value: 'journal' },
 ];
 
 const statusOptions = [
-  { label: 'All Status', value: '' },
+  { label: 'All Status', value: '__all__' },
   { label: 'Active', value: 'active' },
   { label: 'Inactive', value: 'inactive' },
 ];
 
 const categoryOptions = computed(() => [
-  { label: 'All Categories', value: '' },
-  ...adminStore.categories.map(c => ({ label: c, value: c })),
+  { label: 'All Categories', value: '__all__' },
+  ...adminStore.categories.map(c => ({ label: formatCategory(c), value: c })),
 ]);
 
 function countSlides(t: AdminJournalTemplate): number {

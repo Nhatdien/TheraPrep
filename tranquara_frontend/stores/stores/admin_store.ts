@@ -20,9 +20,9 @@ export const useAdminStore = defineStore('admin', {
     currentTemplate: null,
     isLoading: false,
     filters: {
-      type: '',
-      category: '',
-      status: '',
+      type: '__all__',
+      category: '__all__',
+      status: '__all__',
       search: '',
     },
   }),
@@ -31,10 +31,10 @@ export const useAdminStore = defineStore('admin', {
     filteredTemplates(state): AdminJournalTemplate[] {
       let result = state.templates;
 
-      if (state.filters.type) {
+      if (state.filters.type && state.filters.type !== '__all__') {
         result = result.filter(t => t.type === state.filters.type);
       }
-      if (state.filters.category) {
+      if (state.filters.category && state.filters.category !== '__all__') {
         result = result.filter(t => t.category === state.filters.category);
       }
       if (state.filters.status === 'active') {
