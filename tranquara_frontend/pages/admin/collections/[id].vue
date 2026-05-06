@@ -1,12 +1,14 @@
 <template>
-  <div>
+  <div class="max-w-6xl mx-auto">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-3">
-        <UButton icon="i-heroicons-arrow-left" variant="ghost" size="sm" to="/admin/collections" />
-        <h1 class="text-xl font-bold">{{ isNew ? 'New Collection' : `Edit: ${form.title}` }}</h1>
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-4">
+        <UButton icon="i-heroicons-arrow-left" variant="ghost" to="/admin/collections" />
+        <div>
+          <h1 class="text-2xl font-bold">{{ isNew ? 'New Collection' : `Edit: ${form.title}` }}</h1>
+        </div>
       </div>
-      <div class="flex gap-2">
+      <div class="flex gap-3">
         <UButton v-if="!isNew" variant="outline" icon="i-heroicons-eye" :to="`/admin/collections/preview/${id}`">
           Preview
         </UButton>
@@ -17,68 +19,71 @@
     </div>
 
     <!-- Form -->
-    <div class="space-y-6">
+    <div class="space-y-8">
       <!-- Collection Details Card -->
-      <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-semibold text-sm">Collection Details</h2>
-          <label class="flex items-center gap-2 text-xs text-gray-500">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold">Collection Details</h2>
+          <label class="flex items-center gap-2 text-sm text-gray-500 cursor-pointer select-none">
             <input type="checkbox" v-model="showVi" class="rounded" />
             Show Vietnamese
           </label>
         </div>
 
-        <div class="grid gap-4" :class="showVi ? 'lg:grid-cols-2' : ''">
+        <div class="grid gap-6" :class="showVi ? 'lg:grid-cols-2' : ''">
           <!-- EN Column -->
-          <div class="space-y-3">
-            <div v-if="showVi" class="text-xs font-medium text-gray-400 uppercase">English</div>
-            <UFormField label="Title *">
-              <UInput v-model="form.title" placeholder="Collection title" :color="errors.title ? 'error' : undefined" />
+          <div class="space-y-5">
+            <div v-if="showVi" class="text-xs font-semibold text-gray-400 uppercase tracking-wider">English</div>
+            <UFormField label="Title" required>
+              <UInput v-model="form.title" placeholder="Collection title" size="lg" :color="errors.title ? 'error' : undefined" />
               <template v-if="errors.title" #error>{{ errors.title }}</template>
             </UFormField>
             <UFormField label="Description">
-              <UTextarea v-model="form.description" placeholder="Brief description" :rows="2" />
+              <UTextarea v-model="form.description" placeholder="Brief description of this collection..." :rows="3" size="lg" />
             </UFormField>
           </div>
           <!-- VI Column -->
-          <div v-if="showVi" class="space-y-3 pl-4 border-l border-blue-100 dark:border-blue-900/30 bg-blue-50/30 dark:bg-blue-900/5 rounded-r p-3">
-            <div class="text-xs font-medium text-blue-500 uppercase">Vietnamese</div>
+          <div v-if="showVi" class="space-y-5 pl-5 border-l-2 border-blue-200 dark:border-blue-900/50 bg-blue-50/20 dark:bg-blue-900/10 rounded-r-lg p-5">
+            <div class="text-xs font-semibold text-blue-500 uppercase tracking-wider">Vietnamese</div>
             <UFormField label="Title (VI)">
-              <UInput v-model="form.title_vi" placeholder="Tiêu đề" />
+              <UInput v-model="form.title_vi" placeholder="Tiêu đề" size="lg" />
             </UFormField>
             <UFormField label="Description (VI)">
-              <UTextarea v-model="form.description_vi" placeholder="Mô tả" :rows="2" />
+              <UTextarea v-model="form.description_vi" placeholder="Mô tả" :rows="3" size="lg" />
             </UFormField>
           </div>
         </div>
 
         <!-- Type / Category / Active Row -->
-        <div class="grid grid-cols-3 gap-4 mt-4">
-          <UFormField label="Type *">
-            <USelect v-model="form.type" :items="typeOptions" :color="errors.type ? 'error' : undefined" />
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
+          <UFormField label="Type" required>
+            <USelect v-model="form.type" :items="typeOptions" size="lg" :color="errors.type ? 'error' : undefined" />
           </UFormField>
-          <UFormField label="Category *">
-            <USelect v-model="form.category" :items="categoryOptions" :color="errors.category ? 'error' : undefined" />
+          <UFormField label="Category" required>
+            <USelect v-model="form.category" :items="allCategoryOptions" size="lg" :color="errors.category ? 'error' : undefined" />
+            <div v-if="form.category === '__custom__'" class="mt-2">
+              <UInput v-model="customCategory" placeholder="Enter new category name..." size="lg" @blur="applyCustomCategory" @keyup.enter="applyCustomCategory" />
+            </div>
           </UFormField>
           <UFormField label="Status">
-            <label class="flex items-center gap-2 mt-2">
-              <input type="checkbox" v-model="form.is_active" class="rounded" />
-              <span class="text-sm">Active</span>
+            <label class="flex items-center gap-3 mt-2 cursor-pointer select-none">
+              <input type="checkbox" v-model="form.is_active" class="rounded w-5 h-5" />
+              <span class="text-sm font-medium">{{ form.is_active ? 'Active' : 'Inactive' }}</span>
             </label>
           </UFormField>
         </div>
       </div>
 
       <!-- Slide Groups -->
-      <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-semibold text-sm">Slide Groups</h2>
-          <UButton icon="i-heroicons-plus" size="xs" variant="outline" @click="addSlideGroup">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold">Slide Groups</h2>
+          <UButton icon="i-heroicons-plus" variant="outline" @click="addSlideGroup">
             Add Group
           </UButton>
         </div>
 
-        <p v-if="errors.slide_groups" class="text-xs text-red-500 mb-3">{{ errors.slide_groups }}</p>
+        <p v-if="errors.slide_groups" class="text-sm text-red-500 mb-4">{{ errors.slide_groups }}</p>
 
         <div ref="slideGroupsContainer" class="space-y-4">
           <div
@@ -87,9 +92,9 @@
             class="border border-gray-200 dark:border-gray-700 rounded-lg"
           >
             <!-- Group Header -->
-            <div class="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-t-lg">
-              <span class="drag-handle-group cursor-grab text-gray-400 hover:text-gray-600">⠿</span>
-              <span class="text-xs font-medium text-gray-500">{{ gIdx + 1 }}.</span>
+            <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-t-lg">
+              <span class="drag-handle-group cursor-grab text-gray-400 hover:text-gray-600 text-lg">⠿</span>
+              <span class="text-sm font-semibold text-gray-500">{{ gIdx + 1 }}.</span>
               <input
                 v-model="group.title"
                 class="flex-1 text-sm font-medium bg-transparent border-none outline-none placeholder-gray-400"
@@ -113,10 +118,10 @@
               </div>
 
               <!-- Slides list -->
-              <div class="mt-3">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs text-gray-500">Slides ({{ group.slides.length }})</span>
-                  <UButton icon="i-heroicons-plus" size="xs" variant="soft" @click="addSlide(gIdx)">
+              <div class="mt-4">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-sm text-gray-500 font-medium">Slides ({{ group.slides.length }})</span>
+                  <UButton icon="i-heroicons-plus" size="sm" variant="soft" @click="addSlide(gIdx)">
                     Add Slide
                   </UButton>
                 </div>
@@ -125,15 +130,15 @@
                   <div
                     v-for="(slide, sIdx) in group.slides"
                     :key="slide.id"
-                    class="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800/30 rounded border border-gray-100 dark:border-gray-700"
+                    class="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-800/30 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
                   >
-                    <span class="drag-handle-slide cursor-grab text-gray-400 hover:text-gray-600 text-xs">⠿</span>
-                    <UBadge :color="(slideTypeColor(slide.type) as any)" variant="subtle" size="xs">{{ slide.type }}</UBadge>
-                    <span class="flex-1 text-xs text-gray-600 dark:text-gray-400 truncate">
-                      {{ slide.question || slide.title || slide.content?.slice(0, 50) || '(empty)' }}
+                    <span class="drag-handle-slide cursor-grab text-gray-400 hover:text-gray-600">⠿</span>
+                    <UBadge :color="(slideTypeColor(slide.type) as any)" variant="subtle" size="md" class="min-w-[100px] justify-center">{{ slideTypeLabel(slide.type) }}</UBadge>
+                    <span class="flex-1 text-sm text-gray-600 dark:text-gray-400 truncate">
+                      {{ slide.question || slide.title || slide.content?.slice(0, 60) || '(empty)' }}
                     </span>
-                    <UButton icon="i-heroicons-pencil-square" size="xs" variant="ghost" @click="editSlide(gIdx, sIdx)" />
-                    <UButton icon="i-heroicons-trash" size="xs" variant="ghost" color="error" @click="removeSlide(gIdx, sIdx)" />
+                    <UButton icon="i-heroicons-pencil-square" size="sm" variant="ghost" @click="editSlide(gIdx, sIdx)" />
+                    <UButton icon="i-heroicons-trash" size="sm" variant="ghost" color="error" @click="removeSlide(gIdx, sIdx)" />
                   </div>
                 </div>
               </div>
@@ -144,34 +149,47 @@
     </div>
 
     <!-- Slide Editor Modal -->
-    <UModal v-model:open="slideModalOpen">
+    <UModal v-model:open="slideModalOpen" :ui="{ content: 'sm:max-w-3xl' }">
       <template #content>
-        <div class="p-6 max-h-[80vh] overflow-y-auto">
-          <h3 class="text-lg font-semibold mb-4">{{ editingSlideIsNew ? 'Add Slide' : 'Edit Slide' }}</h3>
+        <div class="p-6 max-h-[85vh] overflow-y-auto">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-semibold">{{ editingSlideIsNew ? 'Add Slide' : 'Edit Slide' }}</h3>
+            <UBadge v-if="editingSlide.type" :color="(slideTypeColor(editingSlide.type) as any)" variant="subtle" size="lg">
+              {{ slideTypeLabel(editingSlide.type) }}
+            </UBadge>
+          </div>
 
-          <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-6">
+            <div class="grid grid-cols-2 gap-4">
               <UFormField label="Slide ID">
-                <UInput v-model="editingSlide.id" placeholder="slide-id" size="sm" />
+                <UInput v-model="editingSlide.id" placeholder="slide-id" size="lg" disabled />
               </UFormField>
               <UFormField label="Type">
-                <USelect v-model="editingSlide.type" :items="slideTypeOptions" size="sm" />
+                <USelect v-model="editingSlide.type" :items="slideTypeOptions" size="lg" />
               </UFormField>
             </div>
 
+            <!-- Divider -->
+            <div class="border-t border-gray-200 dark:border-gray-700" />
+
             <!-- Type-specific fields -->
-            <AdminSlideEmotionLog v-if="editingSlide.type === 'emotion_log'" v-model="editingSlide" :show-vi="showVi" />
-            <AdminSlideSleepCheck v-else-if="editingSlide.type === 'sleep_check'" v-model="editingSlide" :show-vi="showVi" />
-            <AdminSlideJournalPrompt v-else-if="editingSlide.type === 'journal_prompt'" v-model="editingSlide" :show-vi="showVi" />
-            <AdminSlideDoc v-else-if="editingSlide.type === 'doc'" v-model="editingSlide" :show-vi="showVi" />
-            <AdminSlideFurtherReading v-else-if="editingSlide.type === 'further_reading'" v-model="editingSlide" :show-vi="showVi" />
-            <AdminSlideCta v-else-if="editingSlide.type === 'cta'" v-model="editingSlide" :show-vi="showVi" />
-            <AdminSlideGeneric v-else v-model="editingSlide" :show-vi="showVi" />
+            <div class="min-h-[200px]">
+              <AdminSlideEmotionLog v-if="editingSlide.type === 'emotion_log'" v-model="editingSlide" :show-vi="showVi" />
+              <AdminSlideSleepCheck v-else-if="editingSlide.type === 'sleep_check'" v-model="editingSlide" :show-vi="showVi" />
+              <AdminSlideJournalPrompt v-else-if="editingSlide.type === 'journal_prompt'" v-model="editingSlide" :show-vi="showVi" />
+              <AdminSlideDoc v-else-if="editingSlide.type === 'doc'" v-model="editingSlide" :show-vi="showVi" />
+              <AdminSlideFurtherReading v-else-if="editingSlide.type === 'further_reading'" v-model="editingSlide" :show-vi="showVi" />
+              <AdminSlideCta v-else-if="editingSlide.type === 'cta'" v-model="editingSlide" :show-vi="showVi" />
+              <AdminSlideChecklist v-else-if="editingSlide.type === 'checklist_input'" v-model="editingSlide" :show-vi="showVi" />
+              <AdminSlideQuestionnaire v-else-if="editingSlide.type === 'questionnaire'" v-model="editingSlide" :show-vi="showVi" />
+              <AdminSlideCompletion v-else-if="editingSlide.type === 'completion'" v-model="editingSlide" :show-vi="showVi" />
+              <AdminSlideGeneric v-else v-model="editingSlide" :show-vi="showVi" />
+            </div>
           </div>
 
-          <div class="flex justify-end gap-2 mt-6">
-            <UButton variant="outline" @click="slideModalOpen = false">Cancel</UButton>
-            <UButton color="primary" @click="saveSlide">{{ editingSlideIsNew ? 'Add' : 'Save' }}</UButton>
+          <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <UButton variant="outline" size="lg" @click="slideModalOpen = false">Cancel</UButton>
+            <UButton color="primary" size="lg" @click="saveSlide">{{ editingSlideIsNew ? 'Add Slide' : 'Save Changes' }}</UButton>
           </div>
         </div>
       </template>
@@ -239,6 +257,8 @@ const typeOptions = [
   { label: 'Journal', value: 'journal' },
 ];
 
+const customCategory = ref('');
+
 const categoryOptions = [
   { label: 'Self Care', value: 'self_care' },
   { label: 'Mental Health', value: 'mental_health' },
@@ -253,6 +273,19 @@ const categoryOptions = [
   { label: 'Communication', value: 'communication' },
   { label: 'Self Compassion', value: 'self_compassion' },
 ];
+
+const allCategoryOptions = computed(() => [
+  ...categoryOptions,
+  { label: '+ Create New Category', value: '__custom__' },
+]);
+
+function applyCustomCategory() {
+  if (customCategory.value.trim()) {
+    const slug = customCategory.value.trim().toLowerCase().replace(/\s+/g, '_');
+    form.category = slug;
+    customCategory.value = '';
+  }
+}
 
 const slideTypeOptions = [
   { label: 'Emotion Log', value: 'emotion_log' },
@@ -441,8 +474,30 @@ function slideTypeColor(type: string): string {
     doc: 'warning',
     further_reading: 'neutral',
     cta: 'error',
+    questionnaire: 'primary',
+    completion: 'success',
+    date_picker: 'neutral',
+    star_rating: 'warning',
+    checklist_input: 'info',
   };
   return colors[type] || 'neutral';
+}
+
+function slideTypeLabel(type: string): string {
+  const labels: Record<string, string> = {
+    emotion_log: 'Emotion Log',
+    sleep_check: 'Sleep Check',
+    journal_prompt: 'Journal Prompt',
+    doc: 'Document',
+    further_reading: 'Further Reading',
+    cta: 'Call to Action',
+    date_picker: 'Date Picker',
+    star_rating: 'Star Rating',
+    checklist_input: 'Checklist',
+    questionnaire: 'Questionnaire',
+    completion: 'Completion',
+  };
+  return labels[type] || type;
 }
 
 // Save

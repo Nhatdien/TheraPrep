@@ -8,11 +8,11 @@
     </div>
 
     <!-- Filters -->
-    <div class="flex flex-wrap gap-3 mb-4">
-      <USelect v-model="adminStore.filters.type" :items="typeOptions" placeholder="All Types" class="w-36" />
-      <USelect v-model="adminStore.filters.category" :items="categoryOptions" placeholder="All Categories" class="w-44" />
-      <USelect v-model="adminStore.filters.status" :items="statusOptions" placeholder="All Status" class="w-36" />
-      <UInput v-model="adminStore.filters.search" placeholder="Search title..." icon="i-heroicons-magnifying-glass" class="w-56" />
+    <div class="flex flex-wrap gap-3 mb-6">
+      <USelect v-model="adminStore.filters.type" :items="typeOptions" placeholder="All Types" class="w-40" size="lg" />
+      <USelect v-model="adminStore.filters.category" :items="categoryOptions" placeholder="All Categories" class="w-48" size="lg" />
+      <USelect v-model="adminStore.filters.status" :items="statusOptions" placeholder="All Status" class="w-40" size="lg" />
+      <UInput v-model="adminStore.filters.search" placeholder="Search title..." icon="i-heroicons-magnifying-glass" class="w-60" size="lg" />
     </div>
 
     <!-- Table -->
@@ -38,13 +38,17 @@
               <p v-if="t.description" class="text-xs text-gray-500 truncate max-w-xs">{{ t.description }}</p>
             </td>
             <td class="px-4 py-3">
-              <UBadge :color="t.type === 'learn' ? 'info' : 'warning'" variant="subtle" size="xs">
+              <UBadge :color="t.type === 'learn' ? 'info' : 'warning'" variant="subtle" size="md" class="min-w-[70px] justify-center">
                 {{ t.type }}
               </UBadge>
             </td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ t.category }}</td>
+            <td class="px-4 py-3">
+              <UBadge color="neutral" variant="subtle" size="md">
+                {{ formatCategory(t.category) }}
+              </UBadge>
+            </td>
             <td class="px-4 py-3 text-center">
-              <UBadge :color="t.is_active ? 'success' : 'neutral'" variant="subtle" size="xs">
+              <UBadge :color="t.is_active ? 'success' : 'neutral'" variant="subtle" size="md">
                 {{ t.is_active ? 'Active' : 'Inactive' }}
               </UBadge>
             </td>
@@ -52,9 +56,9 @@
               {{ countSlides(t) }}
             </td>
             <td class="px-4 py-3 text-right">
-              <UDropdown :items="getRowActions(t)">
-                <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" size="xs" />
-              </UDropdown>
+              <UDropdownMenu :items="getRowActions(t)">
+                <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" size="sm" />
+              </UDropdownMenu>
             </td>
           </tr>
           <tr v-if="adminStore.filteredTemplates.length === 0">
@@ -125,15 +129,22 @@ function countSlides(t: AdminJournalTemplate): number {
   return t.slide_groups?.reduce((acc, g) => acc + (g.slides?.length || 0), 0) || 0;
 }
 
+function formatCategory(cat: string): string {
+  return cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
 function getRowActions(t: AdminJournalTemplate) {
-  return [[
-    { label: 'Edit', icon: 'i-heroicons-pencil-square', click: () => router.push(`/admin/collections/${t.id}`) },
-    { label: 'Preview', icon: 'i-heroicons-eye', click: () => router.push(`/admin/collections/preview/${t.id}`) },
-    { label: 'Duplicate', icon: 'i-heroicons-document-duplicate', click: () => handleDuplicate(t.id) },
-    { label: t.is_active ? 'Deactivate' : 'Activate', icon: 'i-heroicons-arrow-path', click: () => handleToggle(t.id) },
-  ], [
-    { label: 'Delete', icon: 'i-heroicons-trash', click: () => { deleteTarget.value = t; deleteModalOpen.value = true; } },
-  ]];
+  return [
+    [
+      { label: 'Edit', icon: 'i-heroicons-pencil-square', onSelect: () => router.push(`/admin/collections/${t.id}`) },
+      { label: 'Preview', icon: 'i-heroicons-eye', onSelect: () => router.push(`/admin/collections/preview/${t.id}`) },
+      { label: 'Duplicate', icon: 'i-heroicons-document-duplicate', onSelect: () => handleDuplicate(t.id) },
+      { label: t.is_active ? 'Deactivate' : 'Activate', icon: 'i-heroicons-arrow-path', onSelect: () => handleToggle(t.id) },
+    ],
+    [
+      { label: 'Delete', icon: 'i-heroicons-trash', color: 'error' as const, onSelect: () => { deleteTarget.value = t; deleteModalOpen.value = true; } },
+    ],
+  ];
 }
 
 async function handleDuplicate(id: string) {
