@@ -130,6 +130,12 @@ export class ToolkitRepository {
     await this.persistToStore();
   }
 
+  async hardDeleteSession(id: string): Promise<void> {
+    const db = this.getDb();
+    await db.run(`DELETE FROM therapy_sessions WHERE id = ?`, [id]);
+    await this.persistToStore();
+  }
+
   // ─── Homework ───────────────────────────
 
   async createHomework(item: HomeworkItem): Promise<HomeworkItem> {
@@ -275,6 +281,32 @@ export class ToolkitRepository {
     console.log('[ToolkitRepo] Deleted prep pack:', id);
   }
 
+  async getPendingSyncPrepPacks(userId: string): Promise<PrepPack[]> {
+    const db = this.getDb();
+    const result = await db.query(
+      `SELECT * FROM prep_packs WHERE user_id = ? AND needs_sync = 1`,
+      [userId]
+    );
+    return (result.values || []).map((row: any) => ({
+      ...row,
+      mood_overview: row.mood_overview ? JSON.parse(row.mood_overview) : null,
+      key_themes: row.key_themes ? JSON.parse(row.key_themes) : [],
+      emotional_highlights: row.emotional_highlights ? JSON.parse(row.emotional_highlights) : [],
+      patterns: row.patterns ? JSON.parse(row.patterns) : [],
+      discussion_points: row.discussion_points ? JSON.parse(row.discussion_points) : [],
+      growth_moments: row.growth_moments ? JSON.parse(row.growth_moments) : [],
+    })) as PrepPack[];
+  }
+
+  async markPrepPackSynced(localId: string, serverId: string): Promise<void> {
+    const db = this.getDb();
+    await db.run(
+      `UPDATE prep_packs SET server_id = ?, needs_sync = 0, synced_at = ? WHERE id = ?`,
+      [serverId, new Date().toISOString(), localId]
+    );
+    await this.persistToStore();
+  }
+
   // --- Affirmations (local-only)
 
   async getAffirmationsByUser(userId: string): Promise<UserAffirmation[]> {
@@ -321,5 +353,202 @@ export class ToolkitRepository {
     await db.run(`DELETE FROM user_affirmations WHERE id = ?`, [id]);
     await this.persistToStore();
     console.log('[ToolkitRepo] Deleted affirmation:', id);
+  }
+
+  // ─── Sync from server (pull) ────────────────────────
+
+  /**
+   * Merge server sessions into local SQLite.
+   * Timestamp-based conflict resolution: server wins only if newer.
+   */
+  async syncSessionsFromServer(
+    serverSessions: any[],
+    userId: string
+  ): Promise<{ inserted: number; updated: number; skipped: number }> {
+    const db = this.getDb();
+    const stats = { inserted: 0, updated: 0, skipped: 0 };
+
+    for (const s of serverSessions) {
+      try {
+        // Find existing by server_id
+        const existingResult = await db.query(
+          `SELECT * FROM therapy_sessions WHERE server_id = ? AND user_id = ?`,
+          [s.id, userId]
+        );
+        const existing = existingResult.values?.[0];
+
+        if (existing) {
+          const serverTime = new Date(s.updated_at).getTime();
+          const localTime = new Date(existing.updated_at).getTime();
+
+          if (serverTime > localTime && existing.needs_sync !== 1) {
+            await db.run(
+              `UPDATE therapy_sessions SET
+                session_date = ?, status = ?, mood_before = ?, talking_points = ?,
+                session_priority = ?, prep_pack_id = ?, mood_after = ?, key_takeaways = ?,
+                session_rating = ?, updated_at = ?, needs_sync = 0, synced_at = ?
+              WHERE id = ?`,
+              [
+                s.session_date || null, s.status, s.mood_before ?? null, s.talking_points ?? null,
+                s.session_priority ?? null, s.prep_pack_id ?? null, s.mood_after ?? null,
+                s.key_takeaways ?? null, s.session_rating ?? null, s.updated_at,
+                new Date().toISOString(), existing.id,
+              ]
+            );
+            stats.updated++;
+          } else {
+            stats.skipped++;
+          }
+        } else {
+          // New session from server — insert with a local client ID
+          await db.run(
+            `INSERT INTO therapy_sessions
+             (id, server_id, user_id, session_date, status, mood_before, talking_points,
+              session_priority, prep_pack_id, mood_after, key_takeaways, session_rating,
+              created_at, updated_at, needs_sync, synced_at, is_deleted)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0)`,
+            [
+              crypto.randomUUID(), s.id, userId,
+              s.session_date || null, s.status, s.mood_before ?? null, s.talking_points ?? null,
+              s.session_priority ?? null, s.prep_pack_id ?? null, s.mood_after ?? null,
+              s.key_takeaways ?? null, s.session_rating ?? null,
+              s.created_at, s.updated_at, new Date().toISOString(),
+            ]
+          );
+          stats.inserted++;
+        }
+      } catch (e) {
+        console.error('[ToolkitRepo] Error syncing session:', s.id, e);
+        stats.skipped++;
+      }
+    }
+
+    await this.persistToStore();
+    return stats;
+  }
+
+  /**
+   * Merge server homework items into local SQLite.
+   * Needs the local session mapping to resolve session_id.
+   */
+  async syncHomeworkFromServer(
+    serverHomework: any[],
+    userId: string
+  ): Promise<{ inserted: number; updated: number; skipped: number }> {
+    const db = this.getDb();
+    const stats = { inserted: 0, updated: 0, skipped: 0 };
+
+    for (const h of serverHomework) {
+      try {
+        // Find existing by server_id
+        const existingResult = await db.query(
+          `SELECT * FROM homework_items WHERE server_id = ? AND user_id = ?`,
+          [h.id, userId]
+        );
+        const existing = existingResult.values?.[0];
+
+        if (existing) {
+          // Update toggle state from server only if local doesn't have pending changes
+          if (existing.needs_sync !== 1) {
+            await db.run(
+              `UPDATE homework_items SET content = ?, completed = ?, completed_at = ?,
+               needs_sync = 0, synced_at = ? WHERE id = ?`,
+              [h.content, h.completed ? 1 : 0, h.completed_at ?? null, new Date().toISOString(), existing.id]
+            );
+            stats.updated++;
+          } else {
+            stats.skipped++;
+          }
+        } else {
+          // Find local session by its server_id so we can set session_id FK
+          const sessionResult = await db.query(
+            `SELECT id FROM therapy_sessions WHERE server_id = ? AND user_id = ?`,
+            [h.session_id, userId]
+          );
+          const localSessionId = sessionResult.values?.[0]?.id;
+          if (!localSessionId) {
+            stats.skipped++;
+            continue;
+          }
+
+          await db.run(
+            `INSERT INTO homework_items
+             (id, server_id, session_id, user_id, content, completed, completed_at, created_at, needs_sync, synced_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
+            [
+              crypto.randomUUID(), h.id, localSessionId, userId,
+              h.content, h.completed ? 1 : 0, h.completed_at ?? null,
+              h.created_at, new Date().toISOString(),
+            ]
+          );
+          stats.inserted++;
+        }
+      } catch (e) {
+        console.error('[ToolkitRepo] Error syncing homework:', h.id, e);
+        stats.skipped++;
+      }
+    }
+
+    await this.persistToStore();
+    return stats;
+  }
+
+  /**
+   * Merge server prep packs into local SQLite.
+   * Backend stores content as a single JSON blob; we unpack into individual columns.
+   */
+  async syncPrepPacksFromServer(
+    serverPrepPacks: any[],
+    userId: string
+  ): Promise<{ inserted: number; updated: number; skipped: number }> {
+    const db = this.getDb();
+    const stats = { inserted: 0, updated: 0, skipped: 0 };
+
+    for (const p of serverPrepPacks) {
+      try {
+        const existingResult = await db.query(
+          `SELECT * FROM prep_packs WHERE server_id = ? AND user_id = ?`,
+          [p.id, userId]
+        );
+        const existing = existingResult.values?.[0];
+
+        // Unpack JSON content blob from server
+        const content = typeof p.content === 'string' ? JSON.parse(p.content) : (p.content || {});
+
+        if (existing) {
+          // Prep packs are immutable after creation — skip if already exists
+          stats.skipped++;
+        } else {
+          await db.run(
+            `INSERT OR IGNORE INTO prep_packs
+             (id, server_id, user_id, date_range_start, date_range_end, mood_overview,
+              key_themes, emotional_highlights, patterns, discussion_points, growth_moments,
+              personal_notes, journal_count, created_at, needs_sync, synced_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
+            [
+              crypto.randomUUID(), p.id, userId,
+              p.date_range_start, p.date_range_end,
+              JSON.stringify(content.mood_overview || null),
+              JSON.stringify(content.key_themes || []),
+              JSON.stringify(content.emotional_highlights || []),
+              JSON.stringify(content.patterns || []),
+              JSON.stringify(content.discussion_points || []),
+              JSON.stringify(content.growth_moments || []),
+              p.personal_notes ?? null,
+              p.journal_count ?? 0,
+              p.created_at,
+              new Date().toISOString(),
+            ]
+          );
+          stats.inserted++;
+        }
+      } catch (e) {
+        console.error('[ToolkitRepo] Error syncing prep pack:', p.id, e);
+        stats.skipped++;
+      }
+    }
+
+    await this.persistToStore();
+    return stats;
   }
 }

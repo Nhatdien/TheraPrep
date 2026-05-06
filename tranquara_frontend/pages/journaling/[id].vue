@@ -157,7 +157,7 @@ const isDeleting = ref(false);
 const title = ref("");
 const content = ref("");
 const moodScore = ref(5);
-const moodLabel = ref("Okay");
+const moodLabel = ref(t('journal.moodLabels.5'));
 const showMoodPicker = ref(false);
 const editorRef = ref<any>(null);
 const autoSaveStatus = ref("ready");
@@ -219,11 +219,6 @@ const selectedMoodEmoji = computed(() => {
   return "😃";
 });
 
-const moodLabels: Record<number, string> = {
-  1: 'Terrible', 2: 'Very Bad', 3: 'Bad', 4: 'Poor', 5: 'Okay',
-  6: 'Fine', 7: 'Good', 8: 'Very Good', 9: 'Great', 10: 'Fantastic',
-};
-
 const computedMoodLabel = computed(() => t(`journal.moodLabels.${moodScore.value}`) || t('journal.moodLabels.5'));
 
 watch(moodScore, () => {
@@ -250,7 +245,7 @@ const enterEdit = () => {
     title.value = journal.value.title || "";
     content.value = journal.value.content_html || journal.value.content || "";
     moodScore.value = journal.value.mood_score ?? 5;
-    moodLabel.value = journal.value.mood_label || "Okay";
+    moodLabel.value = journal.value.mood_label || t('journal.moodLabels.5');
   }
   isEditing.value = true;
 };

@@ -127,6 +127,7 @@ export class UserJournals extends Base {
                             content_html: journal.content_html || undefined,
                             mood_score: journal.mood_score || undefined,
                             mood_label: journal.mood_label || undefined,
+                            created_at: journal.created_at,
                         };
                         const response = await this.createJournal(createData);
                         return response;
@@ -144,6 +145,7 @@ export class UserJournals extends Base {
                     content_html: journal.content_html || undefined,
                     mood_score: journal.mood_score || undefined,
                     mood_label: journal.mood_label || undefined,
+                    created_at: journal.created_at,
                 };
                 const response = await this.createJournal(createData);
                 return response;

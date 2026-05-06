@@ -69,6 +69,7 @@
 <script lang="ts" setup>
 import type { BreadcrumbItem } from '@nuxt/ui'
 import { BOX_BREATHING_CONFIG } from '~/types/therapy_toolkit';
+import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
 
 definePageMeta({ layout: 'detail' });
 

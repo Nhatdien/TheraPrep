@@ -13,7 +13,7 @@
     <div v-else class="flex flex-col items-center justify-center py-8 text-center">
       <UIcon name="i-lucide-calendar" class="w-10 h-10 text-muted mb-3" />
       <p class="text-sm text-muted">
-        No journaling activity yet. Start writing to see your activity calendar.
+        {{ $t('progress.heatmap.noActivity') }}
       </p>
     </div>
   </div>
@@ -31,6 +31,8 @@ import { CanvasRenderer } from 'echarts/renderers'
 import type { LocalJournal } from '~/types/user_journal'
 
 use([HeatmapChart, CalendarComponent, TooltipComponent, VisualMapComponent, CanvasRenderer])
+
+const { t, locale } = useI18n()
 
 const props = defineProps<{
   journals: LocalJournal[]
@@ -114,12 +116,25 @@ const maxCount = computed(() => {
   return Math.max(...heatmapData.value.map(d => d[1] as number), 3)
 })
 
+const VI_MONTHS = ['Th1', 'Th2', 'Th3', 'Th4', 'Th5', 'Th6', 'Th7', 'Th8', 'Th9', 'Th10', 'Th11', 'Th12']
+// Sunday-first order for ECharts dayLabel, but firstDay:1 shifts display to start from Monday
+const VI_DAYS: (string | number)[] = ['CN', 'T2', '', 'T4', '', 'T6', '']
+const EN_DAYS: (string | number)[] = ['', 'M', '', 'W', '', 'F', '']
+
 const chartOption = computed(() => ({
   tooltip: {
     formatter: (params: any) => {
-      const date = params.data[0]
-      const count = params.data[1]
-      return `${date}<br/>${count} ${count === 1 ? 'entry' : 'entries'}`
+      const date = params.data[0] as string
+      const count = params.data[1] as number
+      const dateObj = new Date(date)
+      const formattedDate = dateObj.toLocaleDateString(
+        locale.value === 'vi' ? 'vi-VN' : 'en-US',
+        { year: 'numeric', month: 'long', day: 'numeric' }
+      )
+      const entryText = count === 1
+        ? `${count} ${t('progress.heatmap.entry')}`
+        : `${count} ${t('progress.heatmap.entries')}`
+      return `${formattedDate}<br/>${entryText}`
     },
   },
   visualMap: {
@@ -152,13 +167,13 @@ const chartOption = computed(() => ({
     monthLabel: {
       color: '#94a3b8',
       fontSize: 11,
-      nameMap: 'en',
+      nameMap: locale.value === 'vi' ? VI_MONTHS : 'en',
     },
     dayLabel: {
       firstDay: 1,
       color: '#94a3b8',
       fontSize: 10,
-      nameMap: ['', 'M', '', 'W', '', 'F', ''],
+      nameMap: locale.value === 'vi' ? VI_DAYS : EN_DAYS,
       margin: 6,
     },
   },

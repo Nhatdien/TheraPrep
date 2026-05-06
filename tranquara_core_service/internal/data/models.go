@@ -23,6 +23,7 @@ type Models struct {
 	TherapySession        TherapySessionModel
 	HomeworkItem          HomeworkItemModel
 	PrepPack              PrepPackModel
+	UserCustomTemplate    UserCustomTemplateModel
 }
 
 func NewModels(db *sql.DB) Models {
@@ -40,6 +41,7 @@ func NewModels(db *sql.DB) Models {
 		TherapySession:        TherapySessionModel{DB: db},
 		HomeworkItem:          HomeworkItemModel{DB: db},
 		PrepPack:              PrepPackModel{DB: db},
+		UserCustomTemplate:    UserCustomTemplateModel{DB: db},
 	}
 
 }

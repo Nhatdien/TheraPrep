@@ -435,7 +435,7 @@ export const userJournalStore = defineStore("user_journal", {
     /**
      * Create new journal (offline-first: write to SQLite immediately)
      */
-    async createJournal(journal: CreateJournalRequest) {
+    async createJournal(journal: CreateJournalRequest, overrideDate?: string) {
       try {
         const userId = getUserId();
         if (!userId) {
@@ -451,7 +451,7 @@ export const userJournalStore = defineStore("user_journal", {
           content_html: journal.content_html,
           mood_score: journal.mood_score,
           mood_label: journal.mood_label,
-        });
+        }, overrideDate);
 
         // Update store state
         this.journals.unshift(newJournal);

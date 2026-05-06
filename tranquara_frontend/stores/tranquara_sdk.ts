@@ -1,13 +1,14 @@
-import { Base } from "./base";
-import type { Config } from "./base";
-import { applyMixins } from "./utils/utils";
-import { UserStreaks } from "./user_streak";
-import { UserJournals } from "./user_journal";
-import { UserLearned } from "./user_learned";
-import { Auth } from "./auth/index";
-import { AIService } from "./ai_service";
-import { AIMemories } from "./ai_memories";
-import { TherapyToolkit } from "./therapy_toolkit";
+import { Base } from './base';
+import type { Config } from './base';
+import { applyMixins } from './utils/utils';
+import { UserStreaks } from './user_streak';
+import { UserJournals } from './user_journal';
+import { UserLearned } from './user_learned';
+import { Auth } from './auth/index';
+import { AIService } from './ai_service';
+import { AIMemories } from './ai_memories';
+import { TherapyToolkit } from './therapy_toolkit';
+import { UserCustomTemplate } from './user_custom_template';
 
 class TranquaraSDK extends Base {
   constructor(config?: null | Config) {
@@ -36,8 +37,8 @@ class TranquaraSDK extends Base {
 
 }
 
-interface TranquaraSDK extends UserStreaks, UserJournals, UserLearned, Auth, AIService, AIMemories, TherapyToolkit {}
+interface TranquaraSDK extends UserStreaks, UserJournals, UserLearned, Auth, AIService, AIMemories, TherapyToolkit, UserCustomTemplate {}
 
-applyMixins(TranquaraSDK, [UserStreaks, UserJournals, UserLearned, Auth, AIService, AIMemories, TherapyToolkit]);
+applyMixins(TranquaraSDK, [UserStreaks, UserJournals, UserLearned, Auth, AIService, AIMemories, TherapyToolkit, UserCustomTemplate]);
 
 export default TranquaraSDK;

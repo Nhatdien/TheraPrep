@@ -175,19 +175,11 @@ const getWordCount = (content: string) => {
 
 onMounted(async () => {
   try {
-    // Wait for auth to be ready
-    if (!authStore.isAuthenticated) {
-      console.log('[LatestEntries] User not authenticated, skipping journal load');
-      return;
-    }
-    
-    // Ensure database is initialized before loading journals
+    if (!authStore.isAuthenticated) return;
     if (!userJournalStore().isInitialized) {
-      console.log('[LatestEntries] Database not initialized, initializing...');
       await userJournalStore().initializeDatabase();
     }
     await userJournalStore().getJournals();
-    console.log('[LatestEntries] Journals loaded:', userJournalStore().journals.length);
   } catch (error) {
     console.error('[LatestEntries] Error loading journals:', error);
   }

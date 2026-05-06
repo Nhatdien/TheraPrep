@@ -67,6 +67,7 @@ export const BOX_BREATHING_CONFIG: BreathingConfig = {
 
 export interface PrepPack {
   id: string;
+  server_id?: string;
   user_id: string;
   date_range_start: string;
   date_range_end: string;
@@ -110,6 +111,7 @@ export interface DetectedPattern {
 
 export interface TherapySession {
   id: string;
+  server_id?: string;
   user_id: string;
   session_date?: string;
   status: SessionStatus;
@@ -124,6 +126,7 @@ export interface TherapySession {
   created_at: string;
   updated_at: string;
   needs_sync?: boolean;
+  is_deleted?: number;
 }
 
 export type SessionStatus = 'scheduled' | 'before_completed' | 'completed';
@@ -132,6 +135,7 @@ export type SessionStatus = 'scheduled' | 'before_completed' | 'completed';
 
 export interface HomeworkItem {
   id: string;
+  server_id?: string;
   session_id: string;
   user_id: string;
   content: string;

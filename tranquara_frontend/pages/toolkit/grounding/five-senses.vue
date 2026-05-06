@@ -91,6 +91,7 @@
 <script lang="ts" setup>
 import type { BreadcrumbItem } from '@nuxt/ui'
 import { Eye, Hand, Ear, Wind, UtensilsCrossed } from 'lucide-vue-next';
+import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
 
 definePageMeta({ layout: 'detail' });
 

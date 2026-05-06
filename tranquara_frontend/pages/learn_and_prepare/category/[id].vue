@@ -85,6 +85,7 @@
 
 <script lang="ts" setup>
 import type { BreadcrumbItem } from '@nuxt/ui'
+import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
 import { userJournalStore } from "~/stores/stores/user_journal";
 
 definePageMeta({ layout: "detail" });

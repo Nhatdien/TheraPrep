@@ -119,6 +119,34 @@
             </div>
           </div>
 
+          <!-- Session flow progress (same layout as "How it works", with current step highlighted) -->
+          <div class="flex items-center justify-between mb-4 mt-1">
+            <div v-for="(step, i) in sessionFlowSteps" :key="step.key" class="flex items-center gap-1.5">
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                  :class="{
+                    'bg-green-500/20': getSessionFlowStepState(i) === 'done',
+                    'bg-elevated ring-2 ring-offset-1 ring-white/30': getSessionFlowStepState(i) === 'active',
+                    'bg-accented': getSessionFlowStepState(i) === 'upcoming',
+                  }"
+                >
+                  <Icon v-if="getSessionFlowStepState(i) === 'done'" name="i-lucide-check" class="w-4 h-4 text-green-400" />
+                  <component v-else :is="step.icon" class="w-4 h-4"
+                    :class="getSessionFlowStepState(i) === 'active' ? 'text-highlighted' : 'text-muted'" />
+                </div>
+                <span class="text-[10px] transition-colors"
+                  :class="{
+                    'text-green-400': getSessionFlowStepState(i) === 'done',
+                    'text-highlighted font-medium': getSessionFlowStepState(i) === 'active',
+                    'text-dimmed': getSessionFlowStepState(i) === 'upcoming',
+                  }">
+                  {{ $t(step.labelKey) }}
+                </span>
+              </div>
+              <Icon v-if="i < sessionFlowSteps.length - 1" name="i-lucide-chevron-right" class="w-3 h-3 text-toned mt-[-14px]" />
+            </div>
+          </div>
+
           <div class="flex gap-2">
             <UButton
               v-if="toolkitStore.upcomingSession.status === 'scheduled'"
@@ -437,6 +465,17 @@ const countdownClass = computed(() => {
   if (diffDays === 1) return 'text-amber-400';
   return 'text-dimmed';
 });
+
+// ─── Session flow step state ─────────────────────────
+const getSessionFlowStepState = (stepIndex: number): 'done' | 'active' | 'upcoming' => {
+  const status = toolkitStore.upcomingSession?.status;
+  if (!status) return 'upcoming';
+  // doneCount = number of steps already completed
+  const doneCount = status === 'scheduled' ? 1 : status === 'before_completed' ? 2 : 4;
+  if (stepIndex < doneCount) return 'done';
+  if (stepIndex === doneCount && doneCount < sessionFlowSteps.length) return 'active';
+  return 'upcoming';
+};
 
 // ─── Delete session ──────────────────────────────────
 const confirmDeleteSession = async (id: string) => {

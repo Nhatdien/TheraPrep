@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"tranquara.net/internal/data"
@@ -158,6 +159,10 @@ func (app *application) CreateUserJournal(w http.ResponseWriter, r *http.Request
 
 	newJournal, err := app.models.UserJournal.Insert(&request.UserJournal)
 	if err != nil {
+		if strings.Contains(err.Error(), "created_at cannot be") {
+			app.errorResponse(w, r, http.StatusUnprocessableEntity, err.Error())
+			return
+		}
 		app.serverErrorResponse(w, r, err)
 		return
 	}

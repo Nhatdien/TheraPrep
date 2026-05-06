@@ -44,6 +44,13 @@
             <p class="text-xs text-muted mt-1">{{ $t('progress.journalEntries') }}</p>
           </div>
         </UCard>
+
+        <UCard v-if="averageSleepScore !== null" class="text-center">
+          <div>
+            <p class="text-3xl font-bold text-highlighted">{{ averageSleepScore }}%</p>
+            <p class="text-xs text-muted mt-1">{{ $t('progress.avgSleep') }}</p>
+          </div>
+        </UCard>
       </div>
 
       <!-- General Section -->
@@ -103,6 +110,21 @@
                 {{ averageMoodLabel }}
               </span>
             </div>
+
+            <template v-if="averageSleepScore !== null">
+              <USeparator />
+
+              <!-- Average Sleep Quality -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <Moon class="w-5 h-5 text-primary" />
+                  <span class="text-sm font-medium text-default">{{ $t('progress.sleepQuality') }}</span>
+                </div>
+                <span class="text-sm font-semibold text-highlighted">
+                  {{ averageSleepScore }}%
+                </span>
+              </div>
+            </template>
           </div>
         </UCard>
       </div>
@@ -145,7 +167,7 @@
 </template>
 
 <script setup lang="ts">
-import { Flame, CalendarCheck, Trophy, SmilePlus } from "lucide-vue-next";
+import { Flame, CalendarCheck, Trophy, SmilePlus, Moon } from "lucide-vue-next";
 import { useUserStreakStore } from "~/stores/stores/user_streak";
 import { userJournalStore } from "~/stores/stores/user_journal";
 import { computed, onMounted } from "vue";
@@ -221,6 +243,44 @@ const averageMoodLabel = computed(() => {
     journalsWithMood.length;
   const rounded = Math.round(avg);
   return t(`progress.mood.${rounded}`);
+});
+
+/**
+ * Extract sleep score (0–100) from a journal's content HTML.
+ * SleepCheck.vue stores the score as the text content of the journal-question answer.
+ * We match entries where the question text mentions sleep and the answer is a numeric string.
+ */
+function extractSleepScore(content: string): number | null {
+  if (!content) return null;
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    for (const block of Array.from(doc.querySelectorAll('.journal-entry'))) {
+      const questionEl = block.querySelector('.journal-question');
+      const answerEl = block.querySelector('.journal-answer');
+      if (!questionEl || !answerEl) continue;
+      const key = (questionEl.textContent || '').toLowerCase();
+      const isSleepKey = key.includes('sleep') || key.includes('ngủ') || key.includes('giấc');
+      if (!isSleepKey) continue;
+      const raw = (answerEl.textContent || '').trim();
+      const numVal = Number(raw);
+      if (!isNaN(numVal) && numVal >= 0 && numVal <= 100) return numVal;
+    }
+  } catch {
+    // ignore DOM parse errors in non-browser env
+  }
+  return null;
+}
+
+/**
+ * Average sleep quality score across all journals that recorded a sleep check.
+ */
+const averageSleepScore = computed(() => {
+  const scores = activeJournals.value
+    .map(j => extractSleepScore(j.content_html || j.content))
+    .filter((s): s is number => s !== null);
+  if (scores.length === 0) return null;
+  return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
 });
 
 /**

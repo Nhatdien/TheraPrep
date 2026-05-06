@@ -1,7 +1,6 @@
 <template>
   <div>
     <div class="mb-5">
-      <p class="text-xs uppercase tracking-wide text-toned mb-2">Reflect</p>
       <h2 class="text-2xl sm:text-3xl font-semibold leading-tight text-highlighted">{{ content?.question || content?.question_content }}</h2>
       <blockquote class="text-default text-sm sm:text-base leading-7 mt-3 border-l-2 border-primary/40 pl-3">
         {{ content?.content || content?.question_description }}

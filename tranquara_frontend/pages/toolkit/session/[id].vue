@@ -107,6 +107,29 @@
         </div>
       </div>
 
+      <!-- Related journals -->
+      <div v-if="relatedJournals.length > 0" class="mb-5">
+        <p class="text-xs text-muted uppercase tracking-wider mb-2">{{ $t('toolkit.session.detail.relatedJournals') }}</p>
+        <div class="space-y-2">
+          <div
+            v-for="journal in relatedJournals"
+            :key="journal.id"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl border border-muted bg-muted cursor-pointer active:bg-accented transition-colors"
+            @click="navigateTo(`/journaling/${journal.id}`)"
+          >
+            <BookOpen class="w-4 h-4 text-muted shrink-0" />
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium truncate">{{ journal.title }}</p>
+              <p class="text-xs text-dimmed mt-0.5">{{ formatDate(journal.created_at) }}</p>
+            </div>
+            <div v-if="journal.mood_score" class="text-xs text-muted shrink-0">
+              {{ journal.mood_score }}/10
+            </div>
+            <Icon name="i-lucide-chevron-right" class="w-4 h-4 text-toned shrink-0" />
+          </div>
+        </div>
+      </div>
+
       <!-- Delete session -->
       <div class="mt-8 border-t border-muted pt-5">
         <button
@@ -128,8 +151,10 @@
 
 <script lang="ts" setup>
 import type { BreadcrumbItem } from '@nuxt/ui'
-import { ChevronLeft, ArrowRight, Trash2 } from 'lucide-vue-next';
+import { ChevronLeft, ArrowRight, Trash2, BookOpen } from 'lucide-vue-next';
 import { useToolkitStore } from '~/stores/stores/therapy_toolkit_store';
+import { userJournalStore } from '~/stores/stores/user_journal';
+import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
 
 definePageMeta({ layout: 'default' });
 
@@ -159,10 +184,15 @@ const stripHtml = (html: string): string => {
     .trim();
 };
 
+const journalStore = userJournalStore();
+
 // Load data if not already loaded
 onMounted(async () => {
   if (toolkitStore.sessions.length === 0) {
     await toolkitStore.loadFromLocal();
+  }
+  if (journalStore.journals.length === 0) {
+    await journalStore.loadJournalsFromLocal();
   }
 });
 
@@ -181,6 +211,24 @@ const completedHomeworkCount = computed(() =>
 const moodDelta = computed(() => {
   if (!session.value?.mood_before || !session.value?.mood_after) return 0;
   return session.value.mood_after - session.value.mood_before;
+});
+
+// Related journals: written within the 7 days before and 1 day after the session date
+const relatedJournals = computed(() => {
+  if (!session.value?.session_date) return [];
+  const sessionDate = new Date(session.value.session_date);
+  const windowStart = new Date(sessionDate);
+  windowStart.setDate(windowStart.getDate() - 7);
+  windowStart.setHours(0, 0, 0, 0);
+  const windowEnd = new Date(sessionDate);
+  windowEnd.setDate(windowEnd.getDate() + 1);
+  windowEnd.setHours(23, 59, 59, 999);
+  return journalStore.journals
+    .filter(j => {
+      const d = new Date(j.created_at);
+      return d >= windowStart && d <= windowEnd;
+    })
+    .slice(0, 5);
 });
 
 const { dateLocale } = useLocalizedDate();

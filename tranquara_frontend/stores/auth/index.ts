@@ -52,8 +52,41 @@ export class Auth extends Base {
     return AuthService.getGoogleOAuthStartURL(redirectUri);
   }
 
-  exchangeGoogleOAuthCode(code: string, redirectUri: string): Promise<boolean> {
-    return AuthService.exchangeGoogleOAuthCode(code, redirectUri);
+  async exchangeGoogleOAuthCode(code: string, redirectUri: string): Promise<boolean> {
+    const result = await AuthService.exchangeGoogleOAuthCode(code, redirectUri);
+    if (result) {
+      // Propagate the newly stored token into the SDK config so subsequent
+      // calls (e.g. syncUserToBackend) can use it immediately.
+      const token = await AuthService.getAccessToken();
+      if (token && this.config) {
+        this.config.access_token = token;
+      }
+    }
+    return result;
+  }
+
+  async syncUserToBackend(userData: {
+    email: string;
+    username: string;
+    oauth_provider: string;
+  }): Promise<void> {
+    const baseUrl = this.config?.base_url || '';
+    // Prefer a fresh token from AuthService (covers Google OAuth where the
+    // token may not yet have been propagated to config.access_token).
+    const accessToken = await AuthService.getAccessToken() || this.config?.access_token || '';
+
+    const response = await fetch(`${baseUrl}/users/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: accessToken ? `Bearer ${accessToken}` : '',
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Sync failed: ${response.status} ${response.statusText}`);
+    }
   }
 
   requestPasswordReset(email: string): Promise<boolean> {

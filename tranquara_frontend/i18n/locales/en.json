@@ -22,6 +22,7 @@
     "dailyPrompt": "Daily Prompt",
     "startWriting": "Start Writing",
     "dayOf": "Day {day} of {total}",
+    "editTemplate": "Edit my template",
     "homework": {
       "title": "Therapy Homework",
       "viewAll": "View all",
@@ -109,6 +110,14 @@
     "emotionDistribution": "Emotion Distribution",
     "emptyMoodData": "No mood data yet. Start journaling to see your emotion distribution.",
     "journalingActivity": "Journaling Activity",
+    "heatmap": {
+      "entry": "entry",
+      "entries": "entries",
+      "noActivity": "No journaling activity yet. Start writing to see your activity calendar."
+    },
+    "sleepQuality": "Sleep Quality",
+    "avgSleep": "Avg Sleep",
+    "noSleepData": "No sleep data yet.",
     "emptyState": "Your progress journey starts here. Write your first journal to begin tracking your reflections.",
     "startJournaling": "Start Journaling",
     "day": "day | days",
@@ -459,6 +468,14 @@
     "moodInstruction": "Move the slider to reflect how you're feeling",
     "defaultMoodQuestion": "How are you feeling right now?",
     "sleepQuestion": "How was your sleep yesterday",
+    "sleepInstruction": "How restored did you feel when you woke up?",
+    "badSleep": "Restless",
+    "goodSleep": "Restful",
+    "sleepScoreLabels": {
+      "low": "You may need gentle recovery today.",
+      "mid": "A steady day with mindful pacing can help.",
+      "high": "Great foundation for focus and calm energy."
+    },
     "furtherReading": "Further reading",
     "moodLabels": {
       "1": "Terrible",
@@ -621,6 +638,7 @@
         "talkingPoints": "Talking Points",
         "priority": "Top Priority",
         "takeaways": "Key Takeaways",
+        "relatedJournals": "Journals Around This Session",
         "notFound": "Session not found."
       }
     },
@@ -693,6 +711,28 @@
         "description": "Start a quick free-form entry"
       }
     }
+  },
+  "myTemplate": {
+    "pageTitle": "My Daily Template",
+    "titlePlaceholder": "Template title...",
+    "addSlide": "Add slide",
+    "save": "Save template",
+    "saving": "Saving...",
+    "saved": "Template saved!",
+    "deleteSlide": "Delete",
+    "noSlides": "No slides yet. Tap \"Add slide\" to begin.",
+    "slideTypes": {
+      "journal_prompt": "Journal Prompt",
+      "emotion_log": "Emotion Check",
+      "sleep_check": "Sleep Check"
+    },
+    "promptPlaceholder": "Enter your prompt question...",
+    "pickSlideType": "Choose a slide type"
+  },
+  "datePicker": {
+    "title": "Select Date",
+    "today": "Today",
+    "hasEntries": "Has journal entries"
   }
 }
 

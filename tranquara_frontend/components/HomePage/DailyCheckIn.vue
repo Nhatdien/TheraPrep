@@ -33,8 +33,12 @@
 <script lang="ts" setup>
 import { Bird, BookOpen, Pencil, SlidersHorizontal } from "lucide-vue-next";
 import { userJournalStore } from "~/stores/stores/user_journal";
+import { useCustomTemplateStore } from "~/stores/stores/custom_template_store";
+
+const props = defineProps<{ selectedDate?: string }>();
 
 const journalStore = userJournalStore();
+const templateStore = useCustomTemplateStore();
 
 // Daily Reflection template ID
 const DAILY_REFLECTION_ID = "55555555-5555-5555-5555-555555555555";
@@ -69,6 +73,10 @@ onUnmounted(() => {
 
 // Navigate to the appropriate check-in slide group
 const beginCheckIn = () => {
+  if (templateStore.hasTemplate) {
+    navigateTo('/journal/daily');
+    return;
+  }
   navigateTo(`/learn_and_prepare/collection/${DAILY_REFLECTION_ID}/${activeSlideGroupId.value}`);
 };
 
