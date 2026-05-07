@@ -65,10 +65,7 @@ const modeOptions = [
   { label: 'Multiple Choice', value: 'multi' },
 ];
 
-const options = computed(() => {
-  if (!model.value.options) model.value.options = [];
-  return model.value.options;
-});
+const options = computed(() => model.value.options ?? []);
 
 function addOption() {
   if (!model.value.options) model.value.options = [];

@@ -78,10 +78,7 @@ import type { SlideData, RecommendedNext } from '~/types/user_journal';
 const model = defineModel<SlideData>({ required: true });
 defineProps<{ showVi: boolean }>();
 
-const recommended = computed(() => {
-  if (!model.value.recommended_next) model.value.recommended_next = [];
-  return model.value.recommended_next;
-});
+const recommended = computed(() => model.value.recommended_next ?? []);
 
 function addRecommended() {
   if (!model.value.recommended_next) model.value.recommended_next = [];

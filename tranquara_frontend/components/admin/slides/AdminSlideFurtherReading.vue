@@ -35,16 +35,16 @@ import type { SlideData } from '~/types/user_journal';
 const model = defineModel<SlideData>({ required: true });
 defineProps<{ showVi: boolean }>();
 
-const links = computed(() => {
-  if (!(model.value as any).links) (model.value as any).links = [];
-  return (model.value as any).links as Array<{ title: string; url: string; description?: string }>;
-});
+const links = computed(() =>
+  ((model.value as any).links ?? []) as Array<{ title: string; url: string; description?: string }>
+);
 
 function addLink() {
-  links.value.push({ title: '', url: '', description: '' });
+  if (!(model.value as any).links) (model.value as any).links = [];
+  (model.value as any).links.push({ title: '', url: '', description: '' });
 }
 
 function removeLink(idx: number) {
-  links.value.splice(idx, 1);
+  (model.value as any).links?.splice(idx, 1);
 }
 </script>

@@ -246,7 +246,7 @@ const errors = reactive<Record<string, string>>({});
 
 // Slide modal state
 const slideModalOpen = ref(false);
-const editingSlide = reactive<SlideData>({ id: '', type: 'journal_prompt' });
+const editingSlide = ref<SlideData>({ id: '', type: 'journal_prompt' });
 const editingSlideIsNew = ref(false);
 const editingGroupIdx = ref(0);
 const editingSlideIdx = ref(0);
@@ -429,7 +429,7 @@ function getViGroup(gIdx: number): SlideGroup {
 function addSlide(gIdx: number) {
   editingGroupIdx.value = gIdx;
   editingSlideIsNew.value = true;
-  Object.assign(editingSlide, {
+  editingSlide.value = {
     id: `slide-${Date.now()}`,
     type: 'journal_prompt',
     question: '',
@@ -439,7 +439,7 @@ function addSlide(gIdx: number) {
     content: '',
     content_vi: '',
     config: { allowAI: true },
-  });
+  };
   slideModalOpen.value = true;
 }
 
@@ -448,7 +448,7 @@ function editSlide(gIdx: number, sIdx: number) {
   editingSlideIdx.value = sIdx;
   editingSlideIsNew.value = false;
   const slide = form.slide_groups[gIdx].slides[sIdx];
-  Object.assign(editingSlide, JSON.parse(JSON.stringify(slide)));
+  editingSlide.value = JSON.parse(JSON.stringify(slide));
   slideModalOpen.value = true;
 }
 
@@ -457,7 +457,7 @@ function removeSlide(gIdx: number, sIdx: number) {
 }
 
 function saveSlide() {
-  const slideData = JSON.parse(JSON.stringify(editingSlide)) as SlideData;
+  const slideData = JSON.parse(JSON.stringify(editingSlide.value)) as SlideData;
   if (editingSlideIsNew.value) {
     form.slide_groups[editingGroupIdx.value].slides.push(slideData);
   } else {
