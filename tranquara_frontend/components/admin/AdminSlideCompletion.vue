@@ -1,79 +1,94 @@
 <template>
-  <div class="space-y-4">
-    <div :class="showVi ? 'grid lg:grid-cols-2 gap-4' : ''">
-      <UFormField label="Title">
-        <UInput v-model="model.title" placeholder="Completion title (e.g. 'Great job!')" />
-      </UFormField>
-      <UFormField v-if="showVi" label="Title (VI)">
-        <UInput v-model="model.title_vi" placeholder="Tiêu đề (VI)" />
-      </UFormField>
+  <div class="space-y-5">
+    <!-- Title -->
+    <div :class="showVi ? 'grid grid-cols-2 gap-4' : ''" class="grid">
+      <div class="space-y-1.5">
+        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">Title</label>
+        <UInput v-model="model.title" placeholder='e.g. "Great job today!"' size="md" class="w-full" />
+      </div>
+      <div v-if="showVi" class="space-y-1.5">
+        <label class="block text-sm font-semibold text-blue-500">Tiêu đề (VI)</label>
+        <UInput v-model="model.title_vi" placeholder="Tiêu đề (VI)" size="md" class="w-full" />
+      </div>
     </div>
 
-    <div :class="showVi ? 'grid lg:grid-cols-2 gap-4' : ''">
-      <UFormField label="Content">
-        <UTextarea v-model="model.content" placeholder="Completion message HTML..." :rows="4" class="font-mono text-xs" />
-      </UFormField>
-      <UFormField v-if="showVi" label="Content (VI)">
-        <UTextarea v-model="model.content_vi" placeholder="Nội dung (VI)..." :rows="4" class="font-mono text-xs" />
-      </UFormField>
+    <!-- Content -->
+    <div :class="showVi ? 'grid grid-cols-2 gap-4' : ''" class="grid">
+      <div class="space-y-1.5">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Content <span class="text-xs text-gray-400">(HTML)</span></label>
+        <UTextarea v-model="model.content" placeholder="<p>Completion message...</p>" :rows="4" size="md" class="w-full font-mono text-xs" />
+      </div>
+      <div v-if="showVi" class="space-y-1.5">
+        <label class="block text-sm font-medium text-blue-400">Nội dung (VI)</label>
+        <UTextarea v-model="model.content_vi" placeholder="<p>Nội dung (VI)...</p>" :rows="4" size="md" class="w-full font-mono text-xs" />
+      </div>
     </div>
 
-    <div :class="showVi ? 'grid lg:grid-cols-2 gap-4' : ''">
-      <UFormField label="Metric Label">
-        <UInput v-model="model.metric_label" placeholder="e.g. 'Minutes meditated'" />
-      </UFormField>
-      <UFormField v-if="showVi" label="Metric Label (VI)">
-        <UInput v-model="model.metric_label_vi" placeholder="Nhãn chỉ số (VI)" />
-      </UFormField>
+    <!-- Metric label -->
+    <div :class="showVi ? 'grid grid-cols-2 gap-4' : ''" class="grid">
+      <div class="space-y-1.5">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Metric label</label>
+        <UInput v-model="model.metric_label" placeholder='e.g. "Minutes meditated"' size="md" class="w-full" />
+      </div>
+      <div v-if="showVi" class="space-y-1.5">
+        <label class="block text-sm font-medium text-blue-400">Nhãn chỉ số (VI)</label>
+        <UInput v-model="model.metric_label_vi" placeholder="Nhãn chỉ số (VI)" size="md" class="w-full" />
+      </div>
     </div>
 
-    <!-- Recommended Next -->
-    <div>
-      <div class="flex items-center justify-between mb-3">
-        <span class="text-sm font-medium">Recommended Next</span>
-        <UButton icon="i-heroicons-plus" size="sm" variant="soft" @click="addRecommended">Add</UButton>
+    <!-- Recommended next -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Recommended Next</p>
+          <p class="text-xs text-gray-400">Collections to suggest after this one is completed</p>
+        </div>
+        <UButton icon="i-heroicons-plus" size="sm" color="primary" variant="soft" @click="addRecommended">Add</UButton>
+      </div>
+
+      <div v-if="recommended.length === 0" class="flex flex-col items-center py-6 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
+        <p class="text-sm text-gray-400">No recommendations added</p>
       </div>
 
       <div class="space-y-2">
         <div
-          v-for="(rec, i) in recommended"
-          :key="i"
-          class="p-3 border border-gray-200 dark:border-gray-700 rounded-lg space-y-2 relative"
+          v-for="(rec, i) in recommended" :key="i"
+          class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
         >
-          <UButton
-            icon="i-heroicons-x-mark"
-            size="xs"
-            variant="ghost"
-            color="error"
-            class="absolute top-2 right-2"
-            @click="removeRecommended(i)"
-          />
-          <div class="grid grid-cols-2 gap-2">
-            <UFormField label="Collection ID">
-              <UInput v-model="rec.collection_id" placeholder="collection-id" size="sm" />
-            </UFormField>
-            <UFormField label="Slide Group ID">
-              <UInput v-model="rec.slide_group_id" placeholder="group-id" size="sm" />
-            </UFormField>
+          <div class="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Recommendation {{ i + 1 }}</span>
+            <UButton icon="i-heroicons-trash" size="xs" variant="ghost" color="error" @click="removeRecommended(i)" />
           </div>
-          <div :class="showVi ? 'grid grid-cols-2 gap-2' : ''">
-            <UFormField label="Title">
-              <UInput v-model="rec.title" placeholder="Recommended title" size="sm" />
-            </UFormField>
-            <UFormField v-if="showVi" label="Title (VI)">
-              <UInput v-model="rec.title_vi" placeholder="Tiêu đề (VI)" size="sm" />
-            </UFormField>
+          <div class="p-3 space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <label class="text-xs font-medium text-gray-500">Collection ID</label>
+                <UInput v-model="rec.collection_id" placeholder="collection-id" size="sm" class="w-full" />
+              </div>
+              <div class="space-y-1">
+                <label class="text-xs font-medium text-gray-500">Slide Group ID</label>
+                <UInput v-model="rec.slide_group_id" placeholder="group-id" size="sm" class="w-full" />
+              </div>
+            </div>
+            <div :class="showVi ? 'grid grid-cols-2 gap-3' : ''" class="grid">
+              <div class="space-y-1">
+                <label class="text-xs font-medium text-gray-500">Display Title</label>
+                <UInput v-model="rec.title" placeholder="Title shown to user" size="sm" class="w-full" />
+              </div>
+              <div v-if="showVi" class="space-y-1">
+                <label class="text-xs font-medium text-blue-400">Tiêu đề (VI)</label>
+                <UInput v-model="rec.title_vi" placeholder="Tiêu đề (VI)" size="sm" class="w-full" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <p v-if="recommended.length === 0" class="text-sm text-gray-400 italic mt-2">No recommendations added</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { SlideData, RecommendedNext } from '~/types/user_journal';
+import type { SlideData } from '~/types/user_journal';
 
 const model = defineModel<SlideData>({ required: true });
 defineProps<{ showVi: boolean }>();
@@ -83,12 +98,8 @@ const recommended = computed(() => model.value.recommended_next ?? []);
 function addRecommended() {
   if (!model.value.recommended_next) model.value.recommended_next = [];
   model.value.recommended_next.push({
-    collection_id: '',
-    slide_group_id: '',
-    title: '',
-    title_vi: '',
-    description: '',
-    description_vi: '',
+    collection_id: '', slide_group_id: '', title: '', title_vi: '',
+    description: '', description_vi: '',
   });
 }
 
