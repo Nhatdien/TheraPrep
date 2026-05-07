@@ -19,126 +19,223 @@
     </div>
 
     <!-- Form -->
-    <div class="space-y-8">
+    <div class="space-y-6">
       <!-- Collection Details Card -->
-      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-semibold">Collection Details</h2>
-          <label class="flex items-center gap-2 text-sm text-gray-500 cursor-pointer select-none">
-            <input type="checkbox" v-model="showVi" class="rounded" />
-            Show Vietnamese
-          </label>
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <!-- Card Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
+          <div class="flex items-center gap-2">
+            <UIcon name="i-heroicons-document-text" class="text-primary-500 w-5 h-5" />
+            <h2 class="font-semibold">Collection Details</h2>
+          </div>
+          <USwitch v-model="showVi" size="sm" label="Show Vietnamese" />
         </div>
 
-        <div class="grid gap-6" :class="showVi ? 'lg:grid-cols-2' : ''">
-          <!-- EN Column -->
-          <div class="space-y-5">
-            <div v-if="showVi" class="text-xs font-semibold text-gray-400 uppercase tracking-wider">English</div>
-            <UFormField label="Title" required>
-              <UInput v-model="form.title" placeholder="Collection title" size="lg" :color="errors.title ? 'error' : undefined" />
-              <template v-if="errors.title" #error>{{ errors.title }}</template>
-            </UFormField>
-            <UFormField label="Description">
-              <UTextarea v-model="form.description" placeholder="Brief description of this collection..." :rows="3" size="lg" />
-            </UFormField>
-          </div>
-          <!-- VI Column -->
-          <div v-if="showVi" class="space-y-5 pl-5 border-l-2 border-blue-200 dark:border-blue-900/50 bg-blue-50/20 dark:bg-blue-900/10 rounded-r-lg p-5">
-            <div class="text-xs font-semibold text-blue-500 uppercase tracking-wider">Vietnamese</div>
-            <UFormField label="Title (VI)">
-              <UInput v-model="form.title_vi" placeholder="Tiêu đề" size="lg" />
-            </UFormField>
-            <UFormField label="Description (VI)">
-              <UTextarea v-model="form.description_vi" placeholder="Mô tả" :rows="3" size="lg" />
-            </UFormField>
-          </div>
-        </div>
-
-        <!-- Type / Category / Active Row -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
-          <UFormField label="Type" required>
-            <USelect v-model="form.type" :items="typeOptions" size="lg" :color="errors.type ? 'error' : undefined" />
-          </UFormField>
-          <UFormField label="Category" required>
-            <USelect v-model="form.category" :items="allCategoryOptions" size="lg" :color="errors.category ? 'error' : undefined" />
-            <div v-if="form.category === '__custom__'" class="mt-2">
-              <UInput v-model="customCategory" placeholder="Enter new category name..." size="lg" @blur="applyCustomCategory" @keyup.enter="applyCustomCategory" />
+        <div class="p-6 space-y-6">
+          <!-- Title + Description side by side when VI shown, stacked otherwise -->
+          <div class="grid gap-5" :class="showVi ? 'lg:grid-cols-2' : ''">
+            <!-- EN Column -->
+            <div class="space-y-5">
+              <div v-if="showVi" class="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">🇬🇧 English</span>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Title <span class="text-red-500">*</span>
+                </label>
+                <UInput
+                  v-model="form.title"
+                  placeholder="e.g. Managing Anxiety with Mindfulness"
+                  size="lg"
+                  :color="errors.title ? 'error' : undefined"
+                  icon="i-heroicons-pencil"
+                />
+                <p v-if="errors.title" class="text-xs text-red-500 mt-1">{{ errors.title }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
+                <UTextarea
+                  v-model="form.description"
+                  placeholder="A brief summary of what users will learn or do in this collection..."
+                  :rows="4"
+                  size="lg"
+                />
+              </div>
             </div>
-          </UFormField>
-          <UFormField label="Status">
-            <label class="flex items-center gap-3 mt-2 cursor-pointer select-none">
-              <input type="checkbox" v-model="form.is_active" class="rounded w-5 h-5" />
-              <span class="text-sm font-medium">{{ form.is_active ? 'Active' : 'Inactive' }}</span>
-            </label>
-          </UFormField>
+            <!-- VI Column -->
+            <div v-if="showVi" class="space-y-5 rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 p-5">
+              <div class="flex items-center gap-2 pb-2 border-b border-blue-100 dark:border-blue-900/40">
+                <span class="text-xs font-bold text-blue-500 uppercase tracking-wider">🇻🇳 Vietnamese</span>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Title (VI)</label>
+                <UInput v-model="form.title_vi" placeholder="Tiêu đề bộ sưu tập..." size="lg" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description (VI)</label>
+                <UTextarea v-model="form.description_vi" placeholder="Mô tả ngắn gọn..." :rows="4" size="lg" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Metadata Row -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-5 border-t border-gray-100 dark:border-gray-800">
+            <!-- Type -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Type <span class="text-red-500">*</span>
+              </label>
+              <USelect
+                v-model="form.type"
+                :items="typeOptions"
+                size="lg"
+                :color="errors.type ? 'error' : undefined"
+                icon="i-heroicons-squares-2x2"
+              />
+              <p v-if="errors.type" class="text-xs text-red-500 mt-1">{{ errors.type }}</p>
+            </div>
+            <!-- Category -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Category <span class="text-red-500">*</span>
+              </label>
+              <USelect
+                v-model="form.category"
+                :items="allCategoryOptions"
+                size="lg"
+                :color="errors.category ? 'error' : undefined"
+                icon="i-heroicons-tag"
+              />
+              <div v-if="form.category === '__custom__'" class="mt-2">
+                <UInput
+                  v-model="customCategory"
+                  placeholder="e.g. self_compassion"
+                  size="lg"
+                  icon="i-heroicons-plus"
+                  @blur="applyCustomCategory"
+                  @keyup.enter="applyCustomCategory"
+                />
+              </div>
+              <p v-if="errors.category" class="text-xs text-red-500 mt-1">{{ errors.category }}</p>
+            </div>
+            <!-- Status -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Status</label>
+              <div class="flex items-center h-[42px] gap-4 px-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                <USwitch
+                  v-model="form.is_active"
+                  :color="form.is_active ? 'success' : 'neutral'"
+                />
+                <span class="text-sm font-medium" :class="form.is_active ? 'text-green-600 dark:text-green-400' : 'text-gray-500'">
+                  {{ form.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Slide Groups -->
-      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-semibold">Slide Groups</h2>
-          <UButton icon="i-heroicons-plus" variant="outline" @click="addSlideGroup">
+      <!-- Slide Groups Card -->
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <!-- Card Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
+          <div class="flex items-center gap-2">
+            <UIcon name="i-heroicons-rectangle-stack" class="text-primary-500 w-5 h-5" />
+            <h2 class="font-semibold">Slide Groups</h2>
+            <UBadge v-if="form.slide_groups.length" color="neutral" variant="subtle" size="xs">
+              {{ form.slide_groups.length }}
+            </UBadge>
+          </div>
+          <UButton icon="i-heroicons-plus" color="primary" variant="soft" size="sm" @click="addSlideGroup">
             Add Group
           </UButton>
         </div>
 
-        <p v-if="errors.slide_groups" class="text-sm text-red-500 mb-4">{{ errors.slide_groups }}</p>
+        <div class="p-6">
+          <p v-if="errors.slide_groups" class="text-sm text-red-500 mb-4 flex items-center gap-1.5">
+            <UIcon name="i-heroicons-exclamation-circle" class="w-4 h-4" />
+            {{ errors.slide_groups }}
+          </p>
 
-        <div ref="slideGroupsContainer" class="space-y-4">
-          <div
-            v-for="(group, gIdx) in form.slide_groups"
-            :key="group.id"
-            class="border border-gray-200 dark:border-gray-700 rounded-lg"
-          >
-            <!-- Group Header -->
-            <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-t-lg">
-              <span class="drag-handle-group cursor-grab text-gray-400 hover:text-gray-600 text-lg">⠿</span>
-              <span class="text-sm font-semibold text-gray-500">{{ gIdx + 1 }}.</span>
-              <input
-                v-model="group.title"
-                class="flex-1 text-sm font-medium bg-transparent border-none outline-none placeholder-gray-400"
-                placeholder="Group title..."
-              />
-              <UButton
-                icon="i-heroicons-chevron-down"
-                size="xs"
-                variant="ghost"
-                :class="{ 'rotate-180': collapsedGroups.has(group.id) }"
-                @click="toggleCollapse(group.id)"
-              />
-              <UButton icon="i-heroicons-trash" size="xs" variant="ghost" color="error" @click="removeSlideGroup(gIdx)" />
+          <!-- Empty state -->
+          <div v-if="form.slide_groups.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+            <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+              <UIcon name="i-heroicons-rectangle-stack" class="w-7 h-7 text-gray-400" />
             </div>
+            <p class="text-gray-500 font-medium mb-1">No slide groups yet</p>
+            <p class="text-sm text-gray-400 mb-4">Add a group to start building your collection</p>
+            <UButton icon="i-heroicons-plus" variant="outline" size="sm" @click="addSlideGroup">Add First Group</UButton>
+          </div>
 
-            <!-- Group Body (Collapsible) -->
-            <div v-show="!collapsedGroups.has(group.id)" class="p-4 space-y-3">
-              <div class="grid gap-3" :class="showVi ? 'lg:grid-cols-2' : ''">
-                <UInput v-model="group.description" placeholder="Group description" size="sm" />
-                <UInput v-if="showVi" v-model="getViGroup(gIdx).description" placeholder="Mô tả nhóm (VI)" size="sm" />
+          <div ref="slideGroupsContainer" class="space-y-3">
+            <div
+              v-for="(group, gIdx) in form.slide_groups"
+              :key="group.id"
+              class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
+            >
+              <!-- Group Header -->
+              <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-800/60">
+                <span class="drag-handle-group cursor-grab text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400 text-lg select-none">⠿</span>
+                <div class="flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 text-xs font-bold shrink-0">
+                  {{ gIdx + 1 }}
+                </div>
+                <input
+                  v-model="group.title"
+                  class="flex-1 text-sm font-semibold bg-transparent border-none outline-none placeholder-gray-400 dark:placeholder-gray-600 dark:text-gray-200"
+                  placeholder="Group title..."
+                />
+                <UButton
+                  :icon="collapsedGroups.has(group.id) ? 'i-heroicons-chevron-right' : 'i-heroicons-chevron-down'"
+                  size="xs"
+                  variant="ghost"
+                  color="neutral"
+                  @click="toggleCollapse(group.id)"
+                />
+                <UButton icon="i-heroicons-trash" size="xs" variant="ghost" color="error" @click="removeSlideGroup(gIdx)" />
               </div>
 
-              <!-- Slides list -->
-              <div class="mt-4">
-                <div class="flex items-center justify-between mb-3">
-                  <span class="text-sm text-gray-500 font-medium">Slides ({{ group.slides.length }})</span>
-                  <UButton icon="i-heroicons-plus" size="sm" variant="soft" @click="addSlide(gIdx)">
-                    Add Slide
-                  </UButton>
+              <!-- Group Body (Collapsible) -->
+              <div v-show="!collapsedGroups.has(group.id)" class="p-4 space-y-4">
+                <div class="grid gap-3" :class="showVi ? 'lg:grid-cols-2' : ''">
+                  <UInput v-model="group.description" placeholder="Optional group description..." size="sm" icon="i-heroicons-information-circle" />
+                  <UInput v-if="showVi" v-model="getViGroup(gIdx).description" placeholder="Mô tả nhóm (VI)..." size="sm" />
                 </div>
 
-                <div :ref="el => setSlidesRef(gIdx, el)" class="space-y-2">
-                  <div
-                    v-for="(slide, sIdx) in group.slides"
-                    :key="slide.id"
-                    class="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-800/30 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
-                  >
-                    <span class="drag-handle-slide cursor-grab text-gray-400 hover:text-gray-600">⠿</span>
-                    <UBadge :color="(slideTypeColor(slide.type) as any)" variant="subtle" size="md" class="min-w-[100px] justify-center">{{ slideTypeLabel(slide.type) }}</UBadge>
-                    <span class="flex-1 text-sm text-gray-600 dark:text-gray-400 truncate">
-                      {{ slide.question || slide.title || slide.content?.slice(0, 60) || '(empty)' }}
+                <!-- Slides list -->
+                <div class="rounded-lg border border-gray-100 dark:border-gray-700/50 overflow-hidden">
+                  <div class="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800/40 border-b border-gray-100 dark:border-gray-700/50">
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Slides
+                      <span class="ml-1 px-1.5 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-[10px] font-bold">{{ group.slides.length }}</span>
                     </span>
-                    <UButton icon="i-heroicons-pencil-square" size="sm" variant="ghost" @click="editSlide(gIdx, sIdx)" />
-                    <UButton icon="i-heroicons-trash" size="sm" variant="ghost" color="error" @click="removeSlide(gIdx, sIdx)" />
+                    <UButton icon="i-heroicons-plus" size="xs" variant="ghost" color="primary" @click="addSlide(gIdx)">
+                      Add Slide
+                    </UButton>
+                  </div>
+
+                  <!-- Empty slides state -->
+                  <div v-if="group.slides.length === 0" class="px-4 py-6 text-center text-sm text-gray-400">
+                    No slides yet — click Add Slide to start
+                  </div>
+
+                  <div :ref="el => setSlidesRef(gIdx, el)">
+                    <div
+                      v-for="(slide, sIdx) in group.slides"
+                      :key="slide.id"
+                      class="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 dark:border-gray-700/50 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors group/slide"
+                    >
+                      <span class="drag-handle-slide cursor-grab text-gray-300 hover:text-gray-500 select-none">⠿</span>
+                      <UBadge :color="(slideTypeColor(slide.type) as any)" variant="subtle" size="sm" class="w-[110px] justify-center shrink-0">
+                        {{ slideTypeLabel(slide.type) }}
+                      </UBadge>
+                      <span class="flex-1 text-sm text-gray-600 dark:text-gray-400 truncate">
+                        {{ slide.question || slide.title || slide.content?.slice(0, 70) || '(no content)' }}
+                      </span>
+                      <div class="flex gap-1 opacity-0 group-hover/slide:opacity-100 transition-opacity">
+                        <UButton icon="i-heroicons-pencil-square" size="xs" variant="ghost" @click="editSlide(gIdx, sIdx)" />
+                        <UButton icon="i-heroicons-trash" size="xs" variant="ghost" color="error" @click="removeSlide(gIdx, sIdx)" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
