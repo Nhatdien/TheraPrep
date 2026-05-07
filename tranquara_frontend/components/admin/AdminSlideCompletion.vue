@@ -15,12 +15,12 @@
     <!-- Content -->
     <div :class="showVi ? 'grid grid-cols-2 gap-4' : ''" class="grid">
       <div class="space-y-1.5">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Content <span class="text-xs text-gray-400">(HTML)</span></label>
-        <UTextarea v-model="model.content" placeholder="<p>Completion message...</p>" :rows="4" size="md" class="w-full font-mono text-xs" />
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Content</label>
+        <AdminTiptapEditor v-model="model.content" placeholder="Write the completion message..." />
       </div>
       <div v-if="showVi" class="space-y-1.5">
         <label class="block text-sm font-medium text-blue-400">Nội dung (VI)</label>
-        <UTextarea v-model="model.content_vi" placeholder="<p>Nội dung (VI)...</p>" :rows="4" size="md" class="w-full font-mono text-xs" />
+        <AdminTiptapEditor v-model="model.content_vi" placeholder="Nội dung hoàn thành..." />
       </div>
     </div>
 
