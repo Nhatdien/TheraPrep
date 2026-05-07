@@ -32,49 +32,49 @@
         </div>
 
         <div class="p-6 space-y-6">
-          <!-- Title + Description side by side when VI shown, stacked otherwise -->
-          <div class="grid gap-5" :class="showVi ? 'lg:grid-cols-2' : ''">
-            <!-- EN Column -->
-            <div class="space-y-5">
-              <div v-if="showVi" class="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
+          <!-- Title row -->
+          <div class="grid gap-5" :class="showVi ? 'lg:grid-cols-2' : 'grid-cols-1'">
+            <div>
+              <div v-if="showVi" class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 dark:border-gray-800">
                 <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">🇬🇧 English</span>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Title <span class="text-red-500">*</span>
-                </label>
-                <UInput
-                  v-model="form.title"
-                  placeholder="e.g. Managing Anxiety with Mindfulness"
-                  size="lg"
-                  :color="errors.title ? 'error' : undefined"
-                  icon="i-heroicons-pencil"
-                />
-                <p v-if="errors.title" class="text-xs text-red-500 mt-1">{{ errors.title }}</p>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
-                <UTextarea
-                  v-model="form.description"
-                  placeholder="A brief summary of what users will learn or do in this collection..."
-                  :rows="4"
-                  size="lg"
-                />
-              </div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Title <span class="text-red-500">*</span>
+              </label>
+              <UInput
+                v-model="form.title"
+                placeholder="e.g. Managing Anxiety with Mindfulness"
+                size="lg"
+                class="w-full"
+                :color="errors.title ? 'error' : undefined"
+                icon="i-heroicons-pencil"
+              />
+              <p v-if="errors.title" class="text-xs text-red-500 mt-1">{{ errors.title }}</p>
             </div>
-            <!-- VI Column -->
-            <div v-if="showVi" class="space-y-5 rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 p-5">
-              <div class="flex items-center gap-2 pb-2 border-b border-blue-100 dark:border-blue-900/40">
+            <div v-if="showVi" class="rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 p-4">
+              <div class="flex items-center gap-2 mb-3 pb-2 border-b border-blue-100 dark:border-blue-900/40">
                 <span class="text-xs font-bold text-blue-500 uppercase tracking-wider">🇻🇳 Vietnamese</span>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Title (VI)</label>
-                <UInput v-model="form.title_vi" placeholder="Tiêu đề bộ sưu tập..." size="lg" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description (VI)</label>
-                <UTextarea v-model="form.description_vi" placeholder="Mô tả ngắn gọn..." :rows="4" size="lg" />
-              </div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Title (VI)</label>
+              <UInput v-model="form.title_vi" placeholder="Tiêu đề bộ sưu tập..." size="lg" class="w-full" />
+            </div>
+          </div>
+
+          <!-- Description row -->
+          <div class="grid gap-5" :class="showVi ? 'lg:grid-cols-2' : 'grid-cols-1'">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
+              <UTextarea
+                v-model="form.description"
+                placeholder="A brief summary of what users will learn or do in this collection..."
+                :rows="3"
+                size="lg"
+                class="w-full"
+              />
+            </div>
+            <div v-if="showVi" class="rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 p-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description (VI)</label>
+              <UTextarea v-model="form.description_vi" placeholder="Mô tả ngắn gọn..." :rows="3" size="lg" class="w-full" />
             </div>
           </div>
 
@@ -89,6 +89,7 @@
                 v-model="form.type"
                 :items="typeOptions"
                 size="lg"
+                class="w-full"
                 :color="errors.type ? 'error' : undefined"
                 icon="i-heroicons-squares-2x2"
               />
@@ -103,6 +104,7 @@
                 v-model="form.category"
                 :items="allCategoryOptions"
                 size="lg"
+                class="w-full"
                 :color="errors.category ? 'error' : undefined"
                 icon="i-heroicons-tag"
               />
@@ -111,6 +113,7 @@
                   v-model="customCategory"
                   placeholder="e.g. self_compassion"
                   size="lg"
+                  class="w-full"
                   icon="i-heroicons-plus"
                   @blur="applyCustomCategory"
                   @keyup.enter="applyCustomCategory"
@@ -121,7 +124,7 @@
             <!-- Status -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Status</label>
-              <div class="flex items-center h-[42px] gap-4 px-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <div class="flex items-center h-[42px] gap-4 px-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 w-full">
                 <USwitch
                   v-model="form.is_active"
                   :color="form.is_active ? 'success' : 'neutral'"
