@@ -2,20 +2,20 @@
   <div class="min-h-screen flex items-center justify-center px-4">
     <UCard class="w-full max-w-md shadow-xl">
       <template #header>
-        <h1 class="text-2xl font-semibold">Set a new password</h1>
-        <p class="text-sm text-muted mt-1">Use the token from your reset email.</p>
+        <h1 class="text-2xl font-semibold">{{ $t('resetPassword.title') }}</h1>
+        <p class="text-sm text-muted mt-1">{{ $t('resetPassword.subtitle') }}</p>
       </template>
 
       <form class="space-y-4" @submit.prevent="onSubmit">
-        <UFormField label="Reset token" required>
-          <UInput v-model="token" type="text" size="lg" placeholder="Paste token" />
+        <UFormField :label="$t('resetPassword.resetToken')" required>
+          <UInput v-model="token" type="text" size="lg" :placeholder="$t('resetPassword.pasteToken')" />
         </UFormField>
 
-        <UFormField label="New password" required>
+        <UFormField :label="$t('resetPassword.newPassword')" required>
           <UInput v-model="newPassword" type="password" size="lg" placeholder="••••••••" />
         </UFormField>
 
-        <UFormField label="Confirm password" required>
+        <UFormField :label="$t('resetPassword.confirmPassword')" required>
           <UInput v-model="confirmPassword" type="password" size="lg" placeholder="••••••••" />
         </UFormField>
 
@@ -23,7 +23,7 @@
           v-if="success"
           color="success"
           variant="soft"
-          title="Password updated. You can now sign in."
+          :title="$t('resetPassword.passwordUpdated')"
         />
 
         <UAlert
@@ -41,7 +41,7 @@
           :loading="isLoading"
           :disabled="!token || !newPassword || !confirmPassword"
         >
-          Update password
+          {{ $t('resetPassword.updatePassword') }}
         </UButton>
       </form>
     </UCard>
@@ -53,6 +53,7 @@ import { useAuthStore } from '~/stores/stores/auth_store';
 
 definePageMeta({ layout: 'auth' });
 
+const { t } = useI18n();
 const authStore = useAuthStore();
 const token = ref('');
 const newPassword = ref('');
@@ -74,7 +75,7 @@ const onSubmit = async () => {
   errorMessage.value = '';
 
   if (newPassword.value !== confirmPassword.value) {
-    errorMessage.value = 'Passwords do not match.';
+    errorMessage.value = t('resetPassword.passwordsNoMatch');
     isLoading.value = false;
     return;
   }

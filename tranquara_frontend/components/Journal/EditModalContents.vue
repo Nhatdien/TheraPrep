@@ -116,6 +116,7 @@ const parseJournalContent = (contentHtml: string): Record<string, string> => {
 // This ensures child components get the correct initial values
 store.currentMoodScore = props.journal.mood_score ?? 5;
 store.currentMoodLabel = props.journal.mood_label || "Okay";
+store.currentSleepScore = props.journal.sleep_score ?? null;
 store.currentJournal = props.journal;
 
 // Pre-populate the writing content
@@ -190,6 +191,7 @@ const saveJournalChanges = async () => {
       content_html: newContent,
       mood_score: store.currentMoodScore,
       mood_label: store.currentMoodLabel,
+      sleep_score: store.currentSleepScore,
     });
     
     // Clear session

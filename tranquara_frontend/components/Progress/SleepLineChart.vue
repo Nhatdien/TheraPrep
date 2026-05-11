@@ -33,32 +33,6 @@ const props = defineProps<{
   journals: LocalJournal[]
 }>()
 
-/**
- * Extract sleep quality score (0–100) from journal HTML content.
- * Matches entries where the question text mentions sleep and the answer is numeric.
- */
-function extractSleepScore(content: string): number | null {
-  if (!content) return null
-  try {
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(content, 'text/html')
-    for (const block of Array.from(doc.querySelectorAll('.journal-entry'))) {
-      const questionEl = block.querySelector('.journal-question')
-      const answerEl = block.querySelector('.journal-answer')
-      if (!questionEl || !answerEl) continue
-      const key = (questionEl.textContent || '').toLowerCase()
-      const isSleepKey = key.includes('sleep') || key.includes('ngủ') || key.includes('giấc')
-      if (!isSleepKey) continue
-      const raw = (answerEl.textContent || '').trim()
-      const numVal = Number(raw)
-      if (!isNaN(numVal) && numVal >= 0 && numVal <= 100) return numVal
-    }
-  } catch {
-    // ignore DOM parse errors in non-browser environments
-  }
-  return null
-}
-
 function formatDate(date: Date): string {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
@@ -68,18 +42,16 @@ function formatDate(date: Date): string {
 
 /**
  * One sleep score per day — latest entry wins if multiple entries exist on the same day.
+ * Uses the sleep_score column directly from the journal record.
  * Sorted chronologically and capped at the last 60 data points.
  */
 const sleepData = computed(() => {
   const byDate: Record<string, number> = {}
 
   props.journals
-    .filter(j => !j.is_deleted)
+    .filter(j => !j.is_deleted && j.sleep_score !== null && j.sleep_score !== undefined)
     .forEach(j => {
-      const score = extractSleepScore(j.content_html || j.content)
-      if (score !== null) {
-        byDate[formatDate(new Date(j.created_at))] = score
-      }
+      byDate[formatDate(new Date(j.created_at))] = j.sleep_score!
     })
 
   return Object.entries(byDate)

@@ -14,15 +14,17 @@
     "today": "hôm nay.",
     "yourEntries": "Bài viết của bạn",
     "greeting": {
-      "morning": "Chào buổi sáng",
-      "afternoon": "Chào buổi chiều",
-      "evening": "Chào buổi tối"
+      "morning": "Chào buổi sáng,",
+      "afternoon": "Chào buổi chiều,",
+      "evening": "Chào buổi tối,"
     },
-    "beginCheckIn": "Bắt đầu ghi nhận",
+    "beginCheckIn": "Bắt đầu check-in",
     "dailyPrompt": "Câu hỏi hàng ngày",
     "startWriting": "Bắt đầu viết",
     "dayOf": "Ngày {day} / {total}",
     "editTemplate": "Chỉnh sửa mẫu của tôi",
+    "yourJourney": "Hành trình của bạn",
+    "journalingStreak": "Chuỗi viết nhật ký",
     "homework": {
       "title": "Bài tập trị liệu",
       "viewAll": "Xem tất cả",
@@ -34,6 +36,7 @@
     "noEntries": "Chưa có bài viết nào",
     "startFirst": "Bắt đầu bài viết đầu tiên",
     "seeAll": "Xem tất cả",
+    "words": "từ | từ",
     "emptyPrompt": "Dành một chút thời gian suy ngẫm — bài viết đầu tiên đang chờ bạn."
   },
   "history": {
@@ -119,7 +122,7 @@
     "avgSleep": "Ngủ TB",
     "sleepTrend": "Xu hướng giấc ngủ",
     "noSleepData": "Chưa có dữ liệu giấc ngủ. Thêm mục kiểm tra giấc ngủ trong nhật ký để xem xu hướng.",
-    "emptyState": "Hành trình phát triển bắt đầu từ đây. Viết nhật ký đầu tiên để bắt đầu nhé.",
+    "emptyState": "Hành trình của bạn bắt đầu từ đây. Viết nhật ký đầu tiên để bắt đầu theo dõi nhé.",
     "startJournaling": "Bắt đầu viết nhật ký",
     "day": "ngày | ngày",
     "mood": {
@@ -141,16 +144,17 @@
     "account": "Tài khoản",
     "colorTheme": "Giao diện màu",
     "aboutYou": "Về bạn",
-    "aboutYouSubtitle": "Tuỳ chỉnh AI & trí nhớ",
+    "aboutYouSubtitle": "Cá nhân hoá AI & những điều AI ghi nhớ",
     "notifications": "Thông báo",
-    "notificationsSubtitle": "Nhắc nhở buổi sáng & tối",
+    "notificationsSubtitle": "Lời nhắc sáng & tối",
     "yourData": "Dữ liệu của bạn",
     "yourDataSubtitle": "Xuất, đồng bộ & quản lý dữ liệu",
     "dataSync": "dữ liệu & đồng bộ.",
     "logout": "Đăng xuất",
     "terms": "Điều khoản",
     "privacy": "Quyền riêng tư",
-    "support": "Hỗ trợ"
+    "support": "Hỗ trợ",
+    "appVersion": "Theraprep v{version}"
   },
   "settings": {
     "personalization": "cá nhân hoá.",
@@ -176,7 +180,7 @@
       "aiPersonalizationDesc": "Câu hỏi & phân tích được cá nhân hoá",
       "yourStory": "Câu chuyện của bạn",
       "yourStoryDesc": "Giúp AI hiểu bạn hơn",
-      "yourStoryPlaceholder": "VD: Tôi đang chuẩn bị cho buổi trị liệu đầu tiên và đang đối mặt với lo âu công việc...",
+      "yourStoryPlaceholder": "Ví dụ: Mình đang chuẩn bị cho buổi trị liệu đầu tiên và đang lo lắng về công việc...",
       "yourStoryUpdated": "Đã cập nhật câu chuyện",
       "analytics": "Phân tích",
       "analyticsDesc": "Giúp cải thiện ứng dụng",
@@ -218,8 +222,8 @@
     },
     "notifications": {
       "heading": "nhắc nhở.",
-      "morningCheckin": "Ghi nhận buổi sáng",
-      "morningCheckinDesc": "Bắt đầu ngày mới tỉnh thức",
+      "morningCheckin": "Check-in buổi sáng",
+      "morningCheckinDesc": "Khởi đầu ngày mới ở tỉnh thức",
       "eveningReflection": "Suy ngẫm buổi tối",
       "eveningReflectionDesc": "Thư giãn với nhật ký",
       "permissionNote": "Cần cấp quyền thông báo trên thiết bị. Tính năng nhắc nhở sẽ có trong phiên bản tới.",
@@ -301,7 +305,7 @@
   },
   "auth": {
     "welcomeBack": "Chào mừng trở lại",
-    "signInSubtitle": "Đăng nhập để tiếp tục hành trình",
+    "signInSubtitle": "Đăng nhập để tiếp tục hành trình của bạn",
     "usernameOrEmail": "Tên đăng nhập hoặc Email",
     "enterUsername": "Nhập tên đăng nhập",
     "password": "Mật khẩu",
@@ -311,12 +315,12 @@
     "signIn": "Đăng nhập",
     "dontHaveAccount": "Chưa có tài khoản?",
     "createAccount": "Tạo tài khoản",
-    "joinTheraPrep": "Tham gia TheraPrep ngay hôm nay",
+    "joinTheraPrep": "Bắt đầu hành trình cùng TheraPrep",
     "email": "Email",
     "enterEmail": "Nhập email của bạn",
     "username": "Tên đăng nhập",
     "chooseUsername": "Chọn tên đăng nhập",
-    "usernameHint": "Tên riêng của bạn trên TheraPrep",
+    "usernameHint": "Tên định danh duy nhất của bạn trên TheraPrep",
     "createPassword": "Tạo mật khẩu",
     "passwordHint": "Ít nhất 8 ký tự",
     "confirmPassword": "Xác nhận mật khẩu",
@@ -326,6 +330,7 @@
     "and": "và",
     "privacyPolicy": "Chính sách bảo mật",
     "alreadyHaveAccount": "Đã có tài khoản?",
+    "continueWithGoogle": "Tiếp tục với Google",
     "loginFailed": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.",
     "passwordsNoMatch": "Mật khẩu không khớp",
     "registrationSuccess": "Tạo tài khoản thành công! Đang chuyển đến trang đăng nhập...",
@@ -421,7 +426,7 @@
     "profile": "Hồ sơ",
     "profileDesc": "Hãy cho chúng tôi biết về bạn",
     "preferences": "Tuỳ chọn",
-    "preferencesDesc": "Chọn mục tiêu và trải nghiệm trị liệu",
+    "preferencesDesc": "Chọn mục tiêu và trải nghiệm trị liệu của bạn",
     "gender": "Giới tính",
     "ageRange": "Độ tuổi",
     "male": "Nam",
@@ -429,7 +434,7 @@
     "preferNotToSay": "Không muốn nói",
     "goalQuestion": "Bạn muốn dùng ứng dụng này để làm gì?",
     "goals": {
-      "journaling": "Viết nhật ký cảm xúc",
+      "journaling": "Ghi lại cảm xúc qua nhật ký",
       "therapy": "Chuẩn bị cho buổi trị liệu",
       "tracking": "Theo dõi cảm xúc",
       "selfReflection": "Tự suy ngẫm",
@@ -452,6 +457,9 @@
     "collections": "bộ sưu tập.",
     "collectionsDescription": "Bài học về các chủ đề thiết yếu trong cuộc sống - được thiết kế để truyền cảm hứng suy ngẫm và phát triển bản thân.",
     "chapters": "{count} chương",
+    "journalTemplates": "Mẫu nhật ký",
+    "journalTemplatesDescription": "Các câu hỏi gợi mở giúp bạn viết nhật ký và chăm sóc bản thân mỗi ngày.",
+    "lessons": "bài học | bài học",
     "noTemplatesFound": "Không tìm thấy mẫu trong danh mục này",
     "categoryDescriptions": {
       "check": "Ghi nhận nhanh và suy ngẫm — giúp bạn kết nối với suy nghĩ và cảm xúc mỗi ngày.",
@@ -469,15 +477,18 @@
     "moodInstruction": "Di chuyển thanh trượt để phản ánh cảm xúc của bạn",
     "defaultMoodQuestion": "Bạn đang cảm thấy thế nào?",
     "sleepQuestion": "Giấc ngủ của bạn hôm qua thế nào",
-    "sleepInstruction": "Bạn cảm thấy thế nào khi thức dậy?",
-    "badSleep": "Khó ngủ",
-    "goodSleep": "Ngủ ngon",
+    "sleepInstruction": "Bạn cảm thấy sảng khoái thế nào khi thức dậy?",
+    "badSleep": "Trằn trọc",
+    "goodSleep": "Sâu giấc",
     "sleepScoreLabels": {
       "low": "Hôm nay bạn nên nghỉ ngơi nhẹ nhàng.",
       "mid": "Hãy giữ nhịp độ vừa phải để cơ thể phục hồi tốt hơn.",
       "high": "Nền tảng tốt cho sự tập trung và năng lượng bình tĩnh."
     },
     "furtherReading": "Đọc thêm",
+    "furtherReadingDesc": "Tài liệu tham khảo để bạn suy ngẫm sâu hơn.",
+    "selected": "đã chọn",
+    "item": "mục | mục",
     "moodLabels": {
       "1": "Rất tồi tệ",
       "2": "Tồi tệ",
@@ -734,6 +745,33 @@
     "title": "Chọn ngày",
     "today": "Hôm nay",
     "hasEntries": "Có nhật ký"
+  },
+  "authLayout": {
+    "tagline": "Người bạn đồng hành sức khỏe tinh thần",
+    "agreeContinue": "Khi tiếp tục, bạn đồng ý với",
+    "terms": "Điều khoản",
+    "and": "và",
+    "privacyPolicy": "Chính sách bảo mật"
+  },
+  "forgotPassword": {
+    "title": "Đặt lại mật khẩu",
+    "subtitle": "Chúng tôi sẽ gửi liên kết đặt lại qua email của bạn.",
+    "email": "Email",
+    "emailPlaceholder": "you{'@'}example.com",
+    "successMessage": "Nếu tài khoản tồn tại với email này, chúng tôi đã gửi hướng dẫn đặt lại.",
+    "sendResetLink": "Gửi liên kết đặt lại",
+    "errorDefault": "Không thể xử lý yêu cầu. Vui lòng thử lại sau."
+  },
+  "resetPassword": {
+    "title": "Tạo mật khẩu mới",
+    "subtitle": "Sử dụng mã xác nhận từ email đặt lại.",
+    "resetToken": "Mã xác nhận",
+    "pasteToken": "Dán mã xác nhận",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "passwordUpdated": "Đã cập nhật mật khẩu. Bạn có thể đăng nhập ngay.",
+    "passwordsNoMatch": "Mật khẩu không khớp.",
+    "updatePassword": "Cập nhật mật khẩu"
   }
 }
 

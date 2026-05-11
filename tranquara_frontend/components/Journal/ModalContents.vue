@@ -185,6 +185,7 @@ const nextNode = () => {
           mood_score: userJournalStore().currentMoodScore,
           mood_label: userJournalStore().currentMoodLabel,
           title: activeSlideGroup.value?.title || "",
+          sleep_score: userJournalStore().currentSleepScore,
         },
         (useRoute()?.params?.id || null) as string | null,
       );

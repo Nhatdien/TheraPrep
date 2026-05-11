@@ -59,7 +59,7 @@
 
     <!-- Selection summary -->
     <p v-if="selected.size > 0" class="text-xs text-dimmed mt-4 text-center">
-      {{ selected.size }} {{ selected.size === 1 ? 'selected' : 'selected' }}
+      {{ selected.size }} {{ $t('slide.selected') }}
     </p>
   </div>
 </template>

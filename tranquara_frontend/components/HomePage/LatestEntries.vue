@@ -47,7 +47,7 @@
           {{ userJournalStore().journals[0].mood_score ? $t(`journal.moodLabels.${userJournalStore().journals[0].mood_score}`) : userJournalStore().journals[0].mood_label }}
         </span>
         <span class="hidden lg:flex px-3 py-1 bg-accented rounded-full text-xs text-dimmed items-center gap-1">
-          {{ getWordCount(userJournalStore().journals[0].content) }} words
+          {{ getWordCount(userJournalStore().journals[0].content) }} {{ $t('entries.words', getWordCount(userJournalStore().journals[0].content)) }}
         </span>
       </div>
 

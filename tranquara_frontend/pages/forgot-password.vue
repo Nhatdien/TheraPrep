@@ -2,20 +2,20 @@
   <div class="min-h-screen flex items-center justify-center px-4">
     <UCard class="w-full max-w-md shadow-xl">
       <template #header>
-        <h1 class="text-2xl font-semibold">Reset your password</h1>
-        <p class="text-sm text-muted mt-1">We will send a secure reset link to your email.</p>
+        <h1 class="text-2xl font-semibold">{{ $t('forgotPassword.title') }}</h1>
+        <p class="text-sm text-muted mt-1">{{ $t('forgotPassword.subtitle') }}</p>
       </template>
 
       <form class="space-y-4" @submit.prevent="onSubmit">
-        <UFormField label="Email" required>
-          <UInput v-model="email" type="email" placeholder="you@example.com" size="lg" />
+        <UFormField :label="$t('forgotPassword.email')" required>
+          <UInput v-model="email" type="email" :placeholder="$t('forgotPassword.emailPlaceholder')" size="lg" />
         </UFormField>
 
         <UAlert
           v-if="success"
           color="success"
           variant="soft"
-          title="If an account exists for this email, a reset message has been sent."
+          :title="$t('forgotPassword.successMessage')"
         />
 
         <UAlert
@@ -27,7 +27,7 @@
         />
 
         <UButton type="submit" block size="lg" :loading="isLoading" :disabled="!email">
-          Send reset link
+          {{ $t('forgotPassword.sendResetLink') }}
         </UButton>
       </form>
     </UCard>
@@ -39,6 +39,7 @@ import { useAuthStore } from '~/stores/stores/auth_store';
 
 definePageMeta({ layout: 'auth' });
 
+const { t } = useI18n();
 const authStore = useAuthStore();
 const email = ref('');
 const isLoading = ref(false);
@@ -53,7 +54,7 @@ const onSubmit = async () => {
     await authStore.requestPasswordReset(email.value.trim());
     success.value = true;
   } catch (error: any) {
-    errorMessage.value = error.message || 'Unable to process reset request.';
+    errorMessage.value = error.message || t('forgotPassword.errorDefault');
   } finally {
     isLoading.value = false;
   }

@@ -40,7 +40,6 @@ const props = defineProps({
 
 const store = userJournalStore();
 const sleepScore = ref(70);
-
 const displayQuestion = computed(() =>
   props.content?.question || props.content?.question_content || t('slide.sleepQuestion')
 );
@@ -64,5 +63,6 @@ const scoreTone = computed(() => {
 watch(sleepScore, (val) => {
   const questionKey = props.content?.question || props.content?.question_content || 'sleep_score';
   store.updateCurrentWritingContent(questionKey, String(val));
+  store.currentSleepScore = val;
 }, { immediate: true });
 </script>

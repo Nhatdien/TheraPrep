@@ -21,6 +21,7 @@ type UserJournal struct {
 	ContentHTML  *string    `json:"content_html,omitempty"` // Rendered HTML preview
 	MoodScore    *int       `json:"mood_score,omitempty"`   // 1-10 scale
 	MoodLabel    *string    `json:"mood_label,omitempty"`   // "Storm", "Sunny", etc.
+	SleepScore   *int       `json:"sleep_score,omitempty"`  // 0-100 sleep quality
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    time.Time  `json:"updated_at"`
 }
@@ -66,7 +67,7 @@ type UserJournalModel struct {
 func (journal UserJournalModel) Get(id uuid.UUID, userID uuid.UUID) (*UserJournal, error) {
 	query := `
 		SELECT id, user_id, collection_id, title, content, content_html, 
-		       mood_score, mood_label, created_at, updated_at 
+		       mood_score, mood_label, sleep_score, created_at, updated_at 
 		FROM user_journals 
 		WHERE id = $1 AND user_id = $2  
 	`
@@ -85,6 +86,7 @@ func (journal UserJournalModel) Get(id uuid.UUID, userID uuid.UUID) (*UserJourna
 		&userJournal.ContentHTML,
 		&userJournal.MoodScore,
 		&userJournal.MoodLabel,
+		&userJournal.SleepScore,
 		&userJournal.CreatedAt,
 		&userJournal.UpdatedAt,
 	)
@@ -170,7 +172,7 @@ func (journal UserJournalModel) GetAllTemplates() ([]*JournalTemplate, error) {
 func (journal UserJournalModel) GetList(userId uuid.UUID) ([]*UserJournal, error) {
 	query := `
 		SELECT COUNT(*) OVER(), id, user_id, collection_id, title, content, content_html,
-		       mood_score, mood_label, created_at, updated_at 
+		       mood_score, mood_label, sleep_score, created_at, updated_at 
 		FROM user_journals 
 		WHERE user_id = $1
 		ORDER BY created_at DESC
@@ -200,6 +202,7 @@ func (journal UserJournalModel) GetList(userId uuid.UUID) ([]*UserJournal, error
 			&userJournal.ContentHTML,
 			&userJournal.MoodScore,
 			&userJournal.MoodLabel,
+			&userJournal.SleepScore,
 			&userJournal.CreatedAt,
 			&userJournal.UpdatedAt,
 		)
@@ -240,9 +243,9 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 		}
 
 		query = `
-			INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-			RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at, updated_at
+			INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label, sleep_score, created_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, sleep_score, created_at, updated_at
 		`
 		args = []any{
 			userJournal.UserID,
@@ -252,13 +255,14 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 			userJournal.ContentHTML,
 			userJournal.MoodScore,
 			userJournal.MoodLabel,
+			userJournal.SleepScore,
 			userJournal.CreatedAt.UTC(),
 		}
 	} else {
 		query = `
-			INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label)
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
-			RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at, updated_at
+			INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label, sleep_score)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, sleep_score, created_at, updated_at
 		`
 		args = []any{
 			userJournal.UserID,
@@ -268,6 +272,7 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 			userJournal.ContentHTML,
 			userJournal.MoodScore,
 			userJournal.MoodLabel,
+			userJournal.SleepScore,
 		}
 	}
 
@@ -280,6 +285,7 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 		&userJournal.ContentHTML,
 		&userJournal.MoodScore,
 		&userJournal.MoodLabel,
+		&userJournal.SleepScore,
 		&userJournal.CreatedAt,
 		&userJournal.UpdatedAt,
 	}
@@ -295,9 +301,9 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 func (journal UserJournalModel) Update(userJournal *UserJournal) (*UserJournal, error) {
 	query := `
 		UPDATE user_journals
-		SET title = $1, content = $2, content_html = $3, mood_score = $4, mood_label = $5
-		WHERE id = $6
-		RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at, updated_at
+		SET title = $1, content = $2, content_html = $3, mood_score = $4, mood_label = $5, sleep_score = $6
+		WHERE id = $7
+		RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, sleep_score, created_at, updated_at
 	`
 
 	args := []any{
@@ -306,6 +312,7 @@ func (journal UserJournalModel) Update(userJournal *UserJournal) (*UserJournal, 
 		userJournal.ContentHTML,
 		userJournal.MoodScore,
 		userJournal.MoodLabel,
+		userJournal.SleepScore,
 		userJournal.ID,
 	}
 
@@ -318,6 +325,7 @@ func (journal UserJournalModel) Update(userJournal *UserJournal) (*UserJournal, 
 		&userJournal.ContentHTML,
 		&userJournal.MoodScore,
 		&userJournal.MoodLabel,
+		&userJournal.SleepScore,
 		&userJournal.CreatedAt,
 		&userJournal.UpdatedAt,
 	}
@@ -374,7 +382,7 @@ func (journal UserJournalModel) GetListWithFilter(userID uuid.UUID, filter *Quer
 	// Base SELECT with COUNT for pagination
 	queryBuilder.WriteString(`
 		SELECT COUNT(*) OVER(), id, user_id, collection_id, title, content, content_html,
-		       mood_score, mood_label, created_at, updated_at
+		       mood_score, mood_label, sleep_score, created_at, updated_at
 		FROM user_journals
 		WHERE user_id = $1
 	`)
@@ -457,6 +465,7 @@ func (journal UserJournalModel) GetListWithFilter(userID uuid.UUID, filter *Quer
 			&uj.ContentHTML,
 			&uj.MoodScore,
 			&uj.MoodLabel,
+			&uj.SleepScore,
 			&uj.CreatedAt,
 			&uj.UpdatedAt,
 		)

@@ -19,22 +19,25 @@
       <div class="space-y-3">
         <!-- Streak Hero Card -->
         <UCard>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <div class="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 shrink-0">
-                <Flame class="w-7 h-7 text-primary" />
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-1">
+              <div class="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 shrink-0">
+                <Flame class="w-6 h-6 text-primary" />
               </div>
               <div>
-                <p class="text-4xl font-bold text-highlighted leading-none">{{ streakStore.currentStreak }}</p>
+                <p class="text-3xl font-bold text-highlighted leading-none">{{ streakStore.currentStreak }}</p>
                 <p class="text-xs text-muted mt-1">{{ $t('progress.currentStreak') }}</p>
               </div>
             </div>
-            <div class="text-right">
-              <div class="flex items-center gap-1.5 justify-end">
-                <Trophy class="w-3.5 h-3.5 text-muted" />
-                <span class="text-xl font-bold text-highlighted">{{ streakStore.longestStreak }}</span>
+            <div class="w-px h-10 bg-border shrink-0"></div>
+            <div class="flex items-center gap-3 flex-1">
+              <div class="flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-500/10 shrink-0">
+                <Trophy class="w-6 h-6 text-amber-500" />
               </div>
-              <p class="text-xs text-muted mt-0.5">{{ $t('progress.longestStreak') }}</p>
+              <div>
+                <p class="text-3xl font-bold text-highlighted leading-none">{{ streakStore.longestStreak }}</p>
+                <p class="text-xs text-muted mt-1">{{ $t('progress.longestStreak') }}</p>
+              </div>
             </div>
           </div>
         </UCard>
@@ -201,39 +204,12 @@ const averageMoodLabel = computed(() => {
 });
 
 /**
- * Extract sleep score (0–100) from a journal's content HTML.
- * SleepCheck.vue stores the score as the text content of the journal-question answer.
- * We match entries where the question text mentions sleep and the answer is a numeric string.
- */
-function extractSleepScore(content: string): number | null {
-  if (!content) return null;
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(content, 'text/html');
-    for (const block of Array.from(doc.querySelectorAll('.journal-entry'))) {
-      const questionEl = block.querySelector('.journal-question');
-      const answerEl = block.querySelector('.journal-answer');
-      if (!questionEl || !answerEl) continue;
-      const key = (questionEl.textContent || '').toLowerCase();
-      const isSleepKey = key.includes('sleep') || key.includes('ngủ') || key.includes('giấc');
-      if (!isSleepKey) continue;
-      const raw = (answerEl.textContent || '').trim();
-      const numVal = Number(raw);
-      if (!isNaN(numVal) && numVal >= 0 && numVal <= 100) return numVal;
-    }
-  } catch {
-    // ignore DOM parse errors in non-browser env
-  }
-  return null;
-}
-
-/**
- * Average sleep quality score across all journals that recorded a sleep check.
+ * Average sleep quality score across all journals that have a sleep_score recorded.
  */
 const averageSleepScore = computed(() => {
   const scores = activeJournals.value
-    .map(j => extractSleepScore(j.content_html || j.content))
-    .filter((s): s is number => s !== null);
+    .map(j => j.sleep_score)
+    .filter((s): s is number => s !== null && s !== undefined);
   if (scores.length === 0) return null;
   return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
 });
