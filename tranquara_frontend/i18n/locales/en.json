@@ -122,6 +122,12 @@
     "avgSleep": "Avg Sleep",
     "sleepTrend": "Sleep Quality Trend",
     "noSleepData": "No sleep data recorded yet. Add a sleep check in your journal to see your trend.",
+    "filter": {
+      "week": "1W",
+      "month": "1M",
+      "threeMonths": "3M",
+      "all": "All"
+    },
     "emptyState": "Your progress journey starts here. Write your first journal to begin tracking your reflections.",
     "startJournaling": "Start Journaling",
     "day": "day | days",

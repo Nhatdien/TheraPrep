@@ -122,6 +122,12 @@
     "avgSleep": "Ngủ TB",
     "sleepTrend": "Xu hướng giấc ngủ",
     "noSleepData": "Chưa có dữ liệu giấc ngủ. Thêm mục kiểm tra giấc ngủ trong nhật ký để xem xu hướng.",
+    "filter": {
+      "week": "1T",
+      "month": "1Th",
+      "threeMonths": "3Th",
+      "all": "Tất cả"
+    },
     "emptyState": "Hành trình của bạn bắt đầu từ đây. Viết nhật ký đầu tiên để bắt đầu theo dõi nhé.",
     "startJournaling": "Bắt đầu viết nhật ký",
     "day": "ngày | ngày",
