@@ -103,6 +103,9 @@ export const useSettingsStore = defineStore('settings', {
           };
         }
 
+        // Re-schedule any enabled reminders so they survive app restarts / device reboots
+        await NotificationService.rehydrateFromSettings(this.device.notifications);
+
         this.initialized = true;
         console.log('[SettingsStore] Settings loaded from local storage');
       } catch (error) {
