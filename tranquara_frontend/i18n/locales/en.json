@@ -426,6 +426,15 @@
       "8": "Very Good",
       "9": "Great",
       "10": "Fantastic"
+    },
+    "sleepLevel": "Sleep Quality",
+    "sleepScore": "Score: {score}/100",
+    "sleepLabels": {
+      "exhausted": "Exhausted",
+      "tired": "Tired",
+      "fair": "Fair",
+      "rested": "Rested",
+      "refreshed": "Refreshed"
     }
   },
   "onboarding": {
@@ -483,6 +492,7 @@
     "moodInstruction": "Move the slider to reflect how you're feeling",
     "defaultMoodQuestion": "How are you feeling right now?",
     "sleepQuestion": "How was your sleep yesterday",
+    "journalDefaultQuestion": "What's on your mind?",
     "sleepInstruction": "How restored did you feel when you woke up?",
     "badSleep": "Restless",
     "goodSleep": "Restful",

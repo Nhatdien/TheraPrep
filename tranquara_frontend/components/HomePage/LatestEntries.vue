@@ -41,10 +41,17 @@
         {{ userJournalStore().journals[0].title }}
       </h3>
 
-      <!-- Mood Tag + Word Count (desktop) -->
+      <!-- Mood Tag + Sleep Tag + Word Count (desktop) -->
       <div class="flex flex-wrap gap-2 mb-3">
         <span v-if="userJournalStore().journals[0].mood_label" class="px-3 py-1 bg-accented rounded-full text-xs text-default flex items-center gap-1">
+          <Icon :name="getMoodIcon(userJournalStore().journals[0].mood_score)" class="w-3 h-3" />
           {{ userJournalStore().journals[0].mood_score ? $t(`journal.moodLabels.${userJournalStore().journals[0].mood_score}`) : userJournalStore().journals[0].mood_label }}
+        </span>
+        <span
+          v-if="userJournalStore().journals[0].sleep_score !== null && userJournalStore().journals[0].sleep_score !== undefined"
+          class="px-3 py-1 bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 rounded-full text-xs flex items-center gap-1">
+          <Icon :name="getSleepInfo(userJournalStore().journals[0].sleep_score).icon" class="w-3 h-3" />
+          {{ $t(`journal.sleepLabels.${getSleepInfo(userJournalStore().journals[0].sleep_score).level}`) }}
         </span>
         <span class="hidden lg:flex px-3 py-1 bg-accented rounded-full text-xs text-dimmed items-center gap-1">
           {{ getWordCount(userJournalStore().journals[0].content) }} {{ $t('entries.words', getWordCount(userJournalStore().journals[0].content)) }}
@@ -87,10 +94,17 @@
         {{ journal.title }}
       </h3>
 
-      <!-- Mood Tag -->
-      <div class="flex flex-wrap gap-2 mb-3" v-if="journal.mood_label">
-        <span class="px-3 py-1 bg-accented rounded-full text-xs text-default flex items-center gap-1">
+      <!-- Mood + Sleep Tags -->
+      <div class="flex flex-wrap gap-2 mb-3">
+        <span v-if="journal.mood_label" class="px-3 py-1 bg-accented rounded-full text-xs text-default flex items-center gap-1">
+          <Icon :name="getMoodIcon(journal.mood_score)" class="w-3 h-3" />
           {{ journal.mood_score ? $t(`journal.moodLabels.${journal.mood_score}`) : journal.mood_label }}
+        </span>
+        <span
+          v-if="journal.sleep_score !== null && journal.sleep_score !== undefined"
+          class="px-3 py-1 bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 rounded-full text-xs flex items-center gap-1">
+          <Icon :name="getSleepInfo(journal.sleep_score).icon" class="w-3 h-3" />
+          {{ $t(`journal.sleepLabels.${getSleepInfo(journal.sleep_score).level}`) }}
         </span>
       </div>
 
@@ -165,6 +179,24 @@ const getContentPreview = (content: string) => {
   // Strip HTML tags and get first 150 characters
   const stripped = content;
   return stripped.length > 150 ? stripped.substring(0, 150) + '...' : stripped;
+};
+
+const getMoodIcon = (score: number | null | undefined) => {
+  if (!score) return 'i-lucide-smile';
+  if (score <= 2) return 'i-lucide-cloud-rain';
+  if (score <= 4) return 'i-lucide-cloud';
+  if (score <= 6) return 'i-lucide-meh';
+  if (score <= 8) return 'i-lucide-smile';
+  return 'i-lucide-sun';
+};
+
+const getSleepInfo = (score: number | null | undefined) => {
+  const s = score ?? 0;
+  if (s <= 20) return { level: 'exhausted', icon: 'i-lucide-cloud-fog' };
+  if (s <= 40) return { level: 'tired',     icon: 'i-lucide-moon' };
+  if (s <= 60) return { level: 'fair',      icon: 'i-lucide-cloud-moon' };
+  if (s <= 80) return { level: 'rested',    icon: 'i-lucide-star' };
+  return           { level: 'refreshed',  icon: 'i-lucide-sparkles' };
 };
 
 const getWordCount = (content: string) => {

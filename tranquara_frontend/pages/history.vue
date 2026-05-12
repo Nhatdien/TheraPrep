@@ -203,6 +203,14 @@
                 <Icon :name="getMoodIcon(entry.mood_score)" class="w-3 h-3" />
                 {{ entry.mood_score ? $t(`journal.moodLabels.${entry.mood_score}`) : entry.mood_label }}
               </span>
+
+              <!-- Sleep Tag -->
+              <span
+                v-if="entry.sleep_score !== null && entry.sleep_score !== undefined"
+                class="px-3 py-1 bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 rounded-full text-xs flex items-center gap-1">
+                <Icon :name="getSleepInfo(entry.sleep_score).icon" class="w-3 h-3" />
+                {{ $t(`journal.sleepLabels.${getSleepInfo(entry.sleep_score).level}`) }}
+              </span>
               
               <!-- Template Tag (if different from title) -->
               <span v-if="entry.collection_id && entry.title" class="px-3 py-1 bg-accented rounded-full text-xs text-default flex items-center gap-1">
@@ -582,10 +590,21 @@ const getTemplateName = (collectionId: string | null | undefined) => {
 // Get mood icon based on score
 const getMoodIcon = (moodScore: number | null | undefined) => {
   if (!moodScore) return 'i-lucide-smile';
-  if (moodScore <= 3) return 'i-lucide-cloud-rain';
-  if (moodScore <= 5) return 'i-lucide-cloud';
-  if (moodScore <= 7) return 'i-lucide-cloud-sun';
+  if (moodScore <= 2) return 'i-lucide-cloud-rain';
+  if (moodScore <= 4) return 'i-lucide-cloud';
+  if (moodScore <= 6) return 'i-lucide-meh';
+  if (moodScore <= 8) return 'i-lucide-smile';
   return 'i-lucide-sun';
+};
+
+// Get sleep info (icon + level key) based on 0-100 score
+const getSleepInfo = (score: number | null | undefined) => {
+  const s = score ?? 0;
+  if (s <= 20) return { level: 'exhausted', icon: 'i-lucide-cloud-fog' };
+  if (s <= 40) return { level: 'tired',     icon: 'i-lucide-moon' };
+  if (s <= 60) return { level: 'fair',      icon: 'i-lucide-cloud-moon' };
+  if (s <= 80) return { level: 'rested',    icon: 'i-lucide-star' };
+  return           { level: 'refreshed',  icon: 'i-lucide-sparkles' };
 };
 
 // Get content preview (strip HTML and TipTap JSON)

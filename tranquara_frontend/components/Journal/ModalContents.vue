@@ -169,7 +169,7 @@ const currentSlideMeta = computed(
 const isLastSlide = computed(() => currentIndex.value >= totalSlides.value - 1);
 const canGoPrev = computed(() => currentIndex.value > 0);
 
-const nextNode = () => {
+const nextNode = async () => {
   if (!carousel.value?.emblaApi?.canScrollNext()) {
     // The journal will be created if the journal is not empty or
     // user have interact with the chatbot in that journal session
@@ -177,18 +177,23 @@ const nextNode = () => {
       !isEmptyJournal(userJournalStore().currentWritingContent as any) &&
       !userJournalStore().currentJournal
     ) {
-      saveJournal(
-        {
-          content: generateJournalHtml(
-            userJournalStore().currentWritingContent,
-          ),
-          mood_score: userJournalStore().currentMoodScore,
-          mood_label: userJournalStore().currentMoodLabel,
-          title: activeSlideGroup.value?.title || "",
-          sleep_score: userJournalStore().currentSleepScore,
-        },
-        (useRoute()?.params?.id || null) as string | null,
-      );
+      try {
+        await saveJournal(
+          {
+            content: generateJournalHtml(
+              userJournalStore().currentWritingContent,
+            ),
+            mood_score: userJournalStore().currentMoodScore,
+            mood_label: userJournalStore().currentMoodLabel,
+            title: activeSlideGroup.value?.title || "",
+            sleep_score: userJournalStore().currentSleepScore,
+          },
+          (useRoute()?.params?.id || null) as string | null,
+        );
+      } catch (err) {
+        console.error('[ModalContents] Journal save failed:', err);
+        // TODO: show a user-facing error toast here
+      }
     }
 
     // Mark slide group as completed for learn-type collections

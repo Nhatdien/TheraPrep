@@ -426,6 +426,15 @@
       "8": "Vui",
       "9": "Rất vui",
       "10": "Tuyệt vời"
+    },
+    "sleepLevel": "Chất lượng giấc ngủ",
+    "sleepScore": "Điểm: {score}/100",
+    "sleepLabels": {
+      "exhausted": "Kiệt sức",
+      "tired": "Mệt mỏi",
+      "fair": "Bình thường",
+      "rested": "Đã nghỉ ngơi",
+      "refreshed": "Sảng khoái"
     }
   },
   "onboarding": {
@@ -483,6 +492,7 @@
     "moodInstruction": "Di chuyển thanh trượt để phản ánh cảm xúc của bạn",
     "defaultMoodQuestion": "Bạn đang cảm thấy thế nào?",
     "sleepQuestion": "Giấc ngủ của bạn hôm qua thế nào",
+    "journalDefaultQuestion": "Bạn đang nghĩ gì?",
     "sleepInstruction": "Bạn cảm thấy sảng khoái thế nào khi thức dậy?",
     "badSleep": "Trằn trọc",
     "goodSleep": "Sâu giấc",
