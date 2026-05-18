@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="mb-5">
-      <h2 class="text-2xl sm:text-3xl font-semibold leading-tight text-highlighted">{{ content?.question || content?.question_content || $t('slide.journalDefaultQuestion') }}</h2>
-      <blockquote class="text-default text-sm sm:text-base leading-7 mt-3 border-l-2 border-primary/40 pl-3">
+      <h2 class="text-2xl sm:text-3xl font-semibold leading-tight text-highlighted text-center">{{ content?.question || content?.question_content || $t('slide.journalDefaultQuestion') }}</h2>
+      <p v-if="content?.content || content?.question_description" class="text-muted text-sm sm:text-base leading-7 mt-3 text-center">
         {{ content?.content || content?.question_description }}
-      </blockquote>
+      </p>
     </div>
     <CommonMarkdownEditor
       ref="editor"
