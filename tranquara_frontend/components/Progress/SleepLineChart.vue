@@ -1,5 +1,22 @@
 <template>
   <div class="sleep-chart">
+    <!-- Period filter pills -->
+    <div class="flex justify-center gap-2 mb-3">
+      <button
+        v-for="opt in periodOptions"
+        :key="opt.value"
+        @click="selectedPeriod = opt.value"
+        :class="[
+          'text-xs font-medium px-3 py-1 rounded-full border transition-colors',
+          selectedPeriod === opt.value
+            ? 'bg-primary text-white border-primary'
+            : 'bg-transparent text-muted border-[var(--ui-border)] hover:border-primary/60',
+        ]"
+      >
+        {{ opt.label }}
+      </button>
+    </div>
+
     <v-chart
       v-if="hasData"
       class="chart"
@@ -33,30 +50,22 @@ const props = defineProps<{
   journals: LocalJournal[]
 }>()
 
-/**
- * Extract sleep quality score (0–100) from journal HTML content.
- * Matches entries where the question text mentions sleep and the answer is numeric.
- */
-function extractSleepScore(content: string): number | null {
-  if (!content) return null
-  try {
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(content, 'text/html')
-    for (const block of Array.from(doc.querySelectorAll('.journal-entry'))) {
-      const questionEl = block.querySelector('.journal-question')
-      const answerEl = block.querySelector('.journal-answer')
-      if (!questionEl || !answerEl) continue
-      const key = (questionEl.textContent || '').toLowerCase()
-      const isSleepKey = key.includes('sleep') || key.includes('ngủ') || key.includes('giấc')
-      if (!isSleepKey) continue
-      const raw = (answerEl.textContent || '').trim()
-      const numVal = Number(raw)
-      if (!isNaN(numVal) && numVal >= 0 && numVal <= 100) return numVal
-    }
-  } catch {
-    // ignore DOM parse errors in non-browser environments
-  }
-  return null
+type Period = '7d' | '30d' | '90d' | 'all'
+
+const selectedPeriod = ref<Period>('30d')
+
+const periodOptions = computed(() => [
+  { value: '7d' as Period,  label: t('progress.filter.week') },
+  { value: '30d' as Period, label: t('progress.filter.month') },
+  { value: '90d' as Period, label: t('progress.filter.threeMonths') },
+  { value: 'all' as Period, label: t('progress.filter.all') },
+])
+
+const periodDays: Record<Period, number | null> = {
+  '7d': 7,
+  '30d': 30,
+  '90d': 90,
+  'all': null,
 }
 
 function formatDate(date: Date): string {
@@ -68,23 +77,25 @@ function formatDate(date: Date): string {
 
 /**
  * One sleep score per day — latest entry wins if multiple entries exist on the same day.
- * Sorted chronologically and capped at the last 60 data points.
+ * Filtered by the selected period.
  */
 const sleepData = computed(() => {
   const byDate: Record<string, number> = {}
+  const days = periodDays[selectedPeriod.value]
+  const cutoff = days !== null ? new Date(Date.now() - days * 86400000) : null
 
   props.journals
-    .filter(j => !j.is_deleted)
+    .filter(j => {
+      if (j.is_deleted || j.sleep_score === null || j.sleep_score === undefined) return false
+      if (cutoff && new Date(j.created_at) < cutoff) return false
+      return true
+    })
     .forEach(j => {
-      const score = extractSleepScore(j.content_html || j.content)
-      if (score !== null) {
-        byDate[formatDate(new Date(j.created_at))] = score
-      }
+      byDate[formatDate(new Date(j.created_at))] = j.sleep_score!
     })
 
   return Object.entries(byDate)
     .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-60)
     .map(([date, score]) => [date, score] as [string, number])
 })
 
@@ -98,7 +109,7 @@ const chartOption = computed(() => ({
       const dateObj = new Date(p.data[0])
       const formattedDate = dateObj.toLocaleDateString(
         locale.value === 'vi' ? 'vi-VN' : 'en-US',
-        { month: 'short', day: 'numeric' }
+        { weekday: 'short', month: 'short', day: 'numeric' }
       )
       return `${formattedDate}: <b>${p.data[1]}%</b>`
     },
@@ -117,6 +128,7 @@ const chartOption = computed(() => ({
   xAxis: {
     type: 'time',
     boundaryGap: false,
+    minInterval: 86400000, // snap ticks to day boundaries
     axisLine: { show: false },
     axisTick: { show: false },
     axisLabel: {

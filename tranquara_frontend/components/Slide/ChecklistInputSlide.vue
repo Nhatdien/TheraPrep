@@ -47,7 +47,7 @@
 
     <!-- Counter -->
     <p v-if="items.length > 0" class="text-xs text-dimmed mt-3 text-center">
-      {{ items.length }} {{ items.length === 1 ? 'item' : 'items' }}
+      {{ items.length }} {{ $t('slide.item', items.length) }}
     </p>
   </div>
 </template>

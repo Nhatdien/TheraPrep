@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="mb-5">
-      <h2 class="text-2xl sm:text-3xl font-semibold leading-tight text-highlighted">{{ content?.question || content?.question_content }}</h2>
-      <blockquote class="text-default text-sm sm:text-base leading-7 mt-3 border-l-2 border-primary/40 pl-3">
+      <h2 class="text-2xl sm:text-3xl font-semibold leading-tight text-highlighted text-center">{{ content?.question || content?.question_content || $t('slide.journalDefaultQuestion') }}</h2>
+      <p v-if="content?.content || content?.question_description" class="text-muted text-sm sm:text-base leading-7 mt-3 text-center">
         {{ content?.content || content?.question_description }}
-      </blockquote>
+      </p>
     </div>
     <CommonMarkdownEditor
       ref="editor"
@@ -66,8 +66,10 @@ const hasContent = computed(() => {
 });
 
 const onEditorUpdate = () => {
+  // Use question text, falling back to content id to avoid 'undefined' as key
+  const key = props.content?.question || props.content?.question_content || props.content?.id || 'journal_entry';
   userJournalStore().updateCurrentWritingContent(
-    props.content?.question || props.content?.question_content,
+    key,
     currentNote.value
   );
 };
@@ -134,8 +136,9 @@ onMounted(() => {
       editor.value.editor.commands.setContent(props.initialContent);
     }
     // Also update the store
+    const key = props.content?.question || props.content?.question_content || props.content?.id || 'journal_entry';
     userJournalStore().updateCurrentWritingContent(
-      props.content?.question || props.content?.question_content,
+      key,
       props.initialContent
     );
   }
@@ -149,8 +152,9 @@ watch(() => props.initialContent, (newContent) => {
   if (newContent === currentNote.value) return;
   currentNote.value = newContent;
   editor.value.editor.commands.setContent(newContent);
+  const key = props.content?.question || props.content?.question_content || props.content?.id || 'journal_entry';
   userJournalStore().updateCurrentWritingContent(
-    props.content?.question || props.content?.question_content,
+    key,
     newContent
   );
 }, { immediate: true });

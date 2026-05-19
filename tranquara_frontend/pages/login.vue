@@ -3,12 +3,24 @@
     <!-- Login Card -->
     <UCard class="shadow-2xl">
       <template #header>
-        <h2 class="text-2xl font-semibold text-highlighted">
-          {{ $t('auth.welcomeBack') }}
-        </h2>
-        <p class="text-sm text-muted mt-1">
-          {{ $t('auth.signInSubtitle') }}
-        </p>
+        <div class="flex items-start justify-between">
+          <div>
+            <h2 class="text-2xl font-semibold text-highlighted">
+              {{ $t('auth.welcomeBack') }}
+            </h2>
+            <p class="text-sm text-muted mt-1">
+              {{ $t('auth.signInSubtitle') }}
+            </p>
+          </div>
+          <USelectMenu
+            v-model="currentLanguage"
+            :items="localeOptions"
+            value-key="value"
+            class="w-16"
+            size="xs"
+            @update:model-value="onLocaleChange"
+          />
+        </div>
       </template>
 
       <div class="p-2">
@@ -102,7 +114,7 @@
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
             </template>
-            Continue with Google
+            {{ $t('auth.continueWithGoogle') }}
           </UButton>
         </form>
       </div>
@@ -141,6 +153,14 @@ definePageMeta({
 
 const authStore = useAuthStore();
 const { t } = useI18n();
+const { currentLanguage, changeLanguage, availableLocales } = useLanguage();
+
+const localeOptions = computed(() =>
+  availableLocales.value.map((l) => ({ label: l.code.toUpperCase(), value: l.code }))
+);
+async function onLocaleChange(value: string) {
+  await changeLanguage(value as 'en' | 'vi');
+}
 
 // Form state
 const username = ref('');

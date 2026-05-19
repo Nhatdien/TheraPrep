@@ -2,14 +2,14 @@
   <section class="flex justify-between items-center w-full">
     <div class="flex flex-col justify-center items-start w-full gap-y-4">
       <h1>
-        Good {{ timeInDays(moment().toNow()) }}
+        {{ greeting }}
         {{ $tranquaraSDK.config.current_username }} 👋
       </h1>
       <div class="flex flex-col gap-4 w-full">
         <UCard variant="soft" class="flex-1 shadow-2xl" size="xl">
           <template #header>
             <div class="flex justify-between items-center">
-              <span class="font-semibold">Your journey</span>
+              <span class="font-semibold">{{ $t('home.yourJourney') }}</span>
             </div>
           </template>
           <div class="flex gap-8 items-center">
@@ -17,9 +17,9 @@
               class="object-fill bg-linear-155 from-primary-200 to-primary-500 max-w-24 rounded-full w-auto black-to-white"
               src="@/assets/img/journaling.png" />
             <div class="w-full">
-              <p class="font-semibold text-lg">Journaling streak</p>
+              <p class="font-semibold text-lg">{{ $t('home.journalingStreak') }}</p>
               <span class="flex gap-1 items-center text-primary-700 font-bold"
-                ><Flame /> {{ streakStore.currentStreak }} {{ streakStore.currentStreak === 1 ? 'day' : 'days' }}</span
+                ><Flame /> {{ streakStore.currentStreak }} {{ $t('progress.day', streakStore.currentStreak) }}</span
               >
 
 
@@ -39,13 +39,18 @@
 import { useScreen } from "~/composables/useScreen";
 import { Flame } from "lucide-vue-next";
 import { useUserStreakStore } from "~/stores/stores/user_streak";
-import moment from "moment";
 
 const { $tranquaraSDK } = useNuxtApp();
+const { t } = useI18n();
 const streakStore = useUserStreakStore();
 const screen = useScreen();
 
-
+const greeting = computed(() => {
+  const hour = new Date().getHours();
+  if (hour < 12) return t('home.greeting.morning');
+  if (hour < 18) return t('home.greeting.afternoon');
+  return t('home.greeting.evening');
+});
 </script>
 
 <style scoped>

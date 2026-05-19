@@ -40,7 +40,6 @@ const props = defineProps({
 
 const store = userJournalStore();
 const sleepScore = ref(70);
-
 const displayQuestion = computed(() =>
   props.content?.question || props.content?.question_content || t('slide.sleepQuestion')
 );
@@ -64,5 +63,13 @@ const scoreTone = computed(() => {
 watch(sleepScore, (val) => {
   const questionKey = props.content?.question || props.content?.question_content || 'sleep_score';
   store.updateCurrentWritingContent(questionKey, String(val));
-}, { immediate: true });
+  store.currentSleepScore = val;
+});
+
+// Initialise currentSleepScore to the default so it's available if the user
+// finishes without touching the slider, but do NOT write to currentWritingContent
+// here — that would make isEmptyJournal() return false even with no real input.
+onMounted(() => {
+  store.currentSleepScore = sleepScore.value;
+});
 </script>

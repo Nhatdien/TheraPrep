@@ -59,7 +59,7 @@
 
     <!-- Selection summary -->
     <p v-if="selected.size > 0" class="text-xs text-dimmed mt-4 text-center">
-      {{ selected.size }} {{ selected.size === 1 ? 'selected' : 'selected' }}
+      {{ selected.size }} {{ $t('slide.selected') }}
     </p>
   </div>
 </template>
@@ -110,6 +110,21 @@ const getOptionDescription = (option: QuestionnaireOption) => {
   return option.description;
 };
 
+// Restore saved selection when navigating back to this slide
+onMounted(() => {
+  const key = displayQuestion.value || `questionnaire_${props.index}`;
+  const saved = store.currentWritingContent[key];
+  if (!saved) return;
+  const savedLabels = new Set(saved.split(', '));
+  const restored = new Set<string>();
+  for (const option of options.value) {
+    if (savedLabels.has(getOptionLabel(option))) {
+      restored.add(option.id);
+    }
+  }
+  selected.value = restored;
+});
+
 const selectSingle = (id: string) => {
   selected.value = new Set([id]);
   saveSelection();
@@ -132,8 +147,10 @@ const saveSelection = () => {
     .map(o => getOptionLabel(o))
     .join(', ');
 
+  // Use the question text as the key so it appears in the journal HTML;
+  // fall back to indexed key only if the question is empty
   store.updateCurrentWritingContent(
-    `questionnaire_${props.index}`,
+    displayQuestion.value || `questionnaire_${props.index}`,
     selectedLabels
   );
 };
@@ -143,7 +160,7 @@ const saveSelection = () => {
 .choice-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: start;
   justify-content: center;
   padding: 1.25rem 1rem;
   border-radius: 1rem;

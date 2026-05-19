@@ -3,12 +3,24 @@
     <!-- Register Card -->
     <UCard class="shadow-2xl">
       <template #header>
-        <h2 class="text-2xl font-semibold text-highlighted">
-          {{ $t('auth.createAccount') }}
-        </h2>
-        <p class="text-sm text-muted mt-1">
-          {{ $t('auth.joinTheraPrep') }}
-        </p>
+        <div class="flex items-start justify-between">
+          <div>
+            <h2 class="text-2xl font-semibold text-highlighted">
+              {{ $t('auth.createAccount') }}
+            </h2>
+            <p class="text-sm text-muted mt-1">
+              {{ $t('auth.joinTheraPrep') }}
+            </p>
+          </div>
+          <USelectMenu
+            v-model="currentLanguage"
+            :items="localeOptions"
+            value-key="value"
+            class="w-16"
+            size="xs"
+            @update:model-value="onLocaleChange"
+          />
+        </div>
       </template>
 
       <div class="p-2">
@@ -176,6 +188,14 @@ definePageMeta({
 
 const authStore = useAuthStore();
 const { t } = useI18n();
+const { currentLanguage, changeLanguage, availableLocales } = useLanguage();
+
+const localeOptions = computed(() =>
+  availableLocales.value.map((l) => ({ label: l.code.toUpperCase(), value: l.code }))
+);
+async function onLocaleChange(value: string) {
+  await changeLanguage(value as 'en' | 'vi');
+}
 
 // Form state
 const email = ref('');

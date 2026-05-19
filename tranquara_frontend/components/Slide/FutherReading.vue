@@ -1,7 +1,7 @@
 <template>
   <section>
     <h2 class="text-2xl sm:text-3xl font-semibold mb-2 text-highlighted">{{ $t('slide.furtherReading') }}</h2>
-    <p class="text-sm text-toned mb-5">Curated references to keep your reflection going.</p>
+    <p class="text-sm text-toned mb-5">{{ $t('slide.furtherReadingDesc') }}</p>
     <ul class="space-y-3">
       <li
         class="rounded-xl border border-default/70 bg-elevated px-4 py-3"

@@ -152,6 +152,7 @@ export const useSlideGroup = (props?: {
 
   const closeSlideGroup = () => {
     userJournalStore().currentWritingContent = {} 
+    userJournalStore().currentSleepScore = null
     userJournalStore().currentJournal = null
     useTiptapEditorStore().editors = []
 
@@ -174,7 +175,8 @@ export const useSlideGroup = (props?: {
         content: journal.content,
         content_html: journal.content_html,
         mood_score: journal.mood_score || 0,
-        mood_label: journal.mood_label || "neutral"
+        mood_label: journal.mood_label || "neutral",
+        sleep_score: journal.sleep_score,
       });
 
       console.log("[saveJournal] Journal saved:", newJournal.id);

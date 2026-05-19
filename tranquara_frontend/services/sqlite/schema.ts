@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS user_journals (
   content_html TEXT,
   mood_score INTEGER CHECK (mood_score >= 0 AND mood_score <= 10),
   mood_label TEXT,
+  sleep_score INTEGER CHECK (sleep_score >= 0 AND sleep_score <= 100),
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   needs_sync INTEGER DEFAULT 1,
@@ -218,7 +219,7 @@ CREATE TABLE IF NOT EXISTS user_custom_template (
 );`;
 
 // Database version tracking
-export const DB_VERSION = 10;
+export const DB_VERSION = 11;
 export const DB_NAME = 'tranquara_journals.db';
 
 /**
@@ -297,5 +298,9 @@ export const MIGRATIONS: Record<number, string[]> = {
   // v10: Add server_id to prep_packs for sync tracking
   10: [
     `ALTER TABLE prep_packs ADD COLUMN server_id TEXT;`,
+  ],
+  // v11: Add sleep_score column to user_journals
+  11: [
+    `ALTER TABLE user_journals ADD COLUMN sleep_score INTEGER CHECK (sleep_score >= 0 AND sleep_score <= 100);`,
   ],
 };

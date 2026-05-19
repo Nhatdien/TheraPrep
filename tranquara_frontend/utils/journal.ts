@@ -8,7 +8,10 @@ export const generateJournalHtml = (questionAnswer: { [key: string]: string }): 
     }
 
     const notEmptyAnswer = (questionAnswer[key] !== "") && (questionAnswer[key] !== "<p></p>")
-    result += notEmptyAnswer ? `<div class="mb-4 journal-entry"><h3 class="journal-question">${key}</h3>
+    // Detect sleep check entries: answer is a bare integer/number string (0–100)
+    const isSleepNumeric = /^\d+(\.\d+)?$/.test((questionAnswer[key] || '').trim())
+    const sleepAttr = isSleepNumeric ? ' data-sleep-entry="true"' : ''
+    result += notEmptyAnswer ? `<div class="mb-4 journal-entry"${sleepAttr}><h3 class="journal-question">${key}</h3>
                     <p class="journal-answer">${questionAnswer[key]}<p></div>` : ""
   }
 
