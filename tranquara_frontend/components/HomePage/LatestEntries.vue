@@ -145,6 +145,7 @@
 import { CreateJournalRequest, LocalJournal } from '~/types/user_journal';
 import { ChevronRight } from 'lucide-vue-next';
 import { useAuthStore } from '~/stores/stores/auth_store';
+import { getJournalContentPreview } from '~/utils/journal';
 
 const authStore = useAuthStore();
 const { locale } = useI18n();
@@ -221,25 +222,7 @@ const formatTime = (dateString: string) => {
   return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 };
 
-const getContentPreview = (content: string) => {
-  if (!content) return '';
-
-  // Try to extract the first Q&A pair from structured journal HTML
-  const questionMatch = content.match(/<h3[^>]*class="journal-question"[^>]*>(.*?)<\/h3>/);
-  const answerMatch = content.match(/<p[^>]*class="journal-answer"[^>]*>([\s\S]*?)<\/p>/);
-  
-  if (questionMatch && answerMatch) {
-    const question = questionMatch[1].replace(/<[^>]*>/g, '').trim();
-    const answer = answerMatch[1].replace(/<[^>]*>/g, '').trim();
-    if (question && answer) {
-      return `<p class="text-xs font-medium text-highlighted mb-1">${question}</p><p class="text-sm text-muted">${answer}</p>`;
-    }
-  }
-  
-  // Fallback: strip HTML and show first 150 characters
-  const stripped = content.replace(/<[^>]*>/g, '').trim();
-  return stripped.length > 150 ? stripped.substring(0, 150) + '...' : stripped;
-};
+const getContentPreview = getJournalContentPreview;
 
 const getMoodIcon = (score: number | null | undefined) => {
   if (!score) return 'i-lucide-smile';

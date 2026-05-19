@@ -220,9 +220,7 @@
             </div>
 
             <!-- Content Preview -->
-            <p v-if="getContentPreview(entry.content)" class="text-sm text-muted line-clamp-2">
-              {{ getContentPreview(entry.content) }}
-            </p>
+            <div v-if="getJournalContentPreview(entry.content)" class="text-sm text-muted" v-html="getJournalContentPreview(entry.content)"></div>
           </div>
         </div>
       </div>
@@ -328,6 +326,7 @@
 import { userJournalStore } from "~/stores/stores/user_journal";
 import { useAuthStore } from "~/stores/stores/auth_store";
 import type { LocalJournal } from "~/types/user_journal";
+import { getJournalContentPreview } from "~/utils/journal";
 
 // DateRange type for UCalendar with range prop (simplified)
 interface DateRangeValue {
@@ -607,33 +606,8 @@ const getSleepInfo = (score: number | null | undefined) => {
   return           { level: 'refreshed',  icon: 'i-lucide-sparkles' };
 };
 
-// Get content preview (strip HTML and TipTap JSON)
-const getContentPreview = (content: string) => {
-  if (!content) return '';
-  
-  // Try to parse as JSON first (TipTap format)
-  try {
-    const parsed = JSON.parse(content);
-    if (parsed.type === 'doc' && parsed.content) {
-      // Extract text from TipTap nodes
-      const extractText = (nodes: any[]): string => {
-        return nodes.map(node => {
-          if (node.type === 'text') return node.text || '';
-          if (node.type === 'paragraph' && node.content) return extractText(node.content);
-          if (node.type === 'slideResponse' && node.attrs?.userAnswer) return node.attrs.userAnswer;
-          if (node.content) return extractText(node.content);
-          return '';
-        }).join(' ');
-      };
-      return extractText(parsed.content).substring(0, 150);
-    }
-  } catch {
-    // Not JSON, treat as HTML or plain text
-  }
-  
-  // Strip HTML tags
-  return content.replace(/<[^>]*>/g, '').substring(0, 150);
-};
+// Get content preview — shared utility from utils/journal.ts
+const getContentPreview = getJournalContentPreview;
 
 // Open entry for viewing/editing
 const openEntry = (entry: LocalJournal) => {
