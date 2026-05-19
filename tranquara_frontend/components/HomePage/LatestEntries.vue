@@ -58,13 +58,13 @@
         </span>
       </div>
 
-      <!-- Content Preview (longer on desktop) -->
-      <div class="text-sm text-muted line-clamp-3 lg:line-clamp-4" v-html="getContentPreview(userJournalStore().journals[0].content)"></div>
+      <!-- Content Preview (first Q&A pair) -->
+      <div class="text-sm text-muted" v-html="getContentPreview(userJournalStore().journals[0].content)"></div>
     </div>
 
     <!-- Remaining Entry Cards -->
     <div 
-      v-for="journal in userJournalStore()?.journals?.slice(1)" 
+      v-for="journal in userJournalStore()?.journals?.slice(1, 7)" 
       :key="journal.id"
       @click="() => openEntry(journal)"
       class="bg-muted rounded-xl p-4 cursor-pointer hover:bg-accented hover:shadow-sm transition-all border relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
@@ -108,8 +108,8 @@
         </span>
       </div>
 
-      <!-- Content Preview (first few lines) -->
-      <div class="text-sm text-muted line-clamp-3" v-html="getContentPreview(journal.content)"></div>
+      <!-- Content Preview (first Q&A pair) -->
+      <div class="text-sm text-muted" v-html="getContentPreview(journal.content)"></div>
     </div>
 
     <!-- Empty State -->
@@ -224,10 +224,20 @@ const formatTime = (dateString: string) => {
 const getContentPreview = (content: string) => {
   if (!content) return '';
 
-  console.log(content);
+  // Try to extract the first Q&A pair from structured journal HTML
+  const questionMatch = content.match(/<h3[^>]*class="journal-question"[^>]*>(.*?)<\/h3>/);
+  const answerMatch = content.match(/<p[^>]*class="journal-answer"[^>]*>([\s\S]*?)<\/p>/);
   
-  // Strip HTML tags and get first 150 characters
-  const stripped = content;
+  if (questionMatch && answerMatch) {
+    const question = questionMatch[1].replace(/<[^>]*>/g, '').trim();
+    const answer = answerMatch[1].replace(/<[^>]*>/g, '').trim();
+    if (question && answer) {
+      return `<p class="text-xs font-medium text-highlighted mb-1">${question}</p><p class="text-sm text-muted">${answer}</p>`;
+    }
+  }
+  
+  // Fallback: strip HTML and show first 150 characters
+  const stripped = content.replace(/<[^>]*>/g, '').trim();
   return stripped.length > 150 ? stripped.substring(0, 150) + '...' : stripped;
 };
 
