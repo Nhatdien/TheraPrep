@@ -56,15 +56,11 @@
         <aside class="hidden xl:flex xl:flex-col xl:gap-4 xl:sticky xl:top-24 xl:self-start xl:rounded-2xl xl:border xl:border-default xl:bg-elevated xl:p-5">
           <h3 class="text-sm font-semibold text-highlighted">{{ $t('journal.howFeeling') }}</h3>
           <EmotionSliderV2 v-model="moodScore" />
-          <UButton
+          <JournalGoDeepDirections
             :loading="isGeneratingQuestion"
             :disabled="!hasContent || isGeneratingQuestion"
-            @click="handleGoDeeper"
-            icon="i-lucide-sparkles"
-            block
-          >
-            {{ $t('journal.goDeeper') }}
-          </UButton>
+            @select="handleGoDeeper"
+          />
           <p class="text-xs text-muted text-center">{{ autoSaveStatusText }}</p>
         </aside>
       </div>
@@ -83,16 +79,11 @@
           </UButton>
           
           <!-- Go Deeper Button -->
-          <UButton
-            variant="ghost"
-            size="sm"
+          <JournalGoDeepDirections
             :loading="isGeneratingQuestion"
             :disabled="!hasContent || isGeneratingQuestion"
-            @click="handleGoDeeper"
-            icon="i-lucide-sparkles"
-          >
-            <span class="text-sm">{{ $t('journal.goDeeper') }}</span>
-          </UButton>
+            @select="handleGoDeeper"
+          />
         </div>
         
         <div class="flex items-center gap-2">
@@ -275,7 +266,7 @@ const confirmMood = () => {
   showMoodPicker.value = false;
 };
 
-const handleGoDeeper = async () => {
+const handleGoDeeper = async (direction: string) => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
   
@@ -292,6 +283,7 @@ const handleGoDeeper = async () => {
       content: plainText,
       mood_score: moodScore.value,
       slide_prompt: undefined,
+      direction: direction as 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth',
       your_story: yourStory.value || undefined,
     });
     

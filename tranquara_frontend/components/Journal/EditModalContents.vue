@@ -53,6 +53,11 @@ import FurtherReading from "@/components/Slide/FutherReading.vue";
 import JournalPrompt from "@/components/Slide/JournalPrompt.vue";
 import SleepCheck from "~/components/Slide/SleepCheck.vue";
 import MoodSlide from "~/components/Slide/MoodSlide.vue";
+import DatePickerSlide from "~/components/Slide/DatePickerSlide.vue";
+import StarRatingSlide from "~/components/Slide/StarRatingSlide.vue";
+import ChecklistInputSlide from "~/components/Slide/ChecklistInputSlide.vue";
+import Questionnaire from "~/components/Slide/Questionnaire.vue";
+import CompletionSlide from "~/components/Slide/CompletionSlide.vue";
 import { parseJournalHtml } from "~/utils/journal";
 import type { LocalJournal } from "~/types/user_journal";
 
@@ -130,6 +135,11 @@ const componentMapping: Record<string, any> = {
   sleep_check: SleepCheck,
   mood_check: MoodSlide,
   emotion_log: MoodSlide,
+  date_picker: DatePickerSlide,
+  star_rating: StarRatingSlide,
+  checklist_input: ChecklistInputSlide,
+  questionnaire: Questionnaire,
+  completion: CompletionSlide,
 }
 
 const renderSlide = (type: string) => {

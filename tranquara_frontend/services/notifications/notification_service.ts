@@ -111,15 +111,6 @@ class NotificationService {
     await this.cancelReminder(type);
 
     try {
-      // Build a schedule date for the next occurrence of the given time
-      const now = new Date();
-      const scheduleAt = new Date();
-      scheduleAt.setHours(hour, minute, 0, 0);
-      // If the time today has already passed, schedule for tomorrow
-      if (scheduleAt <= now) {
-        scheduleAt.setDate(scheduleAt.getDate() + 1);
-      }
-
       await LocalNotifications.schedule({
         notifications: [
           {
@@ -127,8 +118,7 @@ class NotificationService {
             title,
             body,
             schedule: {
-              at: scheduleAt,
-              every: 'day',
+              on: { hour, minute },
               allowWhileIdle: true,
             },
             smallIcon: 'ic_stat_notification',
