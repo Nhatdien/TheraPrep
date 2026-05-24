@@ -304,9 +304,10 @@ class AIProcessor():
         past_journals_section = ""
         if past_journals_context:
             past_journals_section = f"""
---- Past Journal Entries (semantically related) ---
-The user has written about similar topics before. Use these to identify patterns,
-recurring themes, emotional trends, or growth. Reference them naturally if relevant.
+--- Past Journal Entries (semantically related — YOU MUST reference these) ---
+Below are this user's PAST journal entries about similar topics. You MUST actively
+use these to enrich your question — compare, contrast, or connect them to what they
+wrote today. Do NOT ignore this context.
 
 {past_journals_context}
 --- End Past Journals ---
@@ -317,9 +318,7 @@ recurring themes, emotional trends, or growth. Reference them naturally if relev
         if your_story and your_story.strip():
             your_story_section = f"""
 --- User's Personal Context ---
-The user has shared the following about themselves. Use this to personalize your
-question — acknowledge their situation, goals, or background when relevant.
-Do NOT repeat their story back verbatim; weave it in naturally.
+The user has shared this about themselves. Weave it in naturally to show you understand them.
 
 "{your_story.strip()}"
 --- End Personal Context ---
@@ -329,9 +328,9 @@ Do NOT repeat their story back verbatim; weave it in naturally.
         memories_section = ""
         if user_memories_context:
             memories_section = f"""
---- AI Memories (insights learned about this user) ---
-These are factual insights extracted from the user's past journals.
-Use them to ask more personalized, relevant questions. Reference naturally.
+--- AI Memories (insights learned about this user — YOU MUST use these) ---
+These are factual insights extracted from the user's past journals. You MUST actively
+weave at least one relevant memory into your question to make it personalized.
 
 {user_memories_context}
 --- End Memories ---
@@ -359,16 +358,25 @@ User's Current Writing:
 
 User's Mood Score: {mood_score}/10
 {direction_instruction}{your_story_section}{memories_section}{past_journals_section}
-Based on the FULL CONTEXT of this journaling session, the user's current writing,
-and their past journal history (if available), generate ONE follow-up question that:
-1. STRICTLY follows the user's chosen direction above (if specified) — this is the #1 priority
-2. Prioritizes what they just wrote right now as the primary signal
-3. Stays aligned with the theme of this slide and the overall session
-4. Helps them explore their thoughts and feelings more deeply
-5. Feels natural and conversational
-6. Uses past journals only as secondary grounding context
-7. If past journals reveal patterns or recurring themes, gently reference them
-   (e.g., "You mentioned something similar about work last week — what's changed?")
+OUTPUT FORMAT:
+- Ask EXACTLY ONE question. No compound questions like "X khong? Y the nao?" — ONE focused question.
+- Structure: [briefly acknowledge/observe something specific from their writing] -> [weave in relevant context from past journals or memories] -> [ask ONE focused question]
+- 2-3 sentences total — enough to show understanding and connect context, ending with the question
+- Vietnamese: think in Vietnamese first, write naturally, NOT translate from English. Casual/warm tone.
+
+RAG CONTEXT USAGE (when past journals or memories are provided above):
+- You MUST actively use this context — it was retrieved specifically to enrich your question
+- If past journals show similar situations, REFERENCE them naturally
+  (e.g., "Tuan truoc minh cung thay tuong tu khi..." / "Last week you felt similar when...")
+- If memories reveal a pattern or insight, WEAVE it in to make the question personal
+  (e.g., "Moi lan nhan feedback la minh lai thay nhu the nay nhi..." / "It seems like every time you get feedback...")
+- Do NOT ignore these context sections — they are the key difference between a generic and a personalized question
+
+Based on the FULL CONTEXT above, generate ONE follow-up question that:
+1. STRICTLY follows the user's chosen direction (if specified) — this is the #1 priority
+2. Shows you understand their specific situation by referencing details from their writing
+3. Actively weaves in relevant past journal entries or AI memories when available
+4. Feels warm, conversational, and personal — like a caring friend who knows their story
 
 Generate the question now:"""
 
