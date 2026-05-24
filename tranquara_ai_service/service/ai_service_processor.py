@@ -304,10 +304,10 @@ class AIProcessor():
         past_journals_section = ""
         if past_journals_context:
             past_journals_section = f"""
---- Past Journal Entries (semantically related — YOU MUST reference these) ---
-Below are this user's PAST journal entries about similar topics. You MUST actively
-use these to enrich your question — compare, contrast, or connect them to what they
-wrote today. Do NOT ignore this context.
+--- Past Journal Entries (semantically related — use WHEN RELEVANT) ---
+Below are this user's PAST journal entries about similar topics. These are OPTIONAL
+context — only reference them if they genuinely add insight to your question.
+If a clear pattern or connection exists, use it. If not, focus on the current writing.
 
 {past_journals_context}
 --- End Past Journals ---
@@ -318,7 +318,7 @@ wrote today. Do NOT ignore this context.
         if your_story and your_story.strip():
             your_story_section = f"""
 --- User's Personal Context ---
-The user has shared this about themselves. Weave it in naturally to show you understand them.
+The user has shared this about themselves. Reference only if relevant to the current topic.
 
 "{your_story.strip()}"
 --- End Personal Context ---
@@ -328,9 +328,9 @@ The user has shared this about themselves. Weave it in naturally to show you und
         memories_section = ""
         if user_memories_context:
             memories_section = f"""
---- AI Memories (insights learned about this user — YOU MUST use these) ---
-These are factual insights extracted from the user's past journals. You MUST actively
-weave at least one relevant memory into your question to make it personalized.
+--- AI Memories (insights about this user — use WHEN RELEVANT) ---
+These are factual insights from the user's past journals. They are OPTIONAL enrichment —
+only weave them in if they genuinely help personalize the question. Do NOT force them.
 
 {user_memories_context}
 --- End Memories ---
@@ -359,24 +359,23 @@ User's Current Writing:
 User's Mood Score: {mood_score}/10
 {direction_instruction}{your_story_section}{memories_section}{past_journals_section}
 OUTPUT FORMAT:
-- Ask EXACTLY ONE question. No compound questions like "X khong? Y the nao?" — ONE focused question.
-- Structure: [briefly acknowledge/observe something specific from their writing] -> [weave in relevant context from past journals or memories] -> [ask ONE focused question]
-- 2-3 sentences total — enough to show understanding and connect context, ending with the question
-- Vietnamese: think in Vietnamese first, write naturally, NOT translate from English. Casual/warm tone.
+- Ask EXACTLY ONE question. No compound questions — ONE focused question.
+- Structure: [briefly acknowledge something specific from their current writing] -> [ask ONE focused question]
+  Optionally weave in past context ONLY if it genuinely adds insight — do NOT force it.
+- 2-3 sentences total. Vietnamese: think in Vietnamese first, natural casual tone.
 
-RAG CONTEXT USAGE (when past journals or memories are provided above):
-- You MUST actively use this context — it was retrieved specifically to enrich your question
-- If past journals show similar situations, REFERENCE them naturally
-  (e.g., "Tuan truoc minh cung thay tuong tu khi..." / "Last week you felt similar when...")
-- If memories reveal a pattern or insight, WEAVE it in to make the question personal
-  (e.g., "Moi lan nhan feedback la minh lai thay nhu the nay nhi..." / "It seems like every time you get feedback...")
-- Do NOT ignore these context sections — they are the key difference between a generic and a personalized question
+CONTEXT BALANCE RULE:
+- PRIMARY signal: what the user just wrote RIGHT NOW — their current situation, feelings, words.
+- SECONDARY enrichment: past journals and memories — use ONLY when they genuinely add a relevant insight.
+- Good use of context: "Lan truoc minh cung thay tuong tu khi lam do an — dieu gi thuc su dang anh huong?" (natural connection)
+- Bad use of context: forcing a reference to past journals in every question regardless of relevance.
+- Some questions are better WITHOUT past context — trust your judgment on what feels most natural.
 
 Based on the FULL CONTEXT above, generate ONE follow-up question that:
 1. STRICTLY follows the user's chosen direction (if specified) — this is the #1 priority
-2. Shows you understand their specific situation by referencing details from their writing
-3. Actively weaves in relevant past journal entries or AI memories when available
-4. Feels warm, conversational, and personal — like a caring friend who knows their story
+2. Focuses on what they just wrote — their specific situation right now
+3. References past context ONLY when it genuinely enriches the question (not by default)
+4. Feels warm and natural — like a caring friend, not a therapist reading their file
 
 Generate the question now:"""
 
