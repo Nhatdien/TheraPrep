@@ -2,7 +2,7 @@ import os
 import json
 import concurrent.futures
 from dotenv import load_dotenv
-from service.prompts import get_system_prompt, PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT, DIRECTION_LABELS
+from service.prompts import get_system_prompt, build_user_prompt, PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT
 from langchain_openai.chat_models import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from database.vector_database import (
@@ -47,6 +47,12 @@ class AIProcessor():
     """
     AI processor focused on generating RAG-enhanced journal follow-up questions.
     Uses Qdrant to retrieve user's past journals for richer, personalized guidance.
+    
+    All prompt text lives in prompts.py — this class only handles:
+    - RAG retrieval (past journals + memories)
+    - Building prompts via prompts.py functions
+    - Calling the LLM
+    - Post-processing responses
     
     Uses singleton pattern — call AIProcessor.get_instance() instead of AIProcessor().
     """
@@ -236,9 +242,7 @@ class AIProcessor():
                                   direction: str = None, your_story: str = None) -> str:
         """
         Generate a single follow-up question based on journal content.
-        Enhanced with:
-        - Full slide group context for session awareness
-        - RAG retrieval of past journals for personalized, pattern-aware questions
+        Enhanced with RAG retrieval of past journals for personalized questions.
 
         Args:
             user_id: User's UUID for Qdrant filtering
@@ -249,6 +253,7 @@ class AIProcessor():
             current_slide_id: ID of the current slide being worked on
             collection_title: Name of the collection (e.g., "Daily Reflection")
             direction: Reflection direction ('why', 'emotions', 'patterns', 'challenge', 'growth')
+            your_story: User's personal story/context
         """
         # Get system prompt (with optional direction enhancement)
         system_prompt = get_system_prompt(direction)
@@ -267,118 +272,21 @@ class AIProcessor():
             past_journals_context = journals_future.result()
             user_memories_context = memories_future.result()
 
-        # --- Build slide group context ---
-        context_info = []
+        # --- Build user prompt (all prompt text lives in prompts.py) ---
+        user_prompt = build_user_prompt(
+            content=content,
+            mood_score=mood_score,
+            slide_prompt=slide_prompt,
+            slide_group_context=slide_group_context,
+            current_slide_id=current_slide_id,
+            collection_title=collection_title,
+            direction=direction,
+            past_journals_context=past_journals_context,
+            your_story=your_story,
+            user_memories_context=user_memories_context,
+        )
 
-        if collection_title:
-            context_info.append(f"Collection: {collection_title}")
-
-        if slide_group_context:
-            slide_group_title = slide_group_context.get(
-                'title', 'Unknown Session')
-            slide_group_desc = slide_group_context.get('description', '')
-            context_info.append(f"Slide Group: {slide_group_title}")
-            if slide_group_desc:
-                context_info.append(f"Session Purpose: {slide_group_desc}")
-
-            slides = slide_group_context.get('slides', [])
-            if slides and len(slides) > 1:
-                slide_questions = []
-                for idx, slide in enumerate(slides, 1):
-                    slide_type = slide.get('type', 'unknown')
-                    question = slide.get('question', slide.get('title', ''))
-                    is_current = (current_slide_id and slide.get(
-                        'id') == current_slide_id)
-                    marker = " [CURRENT SLIDE]" if is_current else ""
-                    if question:
-                        slide_questions.append(
-                            f"  {idx}. [{slide_type}] {question}{marker}")
-                if slide_questions:
-                    context_info.append(
-                        f"Full Session Flow:\n" + "\n".join(slide_questions))
-
-        context_section = "\n".join(
-            context_info) if context_info else "Free journaling session"
-
-        # --- Build past journals section ---
-        past_journals_section = ""
-        if past_journals_context:
-            past_journals_section = f"""
---- Past Journal Entries (semantically related — use WHEN RELEVANT) ---
-Below are this user's PAST journal entries about similar topics. These are OPTIONAL
-context — only reference them if they genuinely add insight to your question.
-If a clear pattern or connection exists, use it. If not, focus on the current writing.
-
-{past_journals_context}
---- End Past Journals ---
-"""
-
-        # --- Build user story section ---
-        your_story_section = ""
-        if your_story and your_story.strip():
-            your_story_section = f"""
---- User's Personal Context ---
-The user has shared this about themselves. Reference only if relevant to the current topic.
-
-"{your_story.strip()}"
---- End Personal Context ---
-"""
-
-        # --- Build user memories section ---
-        memories_section = ""
-        if user_memories_context:
-            memories_section = f"""
---- AI Memories (insights about this user — use WHEN RELEVANT) ---
-These are factual insights from the user's past journals. They are OPTIONAL enrichment —
-only weave them in if they genuinely help personalize the question. Do NOT force them.
-
-{user_memories_context}
---- End Memories ---
-"""
-
-        # --- Build direction reinforcement for user prompt ---
-        direction_instruction = ""
-        if direction and direction in DIRECTION_LABELS:
-            direction_instruction = f"""
-[IMPORTANT] USER'S CHOSEN DIRECTION (HIGHEST PRIORITY):
-The user actively chose: "{DIRECTION_LABELS[direction]}"
-Your question MUST strictly follow this direction. This is NOT optional - the user
-picked this specific lens, so frame your question entirely through it.
-Do NOT fall back to generic reflection - commit fully to the "{direction}" approach.
-"""
-
-        # --- Build the user prompt ---
-        user_prompt = f"""Journaling Session Context:
-{context_section}
-
-Current Slide Prompt: {slide_prompt or "Free journaling"}
-
-User's Current Writing:
-{content}
-
-User's Mood Score: {mood_score}/10
-{direction_instruction}{your_story_section}{memories_section}{past_journals_section}
-OUTPUT FORMAT:
-- Ask EXACTLY ONE question. No compound questions — ONE focused question.
-- Structure: [briefly acknowledge something specific from their current writing] -> [ask ONE focused question]
-  Optionally weave in past context ONLY if it genuinely adds insight — do NOT force it.
-- 2-3 sentences total. Vietnamese: think in Vietnamese first, natural casual tone.
-
-CONTEXT BALANCE RULE:
-- PRIMARY signal: what the user just wrote RIGHT NOW — their current situation, feelings, words.
-- SECONDARY enrichment: past journals and memories — use ONLY when they genuinely add a relevant insight.
-- Good use of context: "Lan truoc minh cung thay tuong tu khi lam do an — dieu gi thuc su dang anh huong?" (natural connection)
-- Bad use of context: forcing a reference to past journals in every question regardless of relevance.
-- Some questions are better WITHOUT past context — trust your judgment on what feels most natural.
-
-Based on the FULL CONTEXT above, generate ONE follow-up question that:
-1. STRICTLY follows the user's chosen direction (if specified) — this is the #1 priority
-2. Focuses on what they just wrote — their specific situation right now
-3. References past context ONLY when it genuinely enriches the question (not by default)
-4. Feels warm and natural — like a caring friend, not a therapist reading their file
-
-Generate the question now:"""
-
+        # --- Call LLM ---
         response = self.model.invoke([
             SystemMessage(content=system_prompt),
             HumanMessage(content=user_prompt)

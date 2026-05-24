@@ -1,7 +1,7 @@
 <template>
   <section v-if="editor">
     <editor-content
-      class="min-h-[40vh] max-h-[400px] rounded-2xl"
+      class="min-h-[40vh] max-h-[400px] rounded-2xl overflow-y-auto"
       :editor="editor" />
     <!-- <div class="border border-gray-400 p-4 overflow-x-scroll">
       <div class="button-group flex gap-x-2 max-w-[80vw]">

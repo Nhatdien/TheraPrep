@@ -19,7 +19,7 @@
         viewport: 'h-full',
         dot: 'w-6 h-1 rounded-none'
       }">
-      <div class="h-[70vh] max-h-[700px] lg:h-[60vh]">
+      <div class="h-[70vh] max-h-[700px] lg:h-[60vh] overflow-y-auto">
         <component
           :is="renderSlide((item as CarouselSlideItem)?.content?.type)"
           :currentIndex

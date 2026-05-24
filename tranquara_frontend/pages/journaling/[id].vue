@@ -44,7 +44,7 @@
           </div>
 
           <!-- TipTap Editor -->
-          <div class="flex-1 px-4 pb-4 max-w-3xl mx-auto w-full md:px-6 xl:px-0 xl:max-w-none">
+          <div class="flex-1 px-4 pb-24 max-w-3xl mx-auto w-full md:px-6 xl:px-0 xl:max-w-none">
             <CommonMarkdownEditor
               ref="editorRef"
               v-model="content"
@@ -66,16 +66,17 @@
       </div>
 
       <!-- Bottom Toolbar -->
-      <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-gray-200 dark:border-gray-800 p-4 flex items-center justify-between xl:hidden">
-        <div class="flex items-center gap-2">
+      <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-gray-200 dark:border-gray-800 p-4 flex flex-wrap items-center justify-between gap-y-2 xl:hidden">
+        <div class="flex items-center gap-2 flex-wrap">
           <!-- Mood Selector -->
           <UButton 
             variant="ghost" 
             size="sm"
             @click="showMoodPicker = true"
+            class="shrink-0"
           >
             <span class="text-lg">{{ selectedMoodEmoji }}</span>
-            <span class="ml-1 text-sm text-muted">{{ moodLabel }}</span>
+            <span class="ml-1 text-sm text-muted truncate max-w-[80px] sm:max-w-[120px]">{{ moodLabel }}</span>
           </UButton>
           
           <!-- Go Deeper Button -->
@@ -86,8 +87,8 @@
           />
         </div>
         
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-muted">{{ autoSaveStatusText }}</span>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="text-xs text-muted whitespace-nowrap">{{ autoSaveStatusText }}</span>
         </div>
       </div>
 
