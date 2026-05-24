@@ -40,63 +40,117 @@ LANGUAGE RULES (CRITICAL):
 DIRECTION_PROMPTS = {
     'why': """
 REFLECTION DIRECTION: Understand Why (Cognitive Exploration)
+DIRECTION KEY: "why"
 
-Focus your question on:
-- Root causes and triggers ("What might have caused this feeling?")
+This user chose to explore WHY things happen. Your question MUST be rooted in cognitive exploration.
+Do NOT ask generic reflection questions — specifically dig into causes, reasoning, and thought processes.
+
+Focus your question on ONE of these (pick the most relevant to their writing):
+- Root causes and triggers ("What do you think triggered this feeling?")
 - Decision-making processes ("What led you to react that way?")
-- Beliefs and assumptions ("What do you believe about this situation?")
-- Underlying motivations ("What are you hoping to achieve?")
+- Beliefs and assumptions ("What belief might be driving this reaction?")
+- Underlying motivations ("What were you really hoping for in that moment?")
+
+Example questions for this direction:
+- "What do you think was really behind that reaction?"
+- "Why do you think this situation affected you more than usual?"
+- "What belief about yourself might be driving those thoughts?"
 
 Therapeutic Foundation: Cognitive Behavioral Therapy (CBT) - exploring thoughts that drive emotions and behaviors.
 """,
 
     'emotions': """
 REFLECTION DIRECTION: Explore Emotions (Emotional Awareness)
+DIRECTION KEY: "emotions"
 
-Focus your question on:
-- Identifying specific emotions ("What emotions are you feeling right now?")
-- Body sensations ("Where do you feel this in your body?")
-- Emotional intensity ("On a scale of 1-10, how strong is this feeling?")
-- Emotion transitions ("How did your feelings change throughout this experience?")
+This user chose to explore their EMOTIONS. Your question MUST help them identify, name, and sit with feelings.
+Do NOT ask analytical or problem-solving questions — focus purely on emotional awareness.
+
+Focus your question on ONE of these (pick the most relevant to their writing):
+- Naming specific emotions ("Can you put a name to what you're feeling right now?")
+- Body sensations ("Where in your body do you feel this the most?")
+- Emotional layers ("What's underneath the surface emotion?")
+- Emotional shifts ("How has this feeling evolved since it started?")
+
+Example questions for this direction:
+- "If you had to name the exact emotion beneath all of this, what would it be?"
+- "Where do you feel this in your body right now?"
+- "What's the secondary emotion hiding behind the first one you noticed?"
 
 Therapeutic Foundation: Dialectical Behavior Therapy (DBT) - building emotional awareness and regulation.
 """,
 
     'patterns': """
 REFLECTION DIRECTION: Look for Patterns (Pattern Recognition)
+DIRECTION KEY: "patterns"
 
-Focus your question on:
-- Recurring situations ("Have you noticed this happening before?")
-- Behavioral patterns ("Do you usually respond this way?")
-- Triggers and themes ("What situations tend to bring up these feelings?")
-- Progress over time ("How is this different from last time?")
+This user chose to look for PATTERNS. Your question MUST connect their current experience to recurring themes.
+Do NOT ask about the present moment in isolation — specifically link to past occurrences or cycles.
+
+Focus your question on ONE of these (pick the most relevant to their writing):
+- Recurring situations ("Has this exact pattern shown up before in your life?")
+- Behavioral loops ("Do you notice yourself responding the same way each time?")
+- Trigger themes ("What's the common thread in situations that make you feel this way?")
+- Cyclical progress ("Is this a familiar place you keep coming back to?")
+
+Example questions for this direction:
+- "Have you noticed this same pattern showing up in other areas of your life?"
+- "Is there a familiar cycle you recognize in what you're describing?"
+- "When was the last time you felt exactly this way — what was happening then?"
 
 Therapeutic Foundation: Pattern analysis - identifying cycles that reveal deeper insights.
 """,
 
     'challenge': """
 REFLECTION DIRECTION: Challenge Thinking (Cognitive Restructuring)
+DIRECTION KEY: "challenge"
 
-Focus your question on:
-- Alternative perspectives ("What's another way to look at this?")
-- Evidence examination ("What evidence supports or contradicts this thought?")
-- Balanced thinking ("What would you tell a friend in this situation?")
-- Cognitive distortions ("Could you be overgeneralizing or catastrophizing?")
+This user chose to CHALLENGE their thinking. Your question MUST gently push them to see things differently.
+Do NOT validate their current perspective — offer a constructive alternative view.
+
+Focus your question on ONE of these (pick the most relevant to their writing):
+- Alternative perspectives ("What would someone who loves you say about this situation?")
+- Evidence checking ("Is there any evidence that contradicts how you're interpreting this?")
+- Reframing ("How might this look from 5 years in the future?")
+- Assumption testing ("What if the story you're telling yourself isn't the whole story?")
+
+Example questions for this direction:
+- "What would your wisest self say about this situation?"
+- "Is it possible you're being harder on yourself than the situation warrants?"
+- "What's another story you could tell about what happened?"
 
 Therapeutic Foundation: CBT cognitive restructuring - reframing unhelpful thought patterns.
 """,
 
     'growth': """
 REFLECTION DIRECTION: Focus on Growth (Action-Oriented)
+DIRECTION KEY: "growth"
 
-Focus your question on:
-- Actionable steps ("What's one small thing you could try?")
-- Strengths and resources ("What strengths helped you through this?")
-- Lessons learned ("What did this experience teach you?")
-- Future orientation ("How can you use this insight moving forward?")
+This user chose to focus on GROWTH. Your question MUST be forward-looking and action-oriented.
+Do NOT dwell on the past — channel their energy toward possibilities, strengths, and next steps.
+
+Focus your question on ONE of these (pick the most relevant to their writing):
+- Small next steps ("What's one tiny thing you could do tomorrow that would help?")
+- Hidden strengths ("What personal strength got you through something like this before?")
+- Lessons and insights ("What's the gift in this experience, even if it's hard to see?")
+- Future self ("What would your future self thank you for doing right now?")
+
+Example questions for this direction:
+- "What's one small step you could take today to move forward?"
+- "What did you learn about yourself from this that you didn't know before?"
+- "What strength did you use to get through this, and how can you use it again?"
 
 Therapeutic Foundation: Positive Psychology and Solution-Focused Therapy - building on strengths and creating change.
 """
+}
+
+# Short direction label mapping for user prompt reinforcement
+DIRECTION_LABELS = {
+    'why': 'Understand Why (explore root causes and reasoning)',
+    'emotions': 'Explore Emotions (identify and name feelings)',
+    'patterns': 'Look for Patterns (connect to recurring themes)',
+    'challenge': 'Challenge Thinking (see from new perspectives)',
+    'growth': 'Focus on Growth (action-oriented, forward-looking)',
 }
 
 

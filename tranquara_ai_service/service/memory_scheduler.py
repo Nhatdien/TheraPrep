@@ -115,8 +115,8 @@ async def process_user_memories(user_id: str, since: str):
         # 2. Fetch existing memories from Qdrant (for dedup prompt context)
         existing_contents = _get_existing_memories_from_qdrant(user_id)
 
-        # 3. Extract new memories via GPT
-        ai_processor = AIProcessor()
+        # 3. Extract new memories via GPT (reuse singleton)
+        ai_processor = AIProcessor.get_instance()
         new_memories = ai_processor.extract_memories(
             user_id=user_id,
             journal_entries=journals,

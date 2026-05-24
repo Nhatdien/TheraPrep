@@ -1,7 +1,8 @@
 import os
 import json
+import concurrent.futures
 from dotenv import load_dotenv
-from service.prompts import get_system_prompt, PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT
+from service.prompts import get_system_prompt, PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT, DIRECTION_LABELS
 from langchain_openai.chat_models import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from database.vector_database import (
@@ -46,7 +47,11 @@ class AIProcessor():
     """
     AI processor focused on generating RAG-enhanced journal follow-up questions.
     Uses Qdrant to retrieve user's past journals for richer, personalized guidance.
+    
+    Uses singleton pattern — call AIProcessor.get_instance() instead of AIProcessor().
     """
+
+    _instance = None
 
     def __init__(self):
         self.model = ChatOpenAI(
@@ -55,6 +60,13 @@ class AIProcessor():
             temperature=0.7,
             streaming=False
         )
+
+    @classmethod
+    def get_instance(cls) -> "AIProcessor":
+        """Get or create the singleton AIProcessor instance."""
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
 
     def _retrieve_past_journals(self, user_id: str, current_content: str, top_k: int = 5) -> str:
         """
@@ -244,19 +256,16 @@ class AIProcessor():
         depth = get_top_k_for_direction(direction)
         memory_depth = max(5, depth)
 
-        # --- RAG: Retrieve relevant past journals ---
-        past_journals_context = self._retrieve_past_journals(
-            user_id=user_id,
-            current_content=content,
-            top_k=depth,
-        )
-
-        # --- RAG: Retrieve user memories ---
-        user_memories_context = self._retrieve_user_memories(
-            user_id=user_id,
-            current_content=content,
-            top_k=memory_depth,
-        )
+        # --- RAG: Retrieve journals + memories IN PARALLEL to reduce latency ---
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            journals_future = executor.submit(
+                self._retrieve_past_journals, user_id, content, depth
+            )
+            memories_future = executor.submit(
+                self._retrieve_user_memories, user_id, content, memory_depth
+            )
+            past_journals_context = journals_future.result()
+            user_memories_context = memories_future.result()
 
         # --- Build slide group context ---
         context_info = []
@@ -328,6 +337,17 @@ Use them to ask more personalized, relevant questions. Reference naturally.
 --- End Memories ---
 """
 
+        # --- Build direction reinforcement for user prompt ---
+        direction_instruction = ""
+        if direction and direction in DIRECTION_LABELS:
+            direction_instruction = f"""
+[IMPORTANT] USER'S CHOSEN DIRECTION (HIGHEST PRIORITY):
+The user actively chose: "{DIRECTION_LABELS[direction]}"
+Your question MUST strictly follow this direction. This is NOT optional - the user
+picked this specific lens, so frame your question entirely through it.
+Do NOT fall back to generic reflection - commit fully to the "{direction}" approach.
+"""
+
         # --- Build the user prompt ---
         user_prompt = f"""Journaling Session Context:
 {context_section}
@@ -338,15 +358,16 @@ User's Current Writing:
 {content}
 
 User's Mood Score: {mood_score}/10
-{your_story_section}{memories_section}{past_journals_section}
+{direction_instruction}{your_story_section}{memories_section}{past_journals_section}
 Based on the FULL CONTEXT of this journaling session, the user's current writing,
 and their past journal history (if available), generate ONE follow-up question that:
-1. Prioritizes what they just wrote right now as the primary signal
-2. Stays aligned with the theme of this slide and the overall session
-3. Helps them explore their thoughts and feelings more deeply
-4. Feels natural and conversational
-5. Uses past journals only as secondary grounding context
-6. If past journals reveal patterns or recurring themes, gently reference them
+1. STRICTLY follows the user's chosen direction above (if specified) — this is the #1 priority
+2. Prioritizes what they just wrote right now as the primary signal
+3. Stays aligned with the theme of this slide and the overall session
+4. Helps them explore their thoughts and feelings more deeply
+5. Feels natural and conversational
+6. Uses past journals only as secondary grounding context
+7. If past journals reveal patterns or recurring themes, gently reference them
    (e.g., "You mentioned something similar about work last week — what's changed?")
 
 Generate the question now:"""
