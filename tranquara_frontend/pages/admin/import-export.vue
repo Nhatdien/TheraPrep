@@ -1,21 +1,21 @@
 <template>
   <div>
-    <h1 class="text-2xl font-bold mb-6">Import / Export</h1>
+    <h1 class="text-2xl font-bold mb-6">{{ $t('admin.importExport.title') }}</h1>
 
     <div class="grid lg:grid-cols-2 gap-6">
       <!-- Export -->
       <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
-        <h2 class="font-semibold text-sm mb-3">Export Collections</h2>
-        <p class="text-xs text-gray-500 mb-4">Download all collections as a JSON file for backup or transfer.</p>
+        <h2 class="font-semibold text-sm mb-3">{{ $t('admin.importExport.export.title') }}</h2>
+        <p class="text-xs text-gray-500 mb-4">{{ $t('admin.importExport.export.desc') }}</p>
         <div class="space-y-2">
-          <UButton block icon="i-heroicons-arrow-up-tray" @click="handleExport('all')">Export All</UButton>
-          <UButton block icon="i-heroicons-arrow-up-tray" variant="outline" @click="handleExport('active')">Export Active Only</UButton>
+          <UButton block icon="i-heroicons-arrow-up-tray" @click="handleExport('all')">{{ $t('admin.importExport.export.all') }}</UButton>
+          <UButton block icon="i-heroicons-arrow-up-tray" variant="outline" @click="handleExport('active')">{{ $t('admin.importExport.export.activeOnly') }}</UButton>
         </div>
       </div>
 
       <!-- Import -->
       <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
-        <h2 class="font-semibold text-sm mb-3">Import Collections</h2>
+        <h2 class="font-semibold text-sm mb-3">{{ $t('admin.importExport.import.title') }}</h2>
 
         <!-- File Drop -->
         <div
@@ -26,7 +26,7 @@
           @drop.prevent="handleDrop"
         >
           <UIcon name="i-heroicons-document-arrow-up" class="w-8 h-8 text-gray-400 mx-auto mb-2" />
-          <p class="text-sm text-gray-500">Drop JSON file here or click to browse</p>
+          <p class="text-sm text-gray-500">{{ $t('admin.importExport.import.dropzone') }}</p>
           <input ref="fileInputRef" type="file" accept=".json" class="hidden" @change="handleFileSelect" />
         </div>
 
@@ -34,7 +34,7 @@
         <div v-else class="space-y-3">
           <div class="flex items-center gap-2 text-sm">
             <UIcon name="i-heroicons-check-circle" class="w-4 h-4 text-green-500" />
-            <span>{{ importPreview.length }} collections found</span>
+            <span>{{ $t('admin.importExport.import.collectionsFound', { count: importPreview.length }) }}</span>
           </div>
 
           <div class="max-h-40 overflow-y-auto space-y-1 border border-gray-100 dark:border-gray-700 rounded p-2">
@@ -44,22 +44,22 @@
             </div>
           </div>
 
-          <UFormField label="Conflict Strategy">
+          <UFormField :label="$t('admin.importExport.import.conflictStrategy')">
             <USelect v-model="importStrategy" :items="strategyOptions" size="sm" />
           </UFormField>
 
           <div class="flex gap-2">
-            <UButton variant="outline" @click="importPreview = null">Cancel</UButton>
-            <UButton color="primary" :loading="importing" @click="confirmImport">Confirm Import</UButton>
+            <UButton variant="outline" @click="importPreview = null">{{ $t('admin.importExport.import.cancel') }}</UButton>
+            <UButton color="primary" :loading="importing" @click="confirmImport">{{ $t('admin.importExport.import.confirm') }}</UButton>
           </div>
         </div>
 
         <!-- Import Result -->
         <div v-if="importResult" class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded text-sm">
-          <p class="font-medium text-green-700 dark:text-green-400">Import Complete</p>
+          <p class="font-medium text-green-700 dark:text-green-400">{{ $t('admin.importExport.import.importComplete') }}</p>
           <p class="text-xs text-green-600 dark:text-green-500 mt-1">
-            Created: {{ importResult.created }} | Skipped: {{ importResult.skipped }}
-            <span v-if="importResult.errors?.length"> | Errors: {{ importResult.errors.length }}</span>
+            {{ $t('admin.importExport.import.created') }}: {{ importResult.created }} | {{ $t('admin.importExport.import.skipped') }}: {{ importResult.skipped }}
+            <span v-if="importResult.errors?.length"> | {{ $t('admin.importExport.import.errors') }}: {{ importResult.errors.length }}</span>
           </p>
         </div>
       </div>
@@ -78,6 +78,7 @@ definePageMeta({
 
 const adminStore = useAdminStore();
 const toast = useToast();
+const { t } = useI18n();
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const importPreview = ref<CreateUpdateTemplateRequest[] | null>(null);
@@ -85,11 +86,11 @@ const importStrategy = ref('new_ids');
 const importing = ref(false);
 const importResult = ref<ImportTemplatesResponse | null>(null);
 
-const strategyOptions = [
-  { label: 'Generate new IDs', value: 'new_ids' },
-  { label: 'Skip duplicates', value: 'skip' },
-  { label: 'Overwrite existing', value: 'overwrite' },
-];
+const strategyOptions = computed(() => [
+  { label: t('admin.importExport.import.strategies.newIds'), value: 'new_ids' },
+  { label: t('admin.importExport.import.strategies.skip'), value: 'skip' },
+  { label: t('admin.importExport.import.strategies.overwrite'), value: 'overwrite' },
+]);
 
 async function handleExport(scope: 'all' | 'active') {
   try {
@@ -105,9 +106,9 @@ async function handleExport(scope: 'all' | 'active') {
     a.download = `collections-${scope}-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.add({ title: 'Export complete', color: 'success' });
+    toast.add({ title: t('admin.importExport.export.complete'), color: 'success' });
   } catch {
-    toast.add({ title: 'Export failed', color: 'error' });
+    toast.add({ title: t('admin.importExport.export.failed'), color: 'error' });
   }
 }
 
@@ -129,12 +130,12 @@ function parseFile(file: File) {
       const content = JSON.parse(e.target?.result as string);
       const templates = Array.isArray(content) ? content : content.templates;
       if (!Array.isArray(templates) || templates.length === 0) {
-        toast.add({ title: 'Invalid JSON: expected array of templates', color: 'error' });
+        toast.add({ title: t('admin.importExport.import.invalidJson'), color: 'error' });
         return;
       }
       importPreview.value = templates;
     } catch {
-      toast.add({ title: 'Invalid JSON file', color: 'error' });
+      toast.add({ title: t('admin.importExport.import.invalidFile'), color: 'error' });
     }
   };
   reader.readAsText(file);
@@ -150,9 +151,9 @@ async function confirmImport() {
     });
     importResult.value = res;
     importPreview.value = null;
-    toast.add({ title: `Imported ${res.created} collections`, color: 'success' });
+    toast.add({ title: t('admin.importExport.import.imported', { count: res.created }), color: 'success' });
   } catch {
-    toast.add({ title: 'Import failed', color: 'error' });
+    toast.add({ title: t('admin.importExport.import.failed'), color: 'error' });
   } finally {
     importing.value = false;
   }

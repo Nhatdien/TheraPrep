@@ -71,3 +71,4 @@ class AnalyzeJournalRequest(BaseModel):
     collection_title: Optional[str] = None
     direction: Optional[str] = None
     your_story: Optional[str] = None
+    app_language: Optional[str] = None

@@ -16,6 +16,7 @@ export class AIService extends Base {
     collection_title?: string;    // Collection name
     direction?: 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth';
     your_story?: string;          // User's personal context from settings
+    app_language?: string;        // User's app language setting ('en' | 'vi')
   }): Promise<{ question: string }> {
     const url = `${this.config.websocket_url || 'http://localhost:8000'}/api/analyze-journal`;
     

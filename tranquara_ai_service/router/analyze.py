@@ -11,7 +11,7 @@ async def analyze_journal(request: AnalyzeJournalRequest):
     """
     Generate a single follow-up question based on user's journal content.
     Enhanced with RAG: queries Qdrant for the user's past journals
-    and includes them as context for more personalized, pattern-aware questions.
+    and includes them as context for richer, personalized guidance.
     """
     try:
         ai_processor = AIProcessor.get_instance()
@@ -28,6 +28,7 @@ async def analyze_journal(request: AnalyzeJournalRequest):
             collection_title=request.collection_title,
             direction=request.direction,
             your_story=request.your_story,
+            app_language=request.app_language,
         )
 
         return {"question": question}

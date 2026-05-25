@@ -212,7 +212,7 @@ CREATE INDEX IF NOT EXISTS idx_ai_memories_category ON ai_memories(user_id, cate
 export const CREATE_USER_CUSTOM_TEMPLATE_TABLE = `
 CREATE TABLE IF NOT EXISTS user_custom_template (
   user_id    TEXT PRIMARY KEY,
-  title      TEXT NOT NULL DEFAULT 'My Daily Template',
+  title      TEXT NOT NULL DEFAULT '',
   slide_groups TEXT NOT NULL DEFAULT '[]',
   updated_at TEXT NOT NULL,
   needs_sync INTEGER NOT NULL DEFAULT 1

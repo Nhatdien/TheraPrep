@@ -236,7 +236,9 @@
       "morningEnabled": "Morning reminder enabled",
       "morningDisabled": "Morning reminder disabled",
       "eveningEnabled": "Evening reminder enabled",
-      "eveningDisabled": "Evening reminder disabled"
+      "eveningDisabled": "Evening reminder disabled",
+      "channelName": "Daily Reminders",
+      "channelDesc": "Morning and evening check-in reminders"
     },
     "memories": {
       "heading": "memories.",
@@ -788,6 +790,179 @@
     "passwordUpdated": "Password updated. You can now sign in.",
     "passwordsNoMatch": "Passwords do not match.",
     "updatePassword": "Update password"
+  },
+  "aiGuard": {
+    "disabledTitle": "AI features are disabled",
+    "disabledDesc": "Enable AI Personalization in Settings to use this feature.",
+    "offlineTitle": "You're offline",
+    "offlineDesc": "AI insights will be available when you're back online. Your journal is saved locally."
+  },
+  "admin": {
+    "title": "TheraPrep Admin",
+    "backToApp": "Back to App",
+    "nav": {
+      "dashboard": "Dashboard",
+      "collections": "Collections",
+      "importExport": "Import / Export"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "totalCollections": "Total Collections",
+      "active": "Active",
+      "inactive": "Inactive",
+      "learnType": "Learn Type",
+      "byCategory": "By Category",
+      "quickActions": "Quick Actions",
+      "newCollection": "New Collection",
+      "importJson": "Import JSON",
+      "exportAll": "Export All",
+      "exportComplete": "Export complete",
+      "exportFailed": "Export failed"
+    },
+    "collections": {
+      "title": "Collections",
+      "newCollection": "New Collection",
+      "filters": {
+        "allTypes": "All Types",
+        "allCategories": "All Categories",
+        "allStatus": "All Status",
+        "searchPlaceholder": "Search title..."
+      },
+      "table": {
+        "title": "Title",
+        "type": "Type",
+        "category": "Category",
+        "status": "Status",
+        "slides": "Slides",
+        "actions": "Actions",
+        "noCollections": "No collections found",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "rowActions": {
+        "edit": "Edit",
+        "preview": "Preview",
+        "duplicate": "Duplicate",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "delete": "Delete"
+      },
+      "deleteModal": {
+        "title": "Delete Collection",
+        "confirm": "Are you sure you want to delete \"{title}\"? This cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      },
+      "toast": {
+        "duplicated": "Duplicated as \"{title}\"",
+        "duplicateFailed": "Duplicate failed",
+        "toggled": "Collection is now {status}",
+        "toggleFailed": "Toggle failed",
+        "deleted": "Collection deleted",
+        "deleteFailed": "Delete failed"
+      }
+    },
+    "collectionForm": {
+      "newTitle": "New Collection",
+      "editTitle": "Edit: {title}",
+      "preview": "Preview",
+      "save": "Save",
+      "details": "Collection Details",
+      "showVietnamese": "Show Vietnamese",
+      "english": "English",
+      "vietnamese": "Vietnamese",
+      "title": "Title",
+      "titleRequired": "Title is required",
+      "titlePlaceholder": "e.g. Managing Anxiety with Mindfulness",
+      "titleVi": "Title (VI)",
+      "titleViPlaceholder": "Tiêu đề bộ sưu tập...",
+      "description": "Description",
+      "descriptionPlaceholder": "A brief summary of what users will learn or do in this collection...",
+      "descriptionVi": "Description (VI)",
+      "descriptionViPlaceholder": "Mô tả ngắn gọn...",
+      "type": "Type",
+      "typeRequired": "Type is required",
+      "category": "Category",
+      "categoryRequired": "Category is required",
+      "customCategoryPlaceholder": "e.g. self_compassion",
+      "createNewCategory": "+ Create New Category",
+      "status": "Status",
+      "slideGroups": "Slide Groups",
+      "addGroup": "Add Group",
+      "groupTitlePlaceholder": "Group title...",
+      "groupDescPlaceholder": "Optional group description...",
+      "groupDescViPlaceholder": "Mô tả nhóm (VI)...",
+      "slides": "Slides",
+      "addSlide": "Add Slide",
+      "noSlideGroups": "No slide groups yet",
+      "noSlideGroupsDesc": "Add a group to start building your collection",
+      "addFirstGroup": "Add First Group",
+      "noSlides": "No slides yet — click Add Slide to start",
+      "slideTypes": {
+        "emotion_log": "Emotion Log",
+        "sleep_check": "Sleep Check",
+        "journal_prompt": "Journal Prompt",
+        "doc": "Document",
+        "further_reading": "Further Reading",
+        "cta": "Call to Action",
+        "date_picker": "Date Picker",
+        "star_rating": "Star Rating",
+        "checklist_input": "Checklist",
+        "questionnaire": "Questionnaire",
+        "completion": "Completion"
+      },
+      "slideModal": {
+        "addTitle": "Add Slide",
+        "editTitle": "Edit Slide",
+        "slideId": "Slide ID",
+        "type": "Type",
+        "cancel": "Cancel",
+        "add": "Add Slide",
+        "save": "Save Changes"
+      },
+      "errors": {
+        "fixBeforeSaving": "Please fix errors before saving",
+        "loadFailed": "Failed to load template",
+        "atLeastOneGroup": "At least one slide group is required"
+      },
+      "toast": {
+        "created": "Collection created",
+        "saved": "Collection saved",
+        "saveFailed": "Failed to save"
+      }
+    },
+    "importExport": {
+      "title": "Import / Export",
+      "export": {
+        "title": "Export Collections",
+        "desc": "Download all collections as a JSON file for backup or transfer.",
+        "all": "Export All",
+        "activeOnly": "Export Active Only",
+        "complete": "Export complete",
+        "failed": "Export failed"
+      },
+      "import": {
+        "title": "Import Collections",
+        "dropzone": "Drop JSON file here or click to browse",
+        "collectionsFound": "{count} collections found",
+        "conflictStrategy": "Conflict Strategy",
+        "strategies": {
+          "newIds": "Generate new IDs",
+          "skip": "Skip duplicates",
+          "overwrite": "Overwrite existing"
+        },
+        "cancel": "Cancel",
+        "confirm": "Confirm Import",
+        "importComplete": "Import Complete",
+        "created": "Created",
+        "skipped": "Skipped",
+        "errors": "Errors",
+        "imported": "Imported {count} collections",
+        "failed": "Import failed",
+        "invalidJson": "Invalid JSON: expected array of templates",
+        "invalidFile": "Invalid JSON file"
+      }
+    }
   }
 }
 

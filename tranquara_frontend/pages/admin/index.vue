@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+    <h1 class="text-2xl font-bold mb-6">{{ $t('admin.dashboard.title') }}</h1>
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -14,7 +14,7 @@
     <div class="grid lg:grid-cols-2 gap-6">
       <!-- Category Breakdown -->
       <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
-        <h2 class="font-semibold text-sm mb-3">By Category</h2>
+        <h2 class="font-semibold text-sm mb-3">{{ $t('admin.dashboard.byCategory') }}</h2>
         <div class="space-y-2">
           <div v-for="cat in categoryBreakdown" :key="cat.name" class="flex justify-between text-sm">
             <span class="text-gray-600 dark:text-gray-400">{{ cat.name }}</span>
@@ -25,16 +25,16 @@
 
       <!-- Quick Actions -->
       <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
-        <h2 class="font-semibold text-sm mb-3">Quick Actions</h2>
+        <h2 class="font-semibold text-sm mb-3">{{ $t('admin.dashboard.quickActions') }}</h2>
         <div class="space-y-3">
           <UButton block icon="i-heroicons-plus" to="/admin/collections/new" color="primary">
-            New Collection
+            {{ $t('admin.dashboard.newCollection') }}
           </UButton>
           <UButton block icon="i-heroicons-arrow-down-tray" to="/admin/import-export" variant="outline">
-            Import JSON
+            {{ $t('admin.dashboard.importJson') }}
           </UButton>
           <UButton block icon="i-heroicons-arrow-up-tray" variant="outline" @click="handleExport">
-            Export All
+            {{ $t('admin.dashboard.exportAll') }}
           </UButton>
         </div>
       </div>
@@ -59,13 +59,15 @@ onMounted(() => {
   }
 });
 
+const { t } = useI18n();
+
 const statsCards = computed(() => {
   const s = adminStore.stats;
   return [
-    { label: 'Total Collections', value: s.total, color: 'text-gray-900 dark:text-white' },
-    { label: 'Active', value: s.active, color: 'text-green-600' },
-    { label: 'Inactive', value: s.inactive, color: 'text-gray-400' },
-    { label: 'Learn Type', value: s.learn, color: 'text-blue-600' },
+    { label: t('admin.dashboard.totalCollections'), value: s.total, color: 'text-gray-900 dark:text-white' },
+    { label: t('admin.dashboard.active'), value: s.active, color: 'text-green-600' },
+    { label: t('admin.dashboard.inactive'), value: s.inactive, color: 'text-gray-400' },
+    { label: t('admin.dashboard.learnType'), value: s.learn, color: 'text-blue-600' },
   ];
 });
 
@@ -89,9 +91,9 @@ async function handleExport() {
     a.download = `collections-export-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.add({ title: 'Export complete', color: 'success' });
+    toast.add({ title: t('admin.dashboard.exportComplete'), color: 'success' });
   } catch {
-    toast.add({ title: 'Export failed', color: 'error' });
+    toast.add({ title: t('admin.dashboard.exportFailed'), color: 'error' });
   }
 }
 </script>

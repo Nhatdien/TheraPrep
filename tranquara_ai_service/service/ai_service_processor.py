@@ -22,6 +22,9 @@ Extract SHORT, FACTUAL statements about the user. Each statement should be:
 - A genuine insight, NOT a summary of what they wrote
 - Categorized as one of: values, habits, relationships, goals, struggles, preferences, patterns, growth
 
+LANGUAGE REQUIREMENT (CRITICAL):
+{language_instruction}
+
 EXISTING MEMORIES (do NOT duplicate these):
 {existing_memories}
 
@@ -30,8 +33,8 @@ JOURNAL ENTRIES TO ANALYZE:
 
 Return a JSON array of new insights only:
 [
-  {{"content": "I value my family.", "category": "values", "confidence": 0.9}},
-  {{"content": "Sleep quality drops when stressed about deadlines.", "category": "patterns", "confidence": 0.75}}
+  {"content": "I value my family.", "category": "values", "confidence": 0.9},
+  {"content": "Sleep quality drops when stressed about deadlines.", "category": "patterns", "confidence": 0.75}
 ]
 
 Rules:
@@ -141,7 +144,7 @@ class AIProcessor():
             return ""
 
     def extract_memories(self, user_id: str, journal_entries: list[dict],
-                         existing_memories: list[str]) -> list[dict]:
+                         existing_memories: list[str], language: str = "en") -> list[dict]:
         """
         Extract new factual insights from journal entries using GPT.
         Performs semantic deduplication against existing memories.
@@ -150,6 +153,7 @@ class AIProcessor():
             user_id: User's UUID
             journal_entries: List of dicts with 'title', 'content', 'created_at'
             existing_memories: List of existing memory content strings (for prompt context)
+            language: 'en' or 'vi' — the user's preferred language for extracted memories
 
         Returns:
             List of new unique memories: [{"content": "...", "category": "...", "confidence": 0.x}, ...]
@@ -170,10 +174,21 @@ class AIProcessor():
         existing_text = "\n".join(
             f"- {m}" for m in existing_memories) if existing_memories else "(none yet)"
 
+        # Build language instruction
+        if language == 'vi':
+            lang_instruction = (
+                "Extract ALL memories in Vietnamese (tiếng Việt). "
+                "Even if the journal contains English, translate the insight into natural Vietnamese. "
+                "Use first-person pronouns naturally in Vietnamese."
+            )
+        else:
+            lang_instruction = "Extract ALL memories in English."
+
         # Build prompt
         prompt = MEMORY_EXTRACTION_PROMPT.format(
             existing_memories=existing_text,
-            journal_entries=journals_text
+            journal_entries=journals_text,
+            language_instruction=lang_instruction,
         )
 
         try:
@@ -239,7 +254,8 @@ class AIProcessor():
     def generate_journal_question(self, user_id: str, content: str, mood_score: int,
                                   slide_prompt: str = None, slide_group_context: dict = None,
                                   current_slide_id: str = None, collection_title: str = None,
-                                  direction: str = None, your_story: str = None) -> str:
+                                  direction: str = None, your_story: str = None,
+                                  app_language: str = None) -> str:
         """
         Generate a single follow-up question based on journal content.
         Enhanced with RAG retrieval of past journals for personalized questions.
@@ -284,6 +300,7 @@ class AIProcessor():
             past_journals_context=past_journals_context,
             your_story=your_story,
             user_memories_context=user_memories_context,
+            app_language=app_language,
         )
 
         # --- Call LLM ---

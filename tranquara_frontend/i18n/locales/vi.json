@@ -236,7 +236,9 @@
       "morningEnabled": "Đã bật nhắc nhở buổi sáng",
       "morningDisabled": "Đã tắt nhắc nhở buổi sáng",
       "eveningEnabled": "Đã bật nhắc nhở buổi tối",
-      "eveningDisabled": "Đã tắt nhắc nhở buổi tối"
+      "eveningDisabled": "Đã tắt nhắc nhở buổi tối",
+      "channelName": "Nhắc nhở hàng ngày",
+      "channelDesc": "Nhắc nhở check-in buổi sáng và tối"
     },
     "memories": {
       "heading": "ghi nhớ.",
@@ -788,6 +790,179 @@
     "passwordUpdated": "Đã cập nhật mật khẩu. Bạn có thể đăng nhập ngay.",
     "passwordsNoMatch": "Mật khẩu không khớp.",
     "updatePassword": "Cập nhật mật khẩu"
+  },
+  "aiGuard": {
+    "disabledTitle": "Tính năng AI đã tắt",
+    "disabledDesc": "Bật Cá nhân hoá AI trong Cài đặt để dùng tính năng này.",
+    "offlineTitle": "Bạn đang ngoại tuyến",
+    "offlineDesc": "Phân tích AI sẽ có sẵn khi bạn kết nối lại. Nhật ký được lưu cục bộ."
+  },
+  "admin": {
+    "title": "TheraPrep Admin",
+    "backToApp": "Quay lại ứng dụng",
+    "nav": {
+      "dashboard": "Tổng quan",
+      "collections": "Bộ sưu tập",
+      "importExport": "Nhập / Xuất"
+    },
+    "dashboard": {
+      "title": "Tổng quan",
+      "totalCollections": "Tổng số bộ sưu tập",
+      "active": "Đang hoạt động",
+      "inactive": "Không hoạt động",
+      "learnType": "Loại học tập",
+      "byCategory": "Theo danh mục",
+      "quickActions": "Thao tác nhanh",
+      "newCollection": "Bộ sưu tập mới",
+      "importJson": "Nhập JSON",
+      "exportAll": "Xuất tất cả",
+      "exportComplete": "Xuất thành công",
+      "exportFailed": "Xuất thất bại"
+    },
+    "collections": {
+      "title": "Bộ sưu tập",
+      "newCollection": "Bộ sưu tập mới",
+      "filters": {
+        "allTypes": "Tất cả loại",
+        "allCategories": "Tất cả danh mục",
+        "allStatus": "Tất cả trạng thái",
+        "searchPlaceholder": "Tìm kiếm tiêu đề..."
+      },
+      "table": {
+        "title": "Tiêu đề",
+        "type": "Loại",
+        "category": "Danh mục",
+        "status": "Trạng thái",
+        "slides": "Trang",
+        "actions": "Thao tác",
+        "noCollections": "Không tìm thấy bộ sưu tập",
+        "active": "Đang hoạt động",
+        "inactive": "Không hoạt động"
+      },
+      "rowActions": {
+        "edit": "Sửa",
+        "preview": "Xem trước",
+        "duplicate": "Nhân bản",
+        "activate": "Kích hoạt",
+        "deactivate": "Vô hiệu hoá",
+        "delete": "Xoá"
+      },
+      "deleteModal": {
+        "title": "Xoá bộ sưu tập",
+        "confirm": "Bạn có chắc muốn xoá \"{title}\"? Hành động này không thể hoàn tác.",
+        "cancel": "Huỷ",
+        "delete": "Xoá"
+      },
+      "toast": {
+        "duplicated": "Đã nhân bản thành \"{title}\"",
+        "duplicateFailed": "Nhân bản thất bại",
+        "toggled": "Bộ sưu tập hiện đang {status}",
+        "toggleFailed": "Thay đổi trạng thái thất bại",
+        "deleted": "Đã xoá bộ sưu tập",
+        "deleteFailed": "Xoá thất bại"
+      }
+    },
+    "collectionForm": {
+      "newTitle": "Bộ sưu tập mới",
+      "editTitle": "Sửa: {title}",
+      "preview": "Xem trước",
+      "save": "Lưu",
+      "details": "Chi tiết bộ sưu tập",
+      "showVietnamese": "Hiển thị tiếng Việt",
+      "english": "Tiếng Anh",
+      "vietnamese": "Tiếng Việt",
+      "title": "Tiêu đề",
+      "titleRequired": "Tiêu đề là bắt buộc",
+      "titlePlaceholder": "Ví dụ: Quản lý lo âu bằng chánh niệm",
+      "titleVi": "Tiêu đề (VI)",
+      "titleViPlaceholder": "Tiêu đề bộ sưu tập...",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Tóm tắt ngắn gọn về nội dung ngườidùng sẽ học...",
+      "descriptionVi": "Mô tả (VI)",
+      "descriptionViPlaceholder": "Mô tả ngắn gọn...",
+      "type": "Loại",
+      "typeRequired": "Loại là bắt buộc",
+      "category": "Danh mục",
+      "categoryRequired": "Danh mục là bắt buộc",
+      "customCategoryPlaceholder": "Ví dụ: self_compassion",
+      "createNewCategory": "+ Tạo danh mục mới",
+      "status": "Trạng thái",
+      "slideGroups": "Nhóm trang",
+      "addGroup": "Thêm nhóm",
+      "groupTitlePlaceholder": "Tiêu đề nhóm...",
+      "groupDescPlaceholder": "Mô tả nhóm (tuỳ chọn)...",
+      "groupDescViPlaceholder": "Mô tả nhóm (VI)...",
+      "slides": "Trang",
+      "addSlide": "Thêm trang",
+      "noSlideGroups": "Chưa có nhóm trang",
+      "noSlideGroupsDesc": "Thêm nhóm để bắt đầu xây dựng bộ sưu tập",
+      "addFirstGroup": "Thêm nhóm đầu tiên",
+      "noSlides": "Chưa có trang — nhấn Thêm trang để bắt đầu",
+      "slideTypes": {
+        "emotion_log": "Nhật ký cảm xúc",
+        "sleep_check": "Kiểm tra giấc ngủ",
+        "journal_prompt": "Câu hỏi nhật ký",
+        "doc": "Tài liệu",
+        "further_reading": "Đọc thêm",
+        "cta": "Kêu gọi hành động",
+        "date_picker": "Chọn ngày",
+        "star_rating": "Đánh giá sao",
+        "checklist_input": "Danh sách kiểm tra",
+        "questionnaire": "Bảng câu hỏi",
+        "completion": "Hoàn thành"
+      },
+      "slideModal": {
+        "addTitle": "Thêm trang",
+        "editTitle": "Sửa trang",
+        "slideId": "ID trang",
+        "type": "Loại",
+        "cancel": "Huỷ",
+        "add": "Thêm trang",
+        "save": "Lưu thay đổi"
+      },
+      "errors": {
+        "fixBeforeSaving": "Vui lòng sửa lỗi trước khi lưu",
+        "loadFailed": "Tải mẫu thất bại",
+        "atLeastOneGroup": "Cần ít nhất một nhóm trang"
+      },
+      "toast": {
+        "created": "Đã tạo bộ sưu tập",
+        "saved": "Đã lưu bộ sưu tập",
+        "saveFailed": "Lưu thất bại"
+      }
+    },
+    "importExport": {
+      "title": "Nhập / Xuất",
+      "export": {
+        "title": "Xuất bộ sưu tập",
+        "desc": "Tải xuống tất cả bộ sưu tập dưới dạng JSON để sao lưu.",
+        "all": "Xuất tất cả",
+        "activeOnly": "Chỉ xuất đang hoạt động",
+        "complete": "Xuất thành công",
+        "failed": "Xuất thất bại"
+      },
+      "import": {
+        "title": "Nhập bộ sưu tập",
+        "dropzone": "Kéo thả file JSON hoặc nhấn để chọn",
+        "collectionsFound": "Tìm thấy {count} bộ sưu tập",
+        "conflictStrategy": "Chiến lược xung đột",
+        "strategies": {
+          "newIds": "Tạo ID mới",
+          "skip": "Bỏ qua trùng lặp",
+          "overwrite": "Ghi đè hiện có"
+        },
+        "cancel": "Huỷ",
+        "confirm": "Xác nhận nhập",
+        "importComplete": "Nhập thành công",
+        "created": "Đã tạo",
+        "skipped": "Đã bỏ qua",
+        "errors": "Lỗi",
+        "imported": "Đã nhập {count} bộ sưu tập",
+        "failed": "Nhập thất bại",
+        "invalidJson": "JSON không hợp lệ: cần mảng các mẫu",
+        "invalidFile": "File JSON không hợp lệ"
+      }
+    }
   }
 }
 

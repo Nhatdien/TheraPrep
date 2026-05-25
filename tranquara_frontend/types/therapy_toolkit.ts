@@ -206,7 +206,9 @@ export const SESSION_COLLECTION_ID = 'session-tracker-virtual';
 export const SESSION_BEFORE_SLIDE_GROUP: SlideGroup = {
   id: 'session-before',
   title: 'Before Your Session',
+  title_vi: 'Trước buổi trị liệu',
   description: 'Prepare for your upcoming therapy session',
+  description_vi: 'Chuẩn bị cho buổi trị liệu sắp tới',
   position: 0,
   slides: [
     {
@@ -238,7 +240,9 @@ export const SESSION_BEFORE_SLIDE_GROUP: SlideGroup = {
 export const SESSION_AFTER_SLIDE_GROUP: SlideGroup = {
   id: 'session-after',
   title: 'After Your Session',
+  title_vi: 'Sau buổi trị liệu',
   description: 'Reflect on your therapy session',
+  description_vi: 'Nhìn lại buổi trị liệu của bạn',
   position: 1,
   slides: [
     {

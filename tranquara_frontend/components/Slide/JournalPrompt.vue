@@ -30,6 +30,7 @@ import { useAIGuard } from "~/composables/useAIGuard";
 const currentNote = ref("");
 const isGeneratingQuestion = ref(false);
 const { canUseAI, yourStory } = useAIGuard();
+const { locale } = useI18n();
 
 const editor = ref()
 const props = defineProps({
@@ -98,6 +99,7 @@ const handleGoDeeper = async (direction: string) => {
       collection_title: props.collectionTitle,         // Pass collection title
       direction: direction as 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth',  // Pass selected direction
       your_story: yourStory.value || undefined,
+      app_language: locale.value,
     });
     
     // Insert AI question into editor with muted styling

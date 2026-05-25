@@ -191,6 +191,7 @@ const handleGoDeeper = async () => {
       mood_score: moodScore.value,
       slide_prompt: undefined, // No template for free-form journaling
       your_story: yourStory.value || undefined,
+      app_language: locale.value,
     });
 
     // Insert AI question into editor with muted styling

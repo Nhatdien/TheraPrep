@@ -5,15 +5,15 @@
       <div class="flex items-center gap-4">
         <UButton icon="i-heroicons-arrow-left" variant="ghost" to="/admin/collections" />
         <div>
-          <h1 class="text-2xl font-bold">{{ isNew ? 'New Collection' : `Edit: ${form.title}` }}</h1>
+          <h1 class="text-2xl font-bold">{{ isNew ? $t('admin.collectionForm.newTitle') : $t('admin.collectionForm.editTitle', { title: form.title }) }}</h1>
         </div>
       </div>
       <div class="flex gap-3">
         <UButton v-if="!isNew" variant="outline" icon="i-heroicons-eye" :to="`/admin/collections/preview/${id}`">
-          Preview
+          {{ $t('admin.collectionForm.preview') }}
         </UButton>
         <UButton color="primary" icon="i-heroicons-check" :loading="saving" @click="handleSave">
-          Save
+          {{ $t('admin.collectionForm.save') }}
         </UButton>
       </div>
     </div>
@@ -26,9 +26,9 @@
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
           <div class="flex items-center gap-2">
             <UIcon name="i-heroicons-document-text" class="text-primary-500 w-5 h-5" />
-            <h2 class="font-semibold">Collection Details</h2>
+            <h2 class="font-semibold">{{ $t('admin.collectionForm.details') }}</h2>
           </div>
-          <USwitch v-model="showVi" size="sm" label="Show Vietnamese" />
+          <USwitch v-model="showVi" size="sm" :label="$t('admin.collectionForm.showVietnamese')" />
         </div>
 
         <div class="p-6 space-y-6">
@@ -36,14 +36,14 @@
           <div class="grid gap-5" :class="showVi ? 'lg:grid-cols-2' : 'grid-cols-1'">
             <div>
               <div v-if="showVi" class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 dark:border-gray-800">
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">🇬🇧 English</span>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">🇬🇧 {{ $t('admin.collectionForm.english') }}</span>
               </div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Title <span class="text-red-500">*</span>
+                {{ $t('admin.collectionForm.title') }} <span class="text-red-500">*</span>
               </label>
               <UInput
                 v-model="form.title"
-                placeholder="e.g. Managing Anxiety with Mindfulness"
+                :placeholder="$t('admin.collectionForm.titlePlaceholder')"
                 size="lg"
                 class="w-full"
                 :color="errors.title ? 'error' : undefined"
@@ -53,28 +53,28 @@
             </div>
             <div v-if="showVi" class="rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 p-4">
               <div class="flex items-center gap-2 mb-3 pb-2 border-b border-blue-100 dark:border-blue-900/40">
-                <span class="text-xs font-bold text-blue-500 uppercase tracking-wider">🇻🇳 Vietnamese</span>
+                <span class="text-xs font-bold text-blue-500 uppercase tracking-wider">🇻🇳 {{ $t('admin.collectionForm.vietnamese') }}</span>
               </div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Title (VI)</label>
-              <UInput v-model="form.title_vi" placeholder="Tiêu đề bộ sưu tập..." size="lg" class="w-full" />
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ $t('admin.collectionForm.titleVi') }}</label>
+              <UInput v-model="form.title_vi" :placeholder="$t('admin.collectionForm.titleViPlaceholder')" size="lg" class="w-full" />
             </div>
           </div>
 
           <!-- Description row -->
           <div class="grid gap-5" :class="showVi ? 'lg:grid-cols-2' : 'grid-cols-1'">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ $t('admin.collectionForm.description') }}</label>
               <UTextarea
                 v-model="form.description"
-                placeholder="A brief summary of what users will learn or do in this collection..."
+                :placeholder="$t('admin.collectionForm.descriptionPlaceholder')"
                 :rows="3"
                 size="lg"
                 class="w-full"
               />
             </div>
             <div v-if="showVi" class="rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 p-4">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description (VI)</label>
-              <UTextarea v-model="form.description_vi" placeholder="Mô tả ngắn gọn..." :rows="3" size="lg" class="w-full" />
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ $t('admin.collectionForm.descriptionVi') }}</label>
+              <UTextarea v-model="form.description_vi" :placeholder="$t('admin.collectionForm.descriptionViPlaceholder')" :rows="3" size="lg" class="w-full" />
             </div>
           </div>
 
@@ -83,7 +83,7 @@
             <!-- Type -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Type <span class="text-red-500">*</span>
+                {{ $t('admin.collectionForm.type') }} <span class="text-red-500">*</span>
               </label>
               <USelect
                 v-model="form.type"
@@ -98,7 +98,7 @@
             <!-- Category -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Category <span class="text-red-500">*</span>
+                {{ $t('admin.collectionForm.category') }} <span class="text-red-500">*</span>
               </label>
               <USelect
                 v-model="form.category"
@@ -108,10 +108,10 @@
                 :color="errors.category ? 'error' : undefined"
                 icon="i-heroicons-tag"
               />
-              <div v-if="form.category === '__custom__'" class="mt-2">
+                <div v-if="form.category === '__custom__'" class="mt-2">
                 <UInput
                   v-model="customCategory"
-                  placeholder="e.g. self_compassion"
+                  :placeholder="$t('admin.collectionForm.customCategoryPlaceholder')"
                   size="lg"
                   class="w-full"
                   icon="i-heroicons-plus"
@@ -123,14 +123,14 @@
             </div>
             <!-- Status -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Status</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ $t('admin.collectionForm.status') }}</label>
               <div class="flex items-center h-[42px] gap-4 px-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 w-full">
                 <USwitch
                   v-model="form.is_active"
                   :color="form.is_active ? 'success' : 'neutral'"
                 />
                 <span class="text-sm font-medium" :class="form.is_active ? 'text-green-600 dark:text-green-400' : 'text-gray-500'">
-                  {{ form.is_active ? 'Active' : 'Inactive' }}
+                  {{ form.is_active ? $t('admin.collections.table.active') : $t('admin.collections.table.inactive') }}
                 </span>
               </div>
             </div>
@@ -144,13 +144,13 @@
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
           <div class="flex items-center gap-2">
             <UIcon name="i-heroicons-rectangle-stack" class="text-primary-500 w-5 h-5" />
-            <h2 class="font-semibold">Slide Groups</h2>
+            <h2 class="font-semibold">{{ $t('admin.collectionForm.slideGroups') }}</h2>
             <UBadge v-if="form.slide_groups.length" color="neutral" variant="subtle" size="xs">
               {{ form.slide_groups.length }}
             </UBadge>
           </div>
           <UButton icon="i-heroicons-plus" color="primary" variant="soft" size="sm" @click="addSlideGroup">
-            Add Group
+            {{ $t('admin.collectionForm.addGroup') }}
           </UButton>
         </div>
 
@@ -165,9 +165,9 @@
             <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
               <UIcon name="i-heroicons-rectangle-stack" class="w-7 h-7 text-gray-400" />
             </div>
-            <p class="text-gray-500 font-medium mb-1">No slide groups yet</p>
-            <p class="text-sm text-gray-400 mb-4">Add a group to start building your collection</p>
-            <UButton icon="i-heroicons-plus" variant="outline" size="sm" @click="addSlideGroup">Add First Group</UButton>
+            <p class="text-gray-500 font-medium mb-1">{{ $t('admin.collectionForm.noSlideGroups') }}</p>
+            <p class="text-sm text-gray-400 mb-4">{{ $t('admin.collectionForm.noSlideGroupsDesc') }}</p>
+            <UButton icon="i-heroicons-plus" variant="outline" size="sm" @click="addSlideGroup">{{ $t('admin.collectionForm.addFirstGroup') }}</UButton>
           </div>
 
           <div ref="slideGroupsContainer" class="space-y-3">
@@ -185,7 +185,7 @@
                 <input
                   v-model="group.title"
                   class="flex-1 text-sm font-semibold bg-transparent border-none outline-none placeholder-gray-400 dark:placeholder-gray-600 dark:text-gray-200"
-                  placeholder="Group title..."
+                  :placeholder="$t('admin.collectionForm.groupTitlePlaceholder')"
                 />
                 <UButton
                   :icon="collapsedGroups.has(group.id) ? 'i-heroicons-chevron-right' : 'i-heroicons-chevron-down'"
@@ -200,25 +200,25 @@
               <!-- Group Body (Collapsible) -->
               <div v-show="!collapsedGroups.has(group.id)" class="p-4 space-y-4">
                 <div class="grid gap-3" :class="showVi ? 'lg:grid-cols-2' : ''">
-                  <UInput v-model="group.description" placeholder="Optional group description..." size="sm" icon="i-heroicons-information-circle" />
-                  <UInput v-if="showVi" v-model="getViGroup(gIdx).description" placeholder="Mô tả nhóm (VI)..." size="sm" />
+                  <UInput v-model="group.description" :placeholder="$t('admin.collectionForm.groupDescPlaceholder')" size="sm" icon="i-heroicons-information-circle" />
+                  <UInput v-if="showVi" v-model="getViGroup(gIdx).description" :placeholder="$t('admin.collectionForm.groupDescViPlaceholder')" size="sm" />
                 </div>
 
                 <!-- Slides list -->
                 <div class="rounded-lg border border-gray-100 dark:border-gray-700/50 overflow-hidden">
                   <div class="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800/40 border-b border-gray-100 dark:border-gray-700/50">
                     <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Slides
+                      {{ $t('admin.collectionForm.slides') }}
                       <span class="ml-1 px-1.5 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-[10px] font-bold">{{ group.slides.length }}</span>
                     </span>
                     <UButton icon="i-heroicons-plus" size="xs" variant="ghost" color="primary" @click="addSlide(gIdx)">
-                      Add Slide
+                      {{ $t('admin.collectionForm.addSlide') }}
                     </UButton>
                   </div>
 
                   <!-- Empty slides state -->
                   <div v-if="group.slides.length === 0" class="px-4 py-6 text-center text-sm text-gray-400">
-                    No slides yet — click Add Slide to start
+                    {{ $t('admin.collectionForm.noSlides') }}
                   </div>
 
                   <div :ref="el => setSlidesRef(gIdx, el)">
@@ -253,7 +253,7 @@
       <template #content>
         <div class="p-6 max-h-[85vh] overflow-y-auto">
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-semibold">{{ editingSlideIsNew ? 'Add Slide' : 'Edit Slide' }}</h3>
+            <h3 class="text-xl font-semibold">{{ editingSlideIsNew ? $t('admin.collectionForm.slideModal.addTitle') : $t('admin.collectionForm.slideModal.editTitle') }}</h3>
             <UBadge v-if="editingSlide.type" :color="(slideTypeColor(editingSlide.type) as any)" variant="subtle" size="lg">
               {{ slideTypeLabel(editingSlide.type) }}
             </UBadge>
@@ -261,10 +261,10 @@
 
           <div class="space-y-6">
             <div class="grid grid-cols-2 gap-4">
-              <UFormField label="Slide ID">
+              <UFormField :label="$t('admin.collectionForm.slideModal.slideId')">
                 <UInput v-model="editingSlide.id" placeholder="slide-id" size="lg" disabled />
               </UFormField>
-              <UFormField label="Type">
+              <UFormField :label="$t('admin.collectionForm.slideModal.type')">
                 <USelect v-model="editingSlide.type" :items="slideTypeOptions" size="lg" />
               </UFormField>
             </div>
@@ -288,8 +288,8 @@
           </div>
 
           <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <UButton variant="outline" size="lg" @click="slideModalOpen = false">Cancel</UButton>
-            <UButton color="primary" size="lg" @click="saveSlide">{{ editingSlideIsNew ? 'Add Slide' : 'Save Changes' }}</UButton>
+            <UButton variant="outline" size="lg" @click="slideModalOpen = false">{{ $t('admin.collectionForm.slideModal.cancel') }}</UButton>
+            <UButton color="primary" size="lg" @click="saveSlide">{{ editingSlideIsNew ? $t('admin.collectionForm.slideModal.add') : $t('admin.collectionForm.slideModal.save') }}</UButton>
           </div>
         </div>
       </template>
@@ -352,10 +352,10 @@ const editingGroupIdx = ref(0);
 const editingSlideIdx = ref(0);
 
 // Options
-const typeOptions = [
+const typeOptions = computed(() => [
   { label: 'Learn', value: 'learn' },
   { label: 'Journal', value: 'journal' },
-];
+]);
 
 const customCategory = ref('');
 
@@ -376,7 +376,7 @@ const categoryOptions = [
 
 const allCategoryOptions = computed(() => [
   ...categoryOptions,
-  { label: '+ Create New Category', value: '__custom__' },
+  { label: t('admin.collectionForm.createNewCategory'), value: '__custom__' },
 ]);
 
 function applyCustomCategory() {
@@ -418,7 +418,7 @@ onMounted(async () => {
         form.slide_groups_vi = JSON.parse(JSON.stringify(template.slide_groups_vi || []));
       }
     } catch {
-      toast.add({ title: 'Failed to load template', color: 'error' });
+      toast.add({ title: t('admin.collectionForm.errors.loadFailed'), color: 'error' });
       router.push('/admin/collections');
     }
   }
@@ -584,35 +584,24 @@ function slideTypeColor(type: string): string {
 }
 
 function slideTypeLabel(type: string): string {
-  const labels: Record<string, string> = {
-    emotion_log: 'Emotion Log',
-    sleep_check: 'Sleep Check',
-    journal_prompt: 'Journal Prompt',
-    doc: 'Document',
-    further_reading: 'Further Reading',
-    cta: 'Call to Action',
-    date_picker: 'Date Picker',
-    star_rating: 'Star Rating',
-    checklist_input: 'Checklist',
-    questionnaire: 'Questionnaire',
-    completion: 'Completion',
-  };
-  return labels[type] || type;
+  const key = `admin.collectionForm.slideTypes.${type}`;
+  const translated = t(key);
+  return translated !== key ? translated : type;
 }
 
 // Save
 function validate(): boolean {
   Object.keys(errors).forEach(k => delete errors[k]);
-  if (!form.title.trim()) errors.title = 'Title is required';
-  if (!form.type) errors.type = 'Type is required';
-  if (!form.category) errors.category = 'Category is required';
-  if (form.slide_groups.length === 0) errors.slide_groups = 'At least one slide group is required';
+  if (!form.title.trim()) errors.title = t('admin.collectionForm.titleRequired');
+  if (!form.type) errors.type = t('admin.collectionForm.typeRequired');
+  if (!form.category) errors.category = t('admin.collectionForm.categoryRequired');
+  if (form.slide_groups.length === 0) errors.slide_groups = t('admin.collectionForm.errors.atLeastOneGroup');
   return Object.keys(errors).length === 0;
 }
 
 async function handleSave() {
   if (!validate()) {
-    toast.add({ title: 'Please fix errors before saving', color: 'error' });
+    toast.add({ title: t('admin.collectionForm.errors.fixBeforeSaving'), color: 'error' });
     return;
   }
 
@@ -632,15 +621,15 @@ async function handleSave() {
     };
 
     if (isNew.value) {
-      const t = await adminStore.createTemplate(data);
-      toast.add({ title: 'Collection created', color: 'success' });
-      router.push(`/admin/collections/${t.id}`);
+      const created = await adminStore.createTemplate(data);
+      toast.add({ title: t('admin.collectionForm.toast.created'), color: 'success' });
+      router.push(`/admin/collections/${created.id}`);
     } else {
       await adminStore.updateTemplate(id.value, data);
-      toast.add({ title: 'Collection saved', color: 'success' });
+      toast.add({ title: t('admin.collectionForm.toast.saved'), color: 'success' });
     }
   } catch {
-    toast.add({ title: 'Failed to save', color: 'error' });
+    toast.add({ title: t('admin.collectionForm.toast.saveFailed'), color: 'error' });
   } finally {
     saving.value = false;
   }

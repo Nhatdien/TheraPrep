@@ -102,6 +102,23 @@ async def _store_memories(user_id: str, memories: list[dict]) -> list[dict]:
         return []
 
 
+def _detect_dominant_language(journals: list[dict]) -> str:
+    """Heuristic: detect dominant language from journal content."""
+    if not journals:
+        return "en"
+    total_chars = 0
+    vi_chars = 0
+    for entry in journals:
+        text = entry.get("content", "") + " " + entry.get("title", "")
+        for ch in text:
+            total_chars += 1
+            if "\u00c0" <= ch <= "\u1ef9" or ch in "àáảãạăắằẳẵặâấầẩẫậđèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵ":
+                vi_chars += 1
+    if total_chars == 0:
+        return "en"
+    return "vi" if (vi_chars / total_chars) > 0.3 else "en"
+
+
 async def process_user_memories(user_id: str, since: str):
     """
     Process a single user: fetch journals, extract memories, store + index.
@@ -115,12 +132,16 @@ async def process_user_memories(user_id: str, since: str):
         # 2. Fetch existing memories from Qdrant (for dedup prompt context)
         existing_contents = _get_existing_memories_from_qdrant(user_id)
 
-        # 3. Extract new memories via GPT (reuse singleton)
+        # 3. Detect dominant language from journals
+        dominant_language = _detect_dominant_language(journals)
+
+        # 4. Extract new memories via GPT (reuse singleton)
         ai_processor = AIProcessor.get_instance()
         new_memories = ai_processor.extract_memories(
             user_id=user_id,
             journal_entries=journals,
             existing_memories=existing_contents,
+            language=dominant_language,
         )
 
         if not new_memories:

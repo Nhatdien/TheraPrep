@@ -5,7 +5,7 @@
   <JournalModalContents
     v-else-if="slideGroup"
     :static-slide-group="slideGroup"
-    :static-collection-title="templateStore.title"
+    :static-collection-title="collectionTitle"
   />
 </template>
 
@@ -15,6 +15,7 @@ import type { SlideGroup } from '~/types/user_journal';
 
 definePageMeta({ layout: 'detail' });
 
+const { t } = useI18n();
 const templateStore = useCustomTemplateStore();
 
 // Wait for template to load, then redirect if none exists
@@ -31,6 +32,8 @@ onMounted(async () => {
     navigateTo(`/learn_and_prepare/collection/${DAILY_REFLECTION_ID}/${activeSlideGroup}`, { replace: true });
   }
 });
+
+const collectionTitle = computed(() => templateStore.title || t('myTemplate.pageTitle'));
 
 const slideGroup = computed<SlideGroup | null>(() => {
   if (!templateStore.hasTemplate) return null;

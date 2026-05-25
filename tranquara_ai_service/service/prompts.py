@@ -324,6 +324,7 @@ def build_user_prompt(
     past_journals_context: str = None,
     your_story: str = None,
     user_memories_context: str = None,
+    app_language: str = None,
 ) -> str:
     """
     Build the complete user prompt from dynamic data.
@@ -398,6 +399,15 @@ def build_user_prompt(
             direction_label=DIRECTION_LABELS[direction],
             direction=direction)
 
+    # --- Build app language instruction ---
+    language_instruction = ""
+    if app_language:
+        lang_name = "Vietnamese" if app_language == "vi" else "English"
+        language_instruction = f"""\n\nAPP LANGUAGE SETTING (CRITICAL):
+The user's app language is set to {lang_name} ({app_language}).
+You MUST respond in {lang_name} regardless of the language mix in their journal.
+If their journal contains mixed languages, prioritize {lang_name} for your response."""
+
     # --- Assemble the complete user prompt ---
     user_prompt = f"""Journaling Session Context:
 {context_section}
@@ -408,7 +418,7 @@ User's Current Writing:
 {content}
 
 User's Mood Score: {mood_score}/10
-{direction_instruction}{your_story_section}{memories_section}{past_journals_section}
+{direction_instruction}{language_instruction}{your_story_section}{memories_section}{past_journals_section}
 {OUTPUT_FORMAT_SECTION}"""
 
     return user_prompt
@@ -433,6 +443,10 @@ You MUST follow that language requirement exactly for all free-text content."""
 
 PREP_PACK_PROMPT = """LANGUAGE REQUIREMENT (CRITICAL — read this first):
 {language_instruction}
+
+YOU MUST WRITE ALL FREE-TEXT CONTENT IN {language_instruction}.
+Do NOT mix languages. Do NOT use English words in Vietnamese output or vice versa.
+System identifiers (trend values, category values) MUST remain in English as specified below.
 
 Analyze the following journal entries and user memories to generate
 a comprehensive Therapy Session Prep Pack.

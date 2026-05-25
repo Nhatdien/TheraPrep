@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <div v-if="!template" class="text-center text-gray-500 py-12">Loading...</div>
+    <div v-if="!template" class="text-center text-gray-500 py-12">{{ $t('common.loading') }}</div>
 
     <!-- Preview Frame -->
     <div v-else class="flex justify-center">

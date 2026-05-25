@@ -26,10 +26,12 @@ class NotificationService {
   private async ensureChannel(): Promise<void> {
     if (Capacitor.getPlatform() !== 'android') return;
     try {
+      const { $i18n } = useNuxtApp();
+      const t = ($i18n as any).t;
       await LocalNotifications.createChannel({
         id: 'reminders',
-        name: 'Daily Reminders',
-        description: 'Morning and evening check-in reminders',
+        name: t('settings.notifications.channelName'),
+        description: t('settings.notifications.channelDesc'),
         importance: 4, // IMPORTANCE_HIGH
         visibility: 1, // VISIBILITY_PUBLIC
         vibration: true,

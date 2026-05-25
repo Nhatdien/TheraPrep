@@ -286,6 +286,7 @@ const handleGoDeeper = async (direction: string) => {
       slide_prompt: undefined,
       direction: direction as 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth',
       your_story: yourStory.value || undefined,
+      app_language: locale.value,
     });
     
     if (editorRef.value?.editor) {
