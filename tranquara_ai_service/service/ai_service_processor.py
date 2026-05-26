@@ -288,6 +288,18 @@ class AIProcessor():
             past_journals_context = journals_future.result()
             user_memories_context = memories_future.result()
 
+        # --- Debug: Log retrieved RAG context ---
+        print(f"[RAG-DEBUG] User {user_id} | Direction: {direction} | top_k: {depth}")
+        if past_journals_context:
+            print(f"[RAG-DEBUG] Past journals retrieved:\n{past_journals_context}")
+        else:
+            print(f"[RAG-DEBUG] No past journals retrieved for this query.")
+
+        if user_memories_context:
+            print(f"[RAG-DEBUG] User memories retrieved:\n{user_memories_context}")
+        else:
+            print(f"[RAG-DEBUG] No user memories retrieved for this query.")
+
         # --- Build user prompt (all prompt text lives in prompts.py) ---
         user_prompt = build_user_prompt(
             content=content,
@@ -303,6 +315,10 @@ class AIProcessor():
             app_language=app_language,
         )
 
+        # --- Debug: Log the final prompt sent to LLM ---
+        print(f"[RAG-DEBUG] === SYSTEM PROMPT (first 500 chars) ===\n{system_prompt[:500]}...")
+        print(f"[RAG-DEBUG] === USER PROMPT ===\n{user_prompt}")
+
         # --- Call LLM ---
         response = self.model.invoke([
             SystemMessage(content=system_prompt),
@@ -310,6 +326,7 @@ class AIProcessor():
         ])
 
         question = response.content.strip()
+        print(f"[RAG-DEBUG] === GENERATED QUESTION ===\n{question}")
 
         # Remove quotes if LLM added them
         if question.startswith('"') and question.endswith('"'):
