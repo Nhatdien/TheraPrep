@@ -1,9 +1,10 @@
 import os
+import re
 import json
 import concurrent.futures
 from dotenv import load_dotenv
 from service.prompts import get_system_prompt, build_user_prompt, PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT
-from langchain_openai.chat_models import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from database.vector_database import (
     search_user_journals, search_user_memories,
@@ -11,6 +12,47 @@ from database.vector_database import (
 )
 
 load_dotenv()
+
+# ─── Config ──────────────────────────────────────────────────────────────────
+
+DEFAULT_LLM_MODEL = "gemini-2.5-flash"
+
+
+def _extract_json_from_response(raw: str) -> str:
+    """
+    Robustly extract JSON from LLM response text.
+    Handles markdown code blocks (```json...```), leading/trailing text, etc.
+    Works with responses from both OpenAI and Gemini models.
+    """
+    text = raw.strip()
+
+    # 1. Strip markdown code blocks: ```json ... ``` or ``` ... ```
+    text = re.sub(r'^```(?:json|JSON)?\s*\n?', '', text)
+    text = re.sub(r'\n?```\s*$', '', text)
+    text = text.strip()
+
+    # 2. If the text starts with [ or {, try to parse directly
+    if text.startswith('[') or text.startswith('{'):
+        return text
+
+    # 3. Look for JSON array or object embedded in text
+    # Try to find the outermost [ ... ] or { ... }
+    for opener, closer in [('[', ']'), ('{', '}')]:
+        start = text.find(opener)
+        if start != -1:
+            # Find the matching closing bracket
+            depth = 0
+            for i in range(start, len(text)):
+                if text[i] == opener:
+                    depth += 1
+                elif text[i] == closer:
+                    depth -= 1
+                if depth == 0:
+                    return text[start:i + 1]
+
+    # 4. Fallback: return as-is and let json.loads handle the error
+    return text
+
 
 # ─── Memory Extraction Prompt ──────────────────────────────────────────────
 
@@ -63,9 +105,9 @@ class AIProcessor():
     _instance = None
 
     def __init__(self):
-        self.model = ChatOpenAI(
-            api_key=os.environ['OPENAI_API_KEY'],
-            model="gpt-4o-mini",
+        self.model = ChatGoogleGenerativeAI(
+            google_api_key=os.environ['GOOGLE_API_KEY'],
+            model=os.environ.get('LLM_MODEL', DEFAULT_LLM_MODEL),
             temperature=0.7,
             streaming=False
         )
@@ -198,18 +240,12 @@ class AIProcessor():
                 HumanMessage(content=prompt)
             ])
 
-            raw = response.content.strip()
-            # Strip markdown code block if present
-            if raw.startswith("```"):
-                raw = raw.split("\n", 1)[1] if "\n" in raw else raw[3:]
-                if raw.endswith("```"):
-                    raw = raw[:-3]
-                raw = raw.strip()
+            raw = _extract_json_from_response(response.content)
 
             candidates = json.loads(raw)
 
             if not isinstance(candidates, list):
-                print(f"[memories] GPT returned non-list: {type(candidates)}")
+                print(f"[memories] LLM returned non-list: {type(candidates)}")
                 return []
 
             # Validate and deduplicate
@@ -386,14 +422,7 @@ class AIProcessor():
                 HumanMessage(content=prompt),
             ])
 
-            raw = response.content.strip()
-
-            # Strip markdown code block if present
-            if raw.startswith("```"):
-                raw = raw.split("\n", 1)[1] if "\n" in raw else raw[3:]
-                if raw.endswith("```"):
-                    raw = raw[:-3]
-                raw = raw.strip()
+            raw = _extract_json_from_response(response.content)
 
             result = json.loads(raw)
 
