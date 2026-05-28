@@ -1,7 +1,7 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, Filter, FieldCondition, MatchValue
 from langchain_qdrant import QdrantVectorStore
-from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import os
 import numpy as np
 
@@ -21,7 +21,8 @@ else:
     client = QdrantClient(host=qdrant_host, port=qdrant_port)
 
 # --- Shared config ---
-VECTOR_SIZE = 1536  # OpenAI text-embedding-ada-002
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/gemini-embedding-001")
+VECTOR_SIZE = 3072  # Gemini gemini-embedding-001 default output dimensions
 DISTANCE_METRIC = Distance.COSINE
 
 JOURNAL_COLLECTION = "journal_entries"
@@ -29,7 +30,7 @@ MEMORY_COLLECTION = "user_memories"
 
 # --- Lazy initialization ---
 # QdrantVectorStore validates embeddings at construction time by calling
-# OpenAI's API. If the API key is invalid or the quota is exhausted, this
+# the Gemini API. If the API key is invalid or the quota is exhausted, this
 # would crash the service on import. Lazy init defers that call until the
 # store is actually used, so the service can still start.
 
@@ -53,15 +54,22 @@ def get_top_k_for_direction(direction: str | None) -> int:
 
 
 def _get_embeddings():
-    """Lazily create the shared OpenAIEmbeddings instance."""
+    """Lazily create the shared GoogleGenerativeAIEmbeddings instance."""
     global _embeddings
     if _embeddings is None:
-        _embeddings = OpenAIEmbeddings()
+        _embeddings = GoogleGenerativeAIEmbeddings(
+            model=EMBEDDING_MODEL,
+            google_api_key=os.environ["GOOGLE_API_KEY"],
+        )
     return _embeddings
 
 
 def _ensure_collection(name: str):
-    """Create a Qdrant collection if it doesn't already exist."""
+    """Create a Qdrant collection if it doesn't already exist.
+    
+    If the collection exists but has a different vector size (e.g., migrated
+    from OpenAI 1536-dim to Gemini 3072-dim), it will be recreated.
+    """
     if not client.collection_exists(name):
         print(f"Creating collection: {name}")
         client.recreate_collection(
@@ -70,7 +78,25 @@ def _ensure_collection(name: str):
                 size=VECTOR_SIZE, distance=DISTANCE_METRIC),
         )
     else:
-        print(f"Collection '{name}' already exists.")
+        # Check if existing collection has matching vector dimensions
+        collection_info = client.get_collection(name)
+        existing_size = collection_info.config.params.vectors.size
+        if existing_size != VECTOR_SIZE:
+            print(f"[migration] Collection '{name}' has vector size {existing_size}, "
+                  f"but expected {VECTOR_SIZE}. Recreating collection.")
+            client.recreate_collection(
+                collection_name=name,
+                vectors_config=VectorParams(
+                    size=VECTOR_SIZE, distance=DISTANCE_METRIC),
+            )
+            # Reset vector stores so they re-initialize with the new collection
+            global _journal_vector_store, _memory_vector_store
+            if name == JOURNAL_COLLECTION:
+                _journal_vector_store = None
+            elif name == MEMORY_COLLECTION:
+                _memory_vector_store = None
+        else:
+            print(f"Collection '{name}' already exists (size={existing_size}).")
 
 
 def _get_journal_vector_store() -> QdrantVectorStore:
