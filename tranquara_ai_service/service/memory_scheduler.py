@@ -11,6 +11,7 @@ Flow:
 """
 
 import os
+import traceback
 import httpx
 from datetime import datetime, timezone, timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -74,12 +75,17 @@ def _get_user_journals_from_qdrant(user_id: str, since: str) -> list[dict]:
 def _get_existing_memories_from_qdrant(user_id: str) -> list[str]:
     """Fetch existing memory contents for a user directly from Qdrant.
     Memories are indexed in Qdrant alongside PostgreSQL storage."""
-    raw_memories = get_all_user_memories(user_id)
-    return [
-        point.payload.get("page_content", "")
-        for point in raw_memories
-        if point.payload and point.payload.get("page_content")
-    ]
+    try:
+        raw_memories = get_all_user_memories(user_id)
+        return [
+            point.payload.get("page_content", "")
+            for point in raw_memories
+            if getattr(point, "payload", None) and point.payload.get("page_content")
+        ]
+    except Exception as e:
+        print(f"[memory-scheduler] Error fetching existing memories for {user_id}: {e}")
+        traceback.print_exc()
+        return []
 
 
 async def _store_memories(user_id: str, memories: list[dict]) -> list[dict]:
@@ -106,17 +112,24 @@ def _detect_dominant_language(journals: list[dict]) -> str:
     """Heuristic: detect dominant language from journal content."""
     if not journals:
         return "en"
-    total_chars = 0
-    vi_chars = 0
-    for entry in journals:
-        text = entry.get("content", "") + " " + entry.get("title", "")
-        for ch in text:
-            total_chars += 1
-            if "\u00c0" <= ch <= "\u1ef9" or ch in "àáảãạăắằẳẵặâấầẩẫậđèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵ":
-                vi_chars += 1
-    if total_chars == 0:
+    try:
+        total_chars = 0
+        vi_chars = 0
+        for entry in journals:
+            if not isinstance(entry, dict):
+                continue
+            text = entry.get("content", "") + " " + entry.get("title", "")
+            for ch in text:
+                total_chars += 1
+                if "\u00c0" <= ch <= "\u1ef9" or ch in "àáảãạăắằẳẵặâấầẩẫậđèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵ":
+                    vi_chars += 1
+        if total_chars == 0:
+            return "en"
+        return "vi" if (vi_chars / total_chars) > 0.3 else "en"
+    except Exception as e:
+        print(f"[memory-scheduler] Error detecting language: {e}")
+        traceback.print_exc()
         return "en"
-    return "vi" if (vi_chars / total_chars) > 0.3 else "en"
 
 
 async def process_user_memories(user_id: str, since: str) -> bool:
@@ -153,21 +166,27 @@ async def process_user_memories(user_id: str, since: str) -> bool:
     created = await _store_memories(user_id, new_memories)
 
     # 6. Index in Qdrant for RAG
+    indexed_count = 0
     for memory in created:
-        memory_id = memory.get("id")
-        content = memory.get("content", "")
-        if memory_id and content:
-            index_memory(
-                memory_id=memory_id,
-                user_id=user_id,
-                content=content,
-                category=memory.get("category", "preferences"),
-                confidence=memory.get("confidence", 0.5),
-                created_at=memory.get("created_at"),
-            )
+        try:
+            memory_id = memory.get("id")
+            content = memory.get("content", "")
+            if memory_id and content:
+                index_memory(
+                    memory_id=memory_id,
+                    user_id=user_id,
+                    content=content,
+                    category=memory.get("category", "preferences"),
+                    confidence=memory.get("confidence", 0.5),
+                    created_at=memory.get("created_at"),
+                )
+                indexed_count += 1
+        except Exception as e:
+            print(f"[memory-scheduler] Error indexing memory for {user_id}: {e}")
+            traceback.print_exc()
 
     print(
-        f"[memory-scheduler] User {user_id}: {len(created)} memories created + indexed")
+        f"[memory-scheduler] User {user_id}: {len(created)} memories created, {indexed_count} indexed")
     return True
 
 
@@ -200,6 +219,7 @@ async def run_memory_generation():
         except Exception as e:
             error_count += 1
             print(f"[memory-scheduler] Failed for user {user_id}: {e}")
+            traceback.print_exc()
 
     print(
         f"[memory-scheduler] Cycle complete: {success_count} success, {error_count} errors")

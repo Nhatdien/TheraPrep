@@ -57,9 +57,9 @@ async def generate_prep_pack(request: PrepPackRequest):
     # 2. Fetch AI memories from Qdrant
     raw_memories = get_all_user_memories(request.user_id)
     memories = [
-        point.payload.get("page_content", "")
+        getattr(point, "payload", {}).get("page_content", "")
         for point in raw_memories
-        if point.payload and point.payload.get("page_content")
+        if getattr(point, "payload", None) and getattr(point, "payload", {}).get("page_content")
     ]
 
     # 3. Generate prep pack via GPT (run in thread to avoid blocking event loop)
