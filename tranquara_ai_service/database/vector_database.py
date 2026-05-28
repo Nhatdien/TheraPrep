@@ -70,6 +70,7 @@ def _ensure_collection(name: str):
     If the collection exists but has a different vector size (e.g., migrated
     from OpenAI 1536-dim to Gemini 3072-dim), it will be recreated.
     """
+    global _journal_vector_store, _memory_vector_store
     if not client.collection_exists(name):
         print(f"Creating collection: {name}")
         client.recreate_collection(
@@ -94,7 +95,6 @@ def _ensure_collection(name: str):
                     vectors_config=VectorParams(
                         size=VECTOR_SIZE, distance=DISTANCE_METRIC),
                 )
-                global _journal_vector_store, _memory_vector_store
                 if name == JOURNAL_COLLECTION:
                     _journal_vector_store = None
                 elif name == MEMORY_COLLECTION:
@@ -110,7 +110,6 @@ def _ensure_collection(name: str):
                         size=VECTOR_SIZE, distance=DISTANCE_METRIC),
                 )
                 # Reset vector stores so they re-initialize with the new collection
-                global _journal_vector_store, _memory_vector_store
                 if name == JOURNAL_COLLECTION:
                     _journal_vector_store = None
                 elif name == MEMORY_COLLECTION:
@@ -124,7 +123,6 @@ def _ensure_collection(name: str):
                 vectors_config=VectorParams(
                     size=VECTOR_SIZE, distance=DISTANCE_METRIC),
             )
-            global _journal_vector_store, _memory_vector_store
             if name == JOURNAL_COLLECTION:
                 _journal_vector_store = None
             elif name == MEMORY_COLLECTION:
