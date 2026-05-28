@@ -153,7 +153,8 @@ def search_user_journals(user_id: str, query: str, top_k: int = 5) -> list:
 
 
 def index_journal(journal_id: str, user_id: str, content: str,
-                  title: str = "", mood_score: int = None,
+                  content_html: str = None, title: str = "",
+                  mood_score: int = None,
                   mood_label: str = None, created_at: str = None):
     """
     Index a journal entry into Qdrant for future RAG retrieval.
@@ -162,16 +163,32 @@ def index_journal(journal_id: str, user_id: str, content: str,
     Args:
         journal_id: UUID of the journal (used as Qdrant point ID for upsert)
         user_id: UUID of the user who owns this journal
-        content: The journal text content to embed
+        content: The journal text content (TipTap JSON — not human-readable)
+        content_html: Rendered HTML version of content — preferred for embedding
+                      because plain `content` is TipTap JSON which is not
+                      meaningful for LLM consumption or semantic search.
         title: Journal title
         mood_score: 1-10 mood rating
         mood_label: Mood label (e.g. "Sunny", "Storm")
         created_at: ISO timestamp of journal creation
     """
+    import re as _re
     from langchain_core.documents import Document
 
-    # Build the text to embed: title + content for richer semantic meaning
-    embed_text = f"{title}\n{content}" if title else content
+    # Determine the best text to embed:
+    # 1. content_html (rendered HTML, most readable) → strip tags for clean text
+    # 2. content (TipTap JSON) → last resort, poor for semantic search
+    if content_html:
+        # Strip HTML tags to get plain text for embedding
+        plain_text = _re.sub(r'<[^>]+>', ' ', content_html)
+        plain_text = _re.sub(r'\s+', ' ', plain_text).strip()
+        embed_source = "content_html"
+    else:
+        plain_text = content
+        embed_source = "content (raw)"
+
+    # Build the text to embed: title + readable content for richer semantic meaning
+    embed_text = f"{title}\n{plain_text}" if title else plain_text
 
     doc = Document(
         page_content=embed_text,
@@ -191,7 +208,8 @@ def index_journal(journal_id: str, user_id: str, content: str,
         documents=[doc],
         ids=[journal_id]
     )
-    print(f"Indexed journal {journal_id} for user {user_id}")
+    print(f"Indexed journal {journal_id} for user {user_id} "
+          f"(embed_source={embed_source}, chars={len(embed_text)})")
 
 
 def delete_journal(journal_id: str):

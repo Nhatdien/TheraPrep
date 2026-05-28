@@ -13,17 +13,25 @@ import { userJournalStore } from "~/stores/stores/user_journal";
 
 const { t } = useI18n();
 
-const props = withDefaults(defineProps<{
-  /**
-   * Question text to display
-   */
-  question?: string;
-}>(), {
-  question: '',
+const props = defineProps({
+  content: {
+    type: Object,
+    required: true,
+  },
+  currentIndex: {
+    type: Number,
+    required: true,
+  },
+  index: {
+    type: Number,
+    required: true,
+  },
 });
 
-// Use prop if provided, otherwise fall back to translated default
-const displayQuestion = computed(() => props.question || t('slide.defaultMoodQuestion'));
+// Use question from content if provided, otherwise fall back to translated default
+const displayQuestion = computed(() =>
+  props.content?.question || props.content?.question_content || t('slide.defaultMoodQuestion')
+);
 
 const store = userJournalStore();
 

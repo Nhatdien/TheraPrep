@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import traceback
 import concurrent.futures
 from dotenv import load_dotenv
 from service.prompts import get_system_prompt, build_user_prompt, PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT
@@ -185,6 +186,30 @@ class AIProcessor():
             print(f"[RAG] Error retrieving user memories: {e}")
             return ""
 
+    @staticmethod
+    def _sanitize_journal_content(text: str) -> str:
+        """
+        Clean journal content for LLM consumption.
+        Strips HTML tags and detects TipTap JSON (returns empty string
+        because TipTap JSON is not human-readable).
+        """
+        if not text:
+            return ""
+
+        stripped = text.strip()
+
+        # Detect TipTap JSON: starts with {"type":"doc" — not useful for LLM
+        if stripped.startswith('{"type"') and '"content"' in stripped[:200]:
+            return ""
+
+        # Strip HTML tags if present
+        if '<' in stripped and '>' in stripped:
+            plain = re.sub(r'<[^>]+>', ' ', stripped)
+            plain = re.sub(r'\s+', ' ', plain).strip()
+            return plain
+
+        return stripped
+
     def extract_memories(self, user_id: str, journal_entries: list[dict],
                          existing_memories: list[str], language: str = "en") -> list[dict]:
         """
@@ -203,13 +228,23 @@ class AIProcessor():
         if not journal_entries:
             return []
 
-        # Format journal entries for the prompt
+        # Format journal entries for the prompt (sanitize content)
         formatted_journals = []
         for i, entry in enumerate(journal_entries, 1):
             title = entry.get("title", "Untitled")
-            content = entry.get("content", "")[:1000]  # Truncate long entries
+            raw_content = entry.get("content", "")[:1000]
+            content = self._sanitize_journal_content(raw_content)
+            if not content:
+                # Skip entries with no usable content (e.g. TipTap JSON)
+                continue
             date = entry.get("created_at", "Unknown date")
             formatted_journals.append(f"{i}. [{date}] \"{title}\"\n{content}")
+
+        if not formatted_journals:
+            print(f"[memories] User {user_id}: all {len(journal_entries)} journals had "
+                  f"no usable content (TipTap JSON or empty)")
+            return []
+
         journals_text = "\n\n".join(formatted_journals)
 
         # Format existing memories for dedup context
@@ -281,10 +316,12 @@ class AIProcessor():
             return new_memories
 
         except json.JSONDecodeError as e:
-            print(f"[memories] JSON parse error: {e}")
+            print(f"[memories] JSON parse error for user {user_id}: {e}")
+            print(f"[memories] Raw LLM response (first 500 chars): {raw[:500]}")
             return []
         except Exception as e:
-            print(f"[memories] Error extracting memories: {e}")
+            print(f"[memories] Error extracting memories for user {user_id}: {e}")
+            traceback.print_exc()
             return []
 
     def generate_journal_question(self, user_id: str, content: str, mood_score: int,
@@ -396,14 +433,18 @@ class AIProcessor():
         else:
             language_instruction = "Write all content in English."
 
-        # Format journal entries
-        entries_text = "\n\n".join([
-            f"Date: {e.get('created_at', 'unknown')}\n"
-            f"Title: {e.get('title', 'Untitled')}\n"
-            f"Mood: {e.get('mood_score', 'N/A')}/10\n"
-            f"Content: {e.get('content', '')[:800]}"
-            for e in journal_entries
-        ]) or "(no journal entries)"
+        # Format journal entries (sanitize content for LLM readability)
+        sanitized_entries = []
+        for e in journal_entries:
+            raw = e.get("content", "")[:800]
+            clean = AIProcessor._sanitize_journal_content(raw) if raw else ""
+            sanitized_entries.append(
+                f"Date: {e.get('created_at', 'unknown')}\n"
+                f"Title: {e.get('title', 'Untitled')}\n"
+                f"Mood: {e.get('mood_score', 'N/A')}/10\n"
+                f"Content: {clean}"
+            )
+        entries_text = "\n\n".join(sanitized_entries) or "(no journal entries)"
 
         # Format memories
         memories_text = "\n".join(

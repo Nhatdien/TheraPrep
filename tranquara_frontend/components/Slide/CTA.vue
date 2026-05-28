@@ -1,8 +1,8 @@
 <template>
   <div class="flex items-center justify-center">
     <div class="w-full max-w-md">
-      <h2 class="text-xl sm:text-2xl font-semibold text-highlighted mb-2 text-center">{{ content?.title || content?.headline }}</h2>
-      <p class="text-sm text-muted text-center mb-5">{{ content?.content || content?.subtext }}</p>
+      <h2 class="text-xl sm:text-2xl font-semibold text-highlighted mb-2 text-center">{{ displayTitle }}</h2>
+      <p class="text-sm text-muted text-center mb-5">{{ displayContent }}</p>
 
       <!-- CTA Card linking to another slide group -->
       <div
@@ -36,6 +36,7 @@
 </template>
 
 <script lang="ts" setup>
+const { locale } = useI18n();
 const { openSlideGroup, findSlideGroup } = useSlideGroup();
 
 const props = defineProps({
@@ -43,6 +44,16 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+});
+
+const displayTitle = computed(() => {
+  if (locale.value === 'vi' && props.content?.title_vi) return props.content.title_vi;
+  return props.content?.title || props.content?.headline || '';
+});
+
+const displayContent = computed(() => {
+  if (locale.value === 'vi' && props.content?.content_vi) return props.content.content_vi;
+  return props.content?.content || props.content?.subtext || '';
 });
 
 const targetSlideGroup = computed(() => {

@@ -119,55 +119,56 @@ def _detect_dominant_language(journals: list[dict]) -> str:
     return "vi" if (vi_chars / total_chars) > 0.3 else "en"
 
 
-async def process_user_memories(user_id: str, since: str):
+async def process_user_memories(user_id: str, since: str) -> bool:
     """
     Process a single user: fetch journals, extract memories, store + index.
+
+    Returns True on success, False on error (so the caller can count errors).
+    Raises exceptions so the caller can differentiate success vs failure.
     """
-    try:
-        # 1. Fetch recent journals from Qdrant
-        journals = _get_user_journals_from_qdrant(user_id, since)
-        if not journals:
-            return
+    # 1. Fetch recent journals from Qdrant
+    journals = _get_user_journals_from_qdrant(user_id, since)
+    if not journals:
+        return True  # No journals is not an error
 
-        # 2. Fetch existing memories from Qdrant (for dedup prompt context)
-        existing_contents = _get_existing_memories_from_qdrant(user_id)
+    # 2. Fetch existing memories from Qdrant (for dedup prompt context)
+    existing_contents = _get_existing_memories_from_qdrant(user_id)
 
-        # 3. Detect dominant language from journals
-        dominant_language = _detect_dominant_language(journals)
+    # 3. Detect dominant language from journals
+    dominant_language = _detect_dominant_language(journals)
 
-        # 4. Extract new memories via GPT (reuse singleton)
-        ai_processor = AIProcessor.get_instance()
-        new_memories = ai_processor.extract_memories(
-            user_id=user_id,
-            journal_entries=journals,
-            existing_memories=existing_contents,
-            language=dominant_language,
-        )
+    # 4. Extract new memories via GPT (reuse singleton)
+    ai_processor = AIProcessor.get_instance()
+    new_memories = ai_processor.extract_memories(
+        user_id=user_id,
+        journal_entries=journals,
+        existing_memories=existing_contents,
+        language=dominant_language,
+    )
 
-        if not new_memories:
-            return
+    if not new_memories:
+        return True  # No new memories is not an error
 
-        # 4. Store in PostgreSQL via Go backend
-        created = await _store_memories(user_id, new_memories)
+    # 5. Store in PostgreSQL via Go backend
+    created = await _store_memories(user_id, new_memories)
 
-        # 5. Index in Qdrant for RAG
-        for memory in created:
-            memory_id = memory.get("id")
-            if memory_id:
-                index_memory(
-                    memory_id=memory_id,
-                    user_id=user_id,
-                    content=memory.get("content", ""),
-                    category=memory.get("category", "preferences"),
-                    confidence=memory.get("confidence", 0.5),
-                    created_at=memory.get("created_at"),
-                )
+    # 6. Index in Qdrant for RAG
+    for memory in created:
+        memory_id = memory.get("id")
+        content = memory.get("content", "")
+        if memory_id and content:
+            index_memory(
+                memory_id=memory_id,
+                user_id=user_id,
+                content=content,
+                category=memory.get("category", "preferences"),
+                confidence=memory.get("confidence", 0.5),
+                created_at=memory.get("created_at"),
+            )
 
-        print(
-            f"[memory-scheduler] User {user_id}: {len(created)} memories created + indexed")
-
-    except Exception as e:
-        print(f"[memory-scheduler] Error processing user {user_id}: {e}")
+    print(
+        f"[memory-scheduler] User {user_id}: {len(created)} memories created + indexed")
+    return True
 
 
 async def run_memory_generation():
