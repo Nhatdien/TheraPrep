@@ -76,8 +76,8 @@ JOURNAL ENTRIES TO ANALYZE:
 
 Return a JSON array of new insights only:
 [
-  {"content": "I value my family.", "category": "values", "confidence": 0.9},
-  {"content": "Sleep quality drops when stressed about deadlines.", "category": "patterns", "confidence": 0.75}
+  {{"content": "I value my family.", "category": "values", "confidence": 0.9}},
+  {{"content": "Sleep quality drops when stressed about deadlines.", "category": "patterns", "confidence": 0.75}}
 ]
 
 Rules:
