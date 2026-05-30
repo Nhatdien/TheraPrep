@@ -2,7 +2,7 @@
   <Transition name="completion-fade">
     <div
       v-if="show"
-      class="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 bg-[var(--ui-bg)]/95 backdrop-blur-sm"
+      class="fixed inset-0 z-[60] flex flex-col items-center justify-center px-6 bg-[var(--ui-bg)]/95 backdrop-blur-sm"
     >
       <!-- Expanding circle -->
       <div class="relative mb-8">

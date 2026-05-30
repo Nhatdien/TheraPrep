@@ -74,18 +74,16 @@ html.reduce-motion *::after {
 
 .page-enter-active,
 .page-leave-active {
-  transition: all 0.2s;
+  transition: opacity 0.25s ease;
 }
 .page-enter-from,
 .page-leave-to {
-  transform: scale(90%);
   opacity: 0;
 }
 
-
 .layout-enter-active,
 .layout-leave-active {
-  transition: all 0.2s;
+  transition: opacity 0.25s ease;
 }
 .layout-enter-from,
 .layout-leave-to {

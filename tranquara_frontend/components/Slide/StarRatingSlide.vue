@@ -14,7 +14,7 @@
         @click="selectRating(star)"
         class="text-4xl transition-transform duration-150"
         :class="[
-          star <= rating ? 'text-yellow-400 scale-110' : 'text-neutral-600',
+          star <= rating ? 'text-yellow-400 scale-110' : 'text-toned',
           'hover:scale-125 active:scale-95'
         ]"
       >

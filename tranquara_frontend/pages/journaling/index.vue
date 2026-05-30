@@ -44,7 +44,7 @@
         <!-- Mood Selector -->
         <UButton variant="ghost" size="sm" @click="showMoodPicker = true" class="shrink-0">
           <span class="text-lg">{{ selectedMoodEmoji }}</span>
-          <span class="ml-1 text-sm text-muted truncate max-w-[80px] sm:max-w-[120px]">{{ moodLabel }}</span>
+          <span class="ml-1 text-sm text-muted truncate max-w-[120px] sm:max-w-[180px]">{{ moodLabel }}</span>
         </UButton>
 
         <!-- Go Deeper Button -->
