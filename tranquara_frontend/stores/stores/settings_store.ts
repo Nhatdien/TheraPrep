@@ -2,12 +2,13 @@
  * Settings Store — Pinia
  *
  * Manages all user settings with local persistence via Capacitor Preferences.
- * Global settings (theme, AI, etc.) will sync to backend in a future phase.
+ * Global settings (theme, AI, language) sync to backend via user_information.settings JSONB.
  * Device-specific settings (notifications) stay local only.
  *
  * Storage keys:
- *  - "settings_global"  → GlobalSettings JSON
- *  - "settings_device"  → DeviceSettings JSON
+ *  - "settings_global"  → GlobalSettings JSON (local)
+ *  - "settings_device"  → DeviceSettings JSON (local)
+ *  - Backend source of truth: user_information.settings (cross-device sync)
  */
 
 import { defineStore } from 'pinia';
@@ -70,7 +71,8 @@ export const useSettingsStore = defineStore('settings', {
     // ─── Initialization ─────────────────────────────────────────────────
 
     /**
-     * Load settings from Capacitor Preferences.
+     * Load settings from Capacitor Preferences and merge with backend.
+     * Backend settings take priority (source of truth for cross-device sync).
      * Call this once during app initialization (plugin).
      */
     async loadSettings() {
@@ -108,9 +110,54 @@ export const useSettingsStore = defineStore('settings', {
 
         this.initialized = true;
         console.log('[SettingsStore] Settings loaded from local storage');
+
+        // Merge with backend settings (async, don't block initialization)
+        await this._mergeSettingsFromBackend();
       } catch (error) {
         console.error('[SettingsStore] Failed to load settings:', error);
         this.initialized = true; // Use defaults on failure
+      }
+    },
+
+    /**
+     * Fetch settings from backend and merge into local state.
+     * Backend settings take priority for cross-device consistency.
+     */
+    async _mergeSettingsFromBackend() {
+      try {
+        const sdk = await import('../tranquara_sdk').then(m => m.default.getInstance());
+        if (!sdk.config.access_token) {
+          return;
+        }
+        const response = await sdk.getUserInformation();
+        const backendSettings = response?.user_info?.settings;
+        if (!backendSettings) {
+          console.log('[SettingsStore] No backend settings found, using local');
+          return;
+        }
+
+        // Merge backend settings into local state (backend wins for global settings)
+        const backendPersonalization = backendSettings.personalization;
+        const backendAIPrivacy = backendSettings.ai_privacy;
+
+        if (backendPersonalization) {
+          this.global.personalization = {
+            ...this.global.personalization,
+            ...backendPersonalization,
+          };
+        }
+        if (backendAIPrivacy) {
+          this.global.ai_privacy = {
+            ...this.global.ai_privacy,
+            ...backendAIPrivacy,
+          };
+        }
+
+        // Persist merged settings locally
+        await this._saveGlobal();
+        console.log('[SettingsStore] Merged settings from backend:', backendSettings);
+      } catch (error) {
+        console.warn('[SettingsStore] Failed to merge settings from backend:', error);
       }
     },
 
@@ -158,42 +205,33 @@ export const useSettingsStore = defineStore('settings', {
     async setLanguage(locale: AppLocale) {
       this.global.personalization.language = locale;
       await this._saveGlobal();
-      // Sync language preference to backend for AI memory generation
-      this._syncLanguageToBackend(locale).catch((err) => {
-        console.warn('[SettingsStore] Failed to sync language to backend:', err);
+      // Sync settings to backend for AI memory generation
+      this._syncSettingsToBackend().catch((err) => {
+        console.warn('[SettingsStore] Failed to sync settings to backend:', err);
       });
     },
 
     /**
-     * Sync language preference to backend user_information.settings.
-     * This ensures AI-generated memories use the user's preferred language.
-     * Sends the full global settings to preserve other settings on the backend.
+     * Sync global settings to backend user_information.settings.
+     * This ensures AI-generated memories use the user's preferred language
+     * and settings are consistent across devices.
      */
-    async _syncLanguageToBackend(locale: AppLocale) {
+    async _syncSettingsToBackend() {
       try {
         const sdk = await import('../tranquara_sdk').then(m => m.default.getInstance());
         if (!sdk.config.access_token) {
-          console.log('[SettingsStore] No access token, skipping language sync');
+          console.log('[SettingsStore] No access token, skipping settings sync');
           return;
         }
         await sdk.updateUserInformation({
           settings: {
-            personalization: {
-              theme: this.global.personalization.theme,
-              font_size: this.global.personalization.font_size,
-              reduce_motion: this.global.personalization.reduce_motion,
-              language: locale,
-            },
-            ai_privacy: {
-              ai_enabled: this.global.ai_privacy.ai_enabled,
-              your_story: this.global.ai_privacy.your_story,
-              data_collection: this.global.ai_privacy.data_collection,
-            },
+            personalization: { ...this.global.personalization },
+            ai_privacy: { ...this.global.ai_privacy },
           },
         });
-        console.log('[SettingsStore] Language synced to backend:', locale);
+        console.log('[SettingsStore] Settings synced to backend');
       } catch (error) {
-        console.warn('[SettingsStore] Language sync to backend failed:', error);
+        console.warn('[SettingsStore] Settings sync to backend failed:', error);
       }
     },
 
