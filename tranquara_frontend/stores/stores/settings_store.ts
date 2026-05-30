@@ -122,6 +122,7 @@ export const useSettingsStore = defineStore('settings', {
     /**
      * Fetch settings from backend and merge into local state.
      * Backend settings take priority for cross-device consistency.
+     * If backend has no settings but local does, push local up (migration).
      */
     async _mergeSettingsFromBackend() {
       try {
@@ -131,8 +132,13 @@ export const useSettingsStore = defineStore('settings', {
         }
         const response = await sdk.getUserInformation();
         const backendSettings = response?.user_info?.settings;
-        if (!backendSettings) {
-          console.log('[SettingsStore] No backend settings found, using local');
+
+        const hasBackendSettings = backendSettings && Object.keys(backendSettings).length > 0;
+
+        if (!hasBackendSettings) {
+          // Backend has no settings yet — push local settings up (one-time migration)
+          console.log('[SettingsStore] No backend settings found, pushing local settings to backend');
+          await this._syncSettingsToBackend();
           return;
         }
 
