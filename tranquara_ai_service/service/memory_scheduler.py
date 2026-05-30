@@ -42,9 +42,11 @@ RUN_ON_STARTUP = os.getenv("MEMORY_RUN_ON_STARTUP", "false").lower() in (
 scheduler = AsyncIOScheduler()
 
 
-async def _fetch_active_users(since: str) -> list[str]:
-    """Fetch user IDs with recent journal activity from Go backend.
-    This must call Go because Qdrant doesn't track per-user activity timestamps."""
+async def _fetch_active_users(since: str) -> list[dict]:
+    """Fetch users with recent journal activity and their language preferences from Go backend.
+    This must call Go because Qdrant doesn't track per-user activity timestamps.
+    Returns list of dicts: [{"user_id": "...", "language": "vi"}, ...]
+    """
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             response = await client.get(
@@ -54,7 +56,11 @@ async def _fetch_active_users(since: str) -> list[str]:
             )
             response.raise_for_status()
             data = response.json()
-            return data.get("user_ids", [])
+            users = data.get("users", [])
+            # Support legacy format (just user_ids) for backward compatibility
+            if not users and data.get("user_ids"):
+                return [{"user_id": uid, "language": "en"} for uid in data["user_ids"]]
+            return users
     except Exception as e:
         print(f"[memory-scheduler] Error fetching active users: {e}")
         return []
@@ -132,9 +138,15 @@ def _detect_dominant_language(journals: list[dict]) -> str:
         return "en"
 
 
-async def process_user_memories(user_id: str, since: str) -> bool:
+async def process_user_memories(user_id: str, since: str, preferred_language: str = "") -> bool:
     """
     Process a single user: fetch journals, extract memories, store + index.
+
+    Args:
+        user_id: The user's UUID
+        since: ISO timestamp to fetch journals from
+        preferred_language: User's preferred language from settings (e.g. 'vi', 'en').
+                           If provided, this overrides journal language detection.
 
     Returns True on success, False on error (so the caller can count errors).
     Raises exceptions so the caller can differentiate success vs failure.
@@ -147,8 +159,14 @@ async def process_user_memories(user_id: str, since: str) -> bool:
     # 2. Fetch existing memories from Qdrant (for dedup prompt context)
     existing_contents = _get_existing_memories_from_qdrant(user_id)
 
-    # 3. Detect dominant language from journals
-    dominant_language = _detect_dominant_language(journals)
+    # 3. Determine language for memory extraction
+    # Use user's preferred language from settings if available, otherwise detect from journals
+    if preferred_language and preferred_language in ("vi", "en"):
+        language = preferred_language
+        print(f"[memory-scheduler] User {user_id}: using preferred language '{language}' from settings")
+    else:
+        language = _detect_dominant_language(journals)
+        print(f"[memory-scheduler] User {user_id}: detected language '{language}' from journal content")
 
     # 4. Extract new memories via GPT (reuse singleton)
     ai_processor = AIProcessor.get_instance()
@@ -156,7 +174,7 @@ async def process_user_memories(user_id: str, since: str) -> bool:
         user_id=user_id,
         journal_entries=journals,
         existing_memories=existing_contents,
-        language=dominant_language,
+        language=language,
     )
 
     if not new_memories:
@@ -201,24 +219,29 @@ async def run_memory_generation():
     since = (datetime.now(timezone.utc) -
              timedelta(minutes=5)).isoformat()
 
-    # 1. Get users with recent journal activity
-    user_ids = await _fetch_active_users(since)
-    if not user_ids:
+    # 1. Get users with recent journal activity and their language preferences
+    users = await _fetch_active_users(since)
+    if not users:
         print("[memory-scheduler] No active users found, skipping cycle")
         return
 
-    print(f"[memory-scheduler] Processing {len(user_ids)} active users")
+    print(f"[memory-scheduler] Processing {len(users)} active users")
 
     # 2. Process each user (sequentially to avoid rate limits)
     success_count = 0
     error_count = 0
-    for user_id in user_ids:
+    for user in users:
         try:
-            await process_user_memories(user_id, since)
+            user_id = user.get("user_id", "")
+            preferred_language = user.get("language", "")
+            if not user_id:
+                continue
+            await process_user_memories(user_id, since, preferred_language)
             success_count += 1
         except Exception as e:
             error_count += 1
-            print(f"[memory-scheduler] Failed for user {user_id}: {e}")
+            user_id_str = user.get("user_id", "unknown") if isinstance(user, dict) else str(user)
+            print(f"[memory-scheduler] Failed for user {user_id_str}: {e}")
             traceback.print_exc()
 
     print(

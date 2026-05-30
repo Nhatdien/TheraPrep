@@ -78,6 +78,9 @@ export const getJournalContentPreview = (content: string): string => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(content, 'text/html');
 
+      // Strip sleep entries — they already have a dedicated tag in the card UI
+      doc.querySelectorAll('[data-sleep-entry="true"]').forEach((el) => el.remove());
+
       // ── 1. Structured format (.journal-entry/.journal-question/.journal-answer) ──
       const firstEntry = doc.querySelector('.journal-entry');
       if (firstEntry) {
@@ -131,8 +134,10 @@ export const getJournalContentPreview = (content: string): string => {
   }
 
   // ── Server-side / parsing failure: regex extraction ──
-  const qMatch = content.match(/<h3[^>]*class="journal-question"[^>]*>(.*?)<\/h3>/);
-  const aMatch = content.match(/<p[^>]*class="journal-answer"[^>]*>([\s\S]*?)<\/p>/);
+  // Strip sleep entry blocks so they don't show in card previews
+  const contentWithoutSleep = content.replace(/<div[^>]*data-sleep-entry="true"[^>]*>[\s\S]*?<\/div>/gi, '');
+  const qMatch = contentWithoutSleep.match(/<h3[^>]*class="journal-question"[^>]*>(.*?)<\/h3>/);
+  const aMatch = contentWithoutSleep.match(/<p[^>]*class="journal-answer"[^>]*>([\s\S]*?)<\/p>/);
   if (qMatch && aMatch) {
     const q = qMatch[1].replace(/<[^>]*>/g, '').trim();
     const a = aMatch[1].replace(/<[^>]*>/g, '').trim();

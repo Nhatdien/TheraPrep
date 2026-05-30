@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-center h-full px-4">
+  <div class="flex flex-col items-center justify-center min-h-full px-4">
     <h2 class="text-2xl font-bold mb-4 text-center text-highlighted">{{ displayQuestion }}</h2>
     <p class="text-sm text-muted mb-6 text-center">{{ $t('slide.moodInstruction') }}</p>
     <EmotionSliderV2 v-model="moodValue" />

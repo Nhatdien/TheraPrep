@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full px-4">
+  <div class="flex flex-col min-h-full px-4">
     <h2 class="text-2xl font-bold mb-2 text-center text-highlighted">
       {{ displayQuestion }}
     </h2>

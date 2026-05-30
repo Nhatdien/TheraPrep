@@ -158,6 +158,43 @@ export const useSettingsStore = defineStore('settings', {
     async setLanguage(locale: AppLocale) {
       this.global.personalization.language = locale;
       await this._saveGlobal();
+      // Sync language preference to backend for AI memory generation
+      this._syncLanguageToBackend(locale).catch((err) => {
+        console.warn('[SettingsStore] Failed to sync language to backend:', err);
+      });
+    },
+
+    /**
+     * Sync language preference to backend user_information.settings.
+     * This ensures AI-generated memories use the user's preferred language.
+     * Sends the full global settings to preserve other settings on the backend.
+     */
+    async _syncLanguageToBackend(locale: AppLocale) {
+      try {
+        const sdk = await import('../tranquara_sdk').then(m => m.default.getInstance());
+        if (!sdk.config.access_token) {
+          console.log('[SettingsStore] No access token, skipping language sync');
+          return;
+        }
+        await sdk.updateUserInformation({
+          settings: {
+            personalization: {
+              theme: this.global.personalization.theme,
+              font_size: this.global.personalization.font_size,
+              reduce_motion: this.global.personalization.reduce_motion,
+              language: locale,
+            },
+            ai_privacy: {
+              ai_enabled: this.global.ai_privacy.ai_enabled,
+              your_story: this.global.ai_privacy.your_story,
+              data_collection: this.global.ai_privacy.data_collection,
+            },
+          },
+        });
+        console.log('[SettingsStore] Language synced to backend:', locale);
+      } catch (error) {
+        console.warn('[SettingsStore] Language sync to backend failed:', error);
+      }
     },
 
     // ─── AI & Privacy Actions ───────────────────────────────────────────

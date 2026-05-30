@@ -1,5 +1,5 @@
 <template>
-  <section class="flex flex-col items-center justify-center h-full px-4">
+  <section class="flex flex-col items-center justify-center min-h-full px-4">
     <h2 class="text-2xl sm:text-3xl font-semibold text-center text-highlighted mb-2">{{ displayQuestion }}</h2>
     <p class="text-sm text-toned text-center mb-8">{{ displayDescription }}</p>
 
@@ -36,10 +36,16 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  initialContent: {
+    type: String,
+    default: '',
+  },
 });
 
 const store = userJournalStore();
-const sleepScore = ref(70);
+const sleepScore = ref(
+  props.initialContent ? Number(props.initialContent) : (store.currentSleepScore ?? 70)
+);
 const displayQuestion = computed(() =>
   props.content?.question || props.content?.question_content || t('slide.sleepQuestion')
 );
@@ -69,7 +75,10 @@ watch(sleepScore, (val) => {
 // Initialise currentSleepScore to the default so it's available if the user
 // finishes without touching the slider, but do NOT write to currentWritingContent
 // here — that would make isEmptyJournal() return false even with no real input.
+// Only set if not already initialised (prevents overwriting when remounting).
 onMounted(() => {
-  store.currentSleepScore = sleepScore.value;
+  if (store.currentSleepScore === null || store.currentSleepScore === undefined) {
+    store.currentSleepScore = sleepScore.value;
+  }
 });
 </script>
