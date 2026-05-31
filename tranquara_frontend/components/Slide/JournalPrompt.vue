@@ -12,12 +12,18 @@
       v-model="currentNote" />
     
     <!-- Go Deeper with Direction Selection -->
-    <div class="mt-5 flex justify-end" v-if="hasContent">
+    <div class="mt-5 flex justify-end" v-if="hasContent && !isGeneratingQuestion">
       <JournalGoDeepDirections
         :loading="isGeneratingQuestion"
         :disabled="!hasContent || isGeneratingQuestion"
         @select="handleGoDeeper"
       />
+    </div>
+
+    <!-- Persistent AI loading indicator (visible outside slideover) -->
+    <div v-if="isGeneratingQuestion" class="mt-4 flex items-center justify-center gap-2 text-sm text-muted">
+      <span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <span>{{ $t('goDeeper.thinking') }}</span>
     </div>
   </div>
 </template>
@@ -112,7 +118,7 @@ const handleGoDeeper = async (direction: string) => {
         .insertContent('<p></p>', {
           contentType: 'html',
         })
-        .insertContent(`<p class="ai-suggestion" style="color: #888; font-style: italic;">${response.question}</p>`, {
+        .insertContent(`<p class="ai-suggestion text-muted italic">${response.question}</p>`, {
           contentType: 'html',
         })
         .insertContent('<p></p>', {

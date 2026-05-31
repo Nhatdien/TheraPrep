@@ -2,7 +2,7 @@
   <div class="flex flex-col min-h-screen bg-background">
     <!-- Header -->
     <header
-      class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+      class="flex items-center justify-between p-4 border-b border-default">
       <UButton
         variant="ghost"
         icon="i-lucide-arrow-left"
@@ -21,7 +21,7 @@
         v-model="title"
         type="text"
         :placeholder="$t('journal.titlePlaceholder')"
-        class="w-full text-xl font-semibold bg-transparent border-none outline-none placeholder-gray-400 dark:placeholder-gray-600" />
+         class="w-full text-xl font-semibold bg-transparent border-none outline-none placeholder-muted" />
     </div>
 
     <!-- Date Display -->
@@ -39,11 +39,11 @@
 
     <!-- Bottom Toolbar -->
     <div
-      class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-gray-200 dark:border-gray-800 p-4 flex flex-wrap items-center justify-between gap-y-2">
+      class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-default p-4 flex flex-wrap items-center justify-between gap-y-2">
       <div class="flex items-center gap-2 flex-wrap">
         <!-- Mood Selector -->
         <UButton variant="ghost" size="sm" @click="showMoodPicker = true" class="shrink-0">
-          <span class="text-lg">{{ selectedMoodEmoji }}</span>
+          <UIcon :name="selectedMoodIcon" class="text-lg" />
           <span class="ml-1 text-sm text-muted truncate max-w-[120px] sm:max-w-[180px]">{{ moodLabel }}</span>
         </UButton>
 
@@ -135,13 +135,11 @@ const hasContent = computed(() => {
   return stripped.length > 0;
 });
 
-const selectedMoodEmoji = computed(() => {
+const selectedMoodIcon = computed(() => {
   const v = moodScore.value;
-  if (v <= 2) return "😢";
-  if (v <= 4) return "😔";
-  if (v <= 6) return "😐";
-  if (v <= 8) return "🙂";
-  return "😃";
+  if (v <= 4) return 'i-lucide-frown';
+  if (v <= 6) return 'i-lucide-meh';
+  return 'i-lucide-smile';
 });
 
 // Mood labels for 1-10 scale (use i18n)
@@ -203,7 +201,7 @@ const handleGoDeeper = async () => {
         .focus("end")
         .insertContent("<p></p>") // Add empty line
         .insertContent(
-          `<p class="ai-suggestion" style="color: #888; font-style: italic;">${response.question}</p>`,
+          `<p class="ai-suggestion text-muted italic">${response.question}</p>`,
         )
         .insertContent("<p></p>") // Add empty line for user to type
         .run();

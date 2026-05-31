@@ -35,11 +35,11 @@
             <div v-if="activeSlide.type === 'emotion_log'" class="space-y-3">
               <p class="text-sm">{{ getLocalizedText(activeSlide, 'question') }}</p>
               <div class="flex items-center gap-2">
-                <span class="text-xs">😢</span>
+                <UIcon name="i-lucide-frown" class="text-xs" />
                 <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
                   <div class="h-2 bg-primary-500 rounded-full" style="width: 70%"></div>
                 </div>
-                <span class="text-xs">😊</span>
+                <UIcon name="i-lucide-smile" class="text-xs" />
               </div>
               <div v-if="activeSlide.config?.labels" class="text-center text-xs text-gray-500">
                 {{ activeSlide.config.labels[6] }} (7/10)

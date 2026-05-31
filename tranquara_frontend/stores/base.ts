@@ -90,10 +90,14 @@ export abstract class Base {
     callback();
   };
 
-  protected async fetch<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
+  protected async fetch<T>(input: RequestInfo, init?: RequestInit, timeoutMs = 30000): Promise<T> {
     // Add default headers
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
     const defaultProperty: RequestInit = {
       ...init,
+      signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
         "Accept-Language": this.config.locale || "en",
@@ -104,36 +108,33 @@ export abstract class Base {
       },
     };
 
-    // Merge default headers with any headers passed in init
+    try {
+      const response = await fetch(input, defaultProperty);
+      clearTimeout(timeoutId);
 
-    return new Promise((resolve, reject) => {
-      fetch(input, defaultProperty)
-        .then((response: Response) => {
-          if (response.status !== 200) {
-            if (response.status === 401) {
- 
-              throw new Error("401 Unauthorized");
-            }
-            else if (response.status >= 400) {
-              createNotify(response);
-              throw new Error(response.statusText + response.status);
-            }
-          }
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            return response.json();
-          } else {
-            return response.text();
-          }
-        })
-        .then((data) => {
-          resolve(data);
-        })
-        .catch((error: Error) => {
-          this.onError(error);
-          reject(error);
-          throw new Error(error.message);
-        });
-    });
+      if (response.status !== 200) {
+        if (response.status === 401) {
+          throw new Error("401 Unauthorized");
+        } else if (response.status >= 400) {
+          createNotify(response);
+          throw new Error(response.statusText + response.status);
+        }
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return await response.json() as T;
+      } else {
+        return await response.text() as unknown as T;
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      const err = error instanceof Error ? error : new Error(String(error));
+      if (err.name === "AbortError") {
+        err.message = "Request timeout";
+      }
+      this.onError(err);
+      throw err;
+    }
   }
 }

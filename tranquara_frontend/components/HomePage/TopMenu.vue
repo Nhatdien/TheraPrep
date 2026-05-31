@@ -3,7 +3,7 @@
     <div class="flex flex-col justify-center items-start w-full gap-y-4">
       <h1>
         {{ greeting }}
-        {{ $tranquaraSDK.config.current_username }} 👋
+        {{ $tranquaraSDK.config.current_username }} <UIcon name="i-lucide-waves" class="inline-block w-5 h-5 text-primary" />
       </h1>
       <div class="flex flex-col gap-4 w-full">
         <UCard variant="soft" class="flex-1 shadow-2xl" size="xl">

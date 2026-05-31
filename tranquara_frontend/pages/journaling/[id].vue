@@ -20,7 +20,7 @@
     <!-- Free-form Edit Mode (for journals without collection_id) -->
     <div v-else-if="isEditing && journal" class="flex flex-col min-h-screen bg-background">
       <!-- Header -->
-      <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 md:px-6 xl:px-8">
+      <header class="flex items-center justify-between p-4 border-b border-default md:px-6 xl:px-8">
         <UButton variant="ghost" icon="i-lucide-arrow-left" @click="onEditClosed" />
         <h1 class="text-lg font-semibold md:text-xl">{{ $t('journal.editJournal') }}</h1>
         <UButton variant="ghost" icon="i-lucide-check" @click="saveAndClose" :disabled="!hasContent" />
@@ -34,7 +34,7 @@
               v-model="title"
               type="text"
               :placeholder="$t('journal.titlePlaceholder')"
-              class="w-full text-xl md:text-2xl font-semibold bg-transparent border-none outline-none placeholder-gray-400 dark:placeholder-gray-600"
+              class="w-full text-xl md:text-2xl font-semibold bg-transparent border-none outline-none placeholder-muted"
             />
           </div>
 
@@ -66,7 +66,7 @@
       </div>
 
       <!-- Bottom Toolbar -->
-      <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-gray-200 dark:border-gray-800 p-4 flex flex-wrap items-center justify-between gap-y-2 xl:hidden">
+      <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-default p-4 flex flex-wrap items-center justify-between gap-y-2 xl:hidden">
         <div class="flex items-center gap-2 flex-wrap">
           <!-- Mood Selector -->
           <UButton 
@@ -75,7 +75,7 @@
             @click="showMoodPicker = true"
             class="shrink-0"
           >
-            <span class="text-lg">{{ selectedMoodEmoji }}</span>
+            <UIcon :name="selectedMoodIcon" class="text-lg" />
             <span class="ml-1 text-sm text-muted truncate max-w-[120px] sm:max-w-[180px]">{{ moodLabel }}</span>
           </UButton>
           
@@ -202,13 +202,11 @@ const hasContent = computed(() => {
   return stripped.length > 0;
 });
 
-const selectedMoodEmoji = computed(() => {
+const selectedMoodIcon = computed(() => {
   const v = moodScore.value;
-  if (v <= 2) return "😢";
-  if (v <= 4) return "😔";
-  if (v <= 6) return "😐";
-  if (v <= 8) return "🙂";
-  return "😃";
+  if (v <= 4) return 'i-lucide-frown';
+  if (v <= 6) return 'i-lucide-meh';
+  return 'i-lucide-smile';
 });
 
 const computedMoodLabel = computed(() => t(`journal.moodLabels.${moodScore.value}`) || t('journal.moodLabels.5'));
@@ -294,7 +292,7 @@ const handleGoDeeper = async (direction: string) => {
         .chain()
         .focus('end')
         .insertContent('<p></p>')
-        .insertContent('<p class="ai-suggestion" style="color: #888; font-style: italic;">' + response.question + '</p>')
+        .insertContent('<p class="ai-suggestion text-muted italic">' + response.question + '</p>')
         .insertContent('<p></p>')
         .run();
     }
