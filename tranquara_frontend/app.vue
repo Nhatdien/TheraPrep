@@ -9,6 +9,9 @@
 <script setup lang="ts">
 import { useSettingsStore } from "~/stores/stores/settings_store";
 import type { FontSize } from "~/types/settings";
+import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
+import { Browser } from '@capacitor/browser';
 
 const config = useRuntimeConfig();
 const settingsStore = useSettingsStore();
@@ -48,6 +51,20 @@ onMounted(async () => {
   // await waitForToken();
   // userJournalStore().getAllTemplates();
   // userInfoStore.getMe();
+
+  if (Capacitor.isNativePlatform()) {
+    App.addListener('appUrlOpen', async ({ url }) => {
+      if (url.includes('/oauth/google/callback')) {
+        try {
+          await Browser.close();
+        } catch {
+          // Browser may already be closed
+        }
+        const urlObj = new URL(url);
+        await navigateTo(`/oauth/google/callback?${urlObj.searchParams.toString()}`, { replace: true });
+      }
+    });
+  }
 });
 </script>
 <style>

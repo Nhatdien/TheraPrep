@@ -144,7 +144,10 @@
 </template>
 
 <script setup lang="ts">
+import { Capacitor } from '@capacitor/core';
+import { AppLauncher } from '@capacitor/app-launcher';
 import { useAuthStore } from '~/stores/stores/auth_store';
+import { storage } from '~/utils/storage';
 
 // Define page meta (use auth layout)
 definePageMeta({
@@ -191,8 +194,32 @@ const handleLogin = async () => {
 };
 
 const handleGoogleLogin = async () => {
-  const redirectUri = `${window.location.origin}/oauth/google/callback`;
+  const isNative = Capacitor.isNativePlatform();
+  let redirectUri: string;
+
+  if (isNative) {
+    // Use custom URL scheme for Capacitor so the OS routes the OAuth callback back into the app
+    redirectUri = 'com.example.myapp://oauth/google/callback';
+  } else {
+    redirectUri = `${window.location.origin}/oauth/google/callback`;
+  }
+
+  // Persist the redirect URI so the callback page can use the exact same value
+  await storage.set('oauth_redirect_uri', redirectUri);
+
+  console.log('[OAuth] redirect_uri:', redirectUri);
+
   const oauthUrl = await authStore.getGoogleOAuthStartURL(redirectUri);
-  window.location.href = oauthUrl;
+
+  if (isNative) {
+    // Open system browser (not Custom Tabs) to avoid MIUI 14 black screen
+    const { completed } = await AppLauncher.openUrl({ url: oauthUrl });
+    if (!completed) {
+      // Fallback to window.open if app launcher fails
+      window.open(oauthUrl, '_blank');
+    }
+  } else {
+    window.location.href = oauthUrl;
+  }
 };
 </script>

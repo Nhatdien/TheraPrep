@@ -38,7 +38,7 @@
       }">
         <div
           :key="currentIndex"
-          class="h-[70vh] max-h-[760px] lg:h-[64vh] rounded-2xl border border-default/60 bg-default shadow-sm flex flex-col">
+          class="h-[70vh] max-h-[760px] lg:h-[64vh] rounded-2xl border border-default/60 bg-default shadow-sm flex flex-col overflow-hidden">
           <!-- Per-slide illustration (shown when slide has illustration field) -->
           <div
             v-if="(item as any)?.illustration"

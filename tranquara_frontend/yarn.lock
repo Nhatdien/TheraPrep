@@ -356,6 +356,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/app-launcher@npm:^7.0.0":
+  version: 7.0.4
+  resolution: "@capacitor/app-launcher@npm:7.0.4"
+  peerDependencies:
+    "@capacitor/core": ">=7.0.0"
+  checksum: 10c0/c8071f75122dd2cc327f7d3e4f294d049e721d146cfb533c07e60f667bdafe319510630e42f4f444d2a1cb840fcf69dcc589bb3ce2eb46f1dd2857e3c0b606c1
+  languageName: node
+  linkType: hard
+
 "@capacitor/app@npm:^7.0.0":
   version: 7.1.2
   resolution: "@capacitor/app@npm:7.1.2"
@@ -12992,6 +13001,7 @@ __metadata:
     "@capacitor-community/sqlite": "npm:^7.0.2"
     "@capacitor/android": "npm:^7.0.0"
     "@capacitor/app": "npm:^7.0.0"
+    "@capacitor/app-launcher": "npm:^7.0.0"
     "@capacitor/assets": "npm:^3.0.5"
     "@capacitor/browser": "npm:^7.0.0"
     "@capacitor/cli": "npm:^7.0.0"
