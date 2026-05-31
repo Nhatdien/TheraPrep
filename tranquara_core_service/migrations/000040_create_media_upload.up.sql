@@ -4,7 +4,7 @@
 -- media_files: metadata for all uploaded files
 CREATE TABLE IF NOT EXISTS media_files (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL,
     filename TEXT NOT NULL,
     content_type TEXT NOT NULL,
     size_bytes BIGINT NOT NULL,
@@ -21,7 +21,7 @@ CREATE INDEX idx_media_files_r2_key ON media_files(r2_key);
 -- journal_entry_media: links media files to journal entry slides
 CREATE TABLE IF NOT EXISTS journal_entry_media (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    journal_entry_id UUID NOT NULL REFERENCES journal_entries(id) ON DELETE CASCADE,
+    journal_entry_id UUID NOT NULL REFERENCES user_journals(id) ON DELETE CASCADE,
     media_file_id UUID NOT NULL REFERENCES media_files(id) ON DELETE CASCADE,
     slide_index INTEGER NOT NULL DEFAULT 0,
     position INTEGER NOT NULL DEFAULT 0,
