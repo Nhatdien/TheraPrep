@@ -447,7 +447,13 @@
       "fair": "Tạm được",
       "rested": "Ngủ đủ giấc",
       "refreshed": "Tỉnh táo, tràn đầy năng lượng"
-    }
+    },
+    "addPhoto": "Thêm ảnh",
+    "maxPhotosReached": "Tối đa {max} ảnh cho mỗi phần",
+    "imageTooLarge": "Ảnh quá lớn. Kích thước tối đa: {size}MB",
+    "unsupportedFormat": "Định dạng không hỗ trợ. Dùng JPEG, PNG, WebP hoặc GIF",
+    "uploadFailed": "Tải lên thất bại. Vui lòng thử lại.",
+    "Nphotos": "{count} ảnh"
   },
   "onboarding": {
     "profile": "Hồ sơ",
@@ -501,7 +507,7 @@
     "guidedFlow": "Nhật ký theo hướng dẫn",
     "finish": "Hoàn tất",
     "continue": "Tiếp tục",
-      "moodInstruction": "Kéo thanh trượt cho biết bạn đang cảm thấy thế nào",
+    "moodInstruction": "Kéo thanh trượt cho biết bạn đang cảm thấy thế nào",
     "defaultMoodQuestion": "Bạn đang cảm thấy thế nào?",
     "sleepQuestion": "Đêm qua bạn ngủ thế nào?",
     "journalDefaultQuestion": "Bạn đang nghĩ về điều gì?",
@@ -975,6 +981,3 @@
     }
   }
 }
-
-
-

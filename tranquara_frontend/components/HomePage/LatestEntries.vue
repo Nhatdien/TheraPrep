@@ -60,6 +60,9 @@
 
       <!-- Content Preview (first Q&A pair) -->
       <div class="text-sm text-muted" v-html="getContentPreview(userJournalStore().journals[0].content)"></div>
+
+      <!-- Media thumbnails -->
+      <MediaCardPreview v-if="userJournalStore().journals[0].media?.length" :images="userJournalStore().journals[0].media" mode="homepage" />
     </div>
 
     <!-- Remaining Entry Cards -->
@@ -110,6 +113,9 @@
 
       <!-- Content Preview (first Q&A pair) -->
       <div class="text-sm text-muted" v-html="getContentPreview(journal.content)"></div>
+
+      <!-- Media thumbnails -->
+      <MediaCardPreview v-if="journal.media?.length" :images="journal.media" mode="homepage" />
     </div>
 
     <!-- Empty State -->

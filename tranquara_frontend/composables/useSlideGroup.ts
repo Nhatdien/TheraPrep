@@ -172,7 +172,11 @@ export const useSlideGroup = (props?: {
     useRouter().back()
   };
 
-  const saveJournal = async (journal: CreateJournalRequest, slideGroupId?: string | null) => {
+  const saveJournal = async (
+    journal: CreateJournalRequest,
+    slideGroupId?: string | null,
+    media?: Array<{ id: string; url: string; alt?: string }>
+  ) => {
     try {
       console.log("[saveJournal] Saving journal:", journal, "slideGroupId:", slideGroupId);
       
@@ -190,6 +194,7 @@ export const useSlideGroup = (props?: {
         mood_score: journal.mood_score || 0,
         mood_label: journal.mood_label || "neutral",
         sleep_score: journal.sleep_score,
+        media,
       });
 
       console.log("[saveJournal] Journal saved:", newJournal.id);

@@ -26,8 +26,10 @@
           :index="carouselItems.indexOf(item as CarouselSlideItem)"
           :content="(item as CarouselSlideItem)?.content"
           :initialContent="(item as CarouselSlideItem)?.prefillContent"
+          :initialMedia="(item as CarouselSlideItem)?.initialMedia"
           :slideGroupContext="activeSlideGroup"
-          :collectionTitle="currentCollecton?.title"></component>
+          :collectionTitle="currentCollecton?.title"
+        ></component>
       </div>
     </UCarousel>
 
@@ -60,11 +62,13 @@ import Questionnaire from "~/components/Slide/Questionnaire.vue";
 import CompletionSlide from "~/components/Slide/CompletionSlide.vue";
 import { parseJournalHtml } from "~/utils/journal";
 import type { LocalJournal } from "~/types/user_journal";
+import { useMediaUpload } from "~/composables/useMediaUpload";
 
 interface CarouselSlideItem {
   content: any;
   currentNote: string;
   prefillContent: string;
+  initialMedia: Array<{ id: string; url: string; alt?: string }>;
 }
 
 const props = defineProps<{
@@ -128,6 +132,11 @@ store.currentJournal = props.journal;
 const prefillData = parseJournalContent(props.journal.content_html || props.journal.content);
 store.currentWritingContent = prefillData;
 
+// Pre-populate slide media from journal (all media goes to slide 0 since local storage doesn't track slide_index)
+if (props.journal.media?.length) {
+  store.currentSlideMedia[0] = [...props.journal.media];
+}
+
 const componentMapping: Record<string, any> = {
   doc: Document,
   journal_prompt: JournalPrompt,
@@ -147,17 +156,18 @@ const renderSlide = (type: string) => {
   return componentMapping[type] || componentMapping.journal_prompt;
 }
 
-// Build carousel items with prefilled content
+// Build carousel items with prefilled content and media
 const carouselItems = computed((): CarouselSlideItem[] => {
   const slides = activeSlideGroup.value?.slides || (activeSlideGroup.value as any)?.content || [];
   const prefillData = parseJournalContent(props.journal.content_html || props.journal.content);
   
-  return slides.map((slide: any) => {
+  return slides.map((slide: any, index: number) => {
     const question = slide.question || slide.question_content;
     return {
       content: slide,
       currentNote: "",
       prefillContent: prefillData[question] || "",
+      initialMedia: store.currentSlideMedia[index] || props.journal.media || [],
     };
   });
 });
@@ -194,7 +204,20 @@ const saveJournalChanges = async () => {
     
     const newContent = generateJournalHtml(store.currentWritingContent);
     
-    await store.updateJournal({
+    // Collect per-slide media from store
+    const slideMedia = store.currentSlideMedia;
+    const allMedia: Array<{ id: string; url: string; alt?: string }> = [];
+    const slides: Array<{ slide_index: number; media_ids: string[] }> = [];
+    
+    Object.entries(slideMedia).forEach(([slideIndex, media]) => {
+      if (media && media.length > 0) {
+        const idx = parseInt(slideIndex, 10);
+        slides.push({ slide_index: idx, media_ids: media.map(m => m.id) });
+        allMedia.push(...media);
+      }
+    });
+    
+    const updated = await store.updateJournal({
       id: props.journal.id,
       title: props.journal.title,
       content: newContent,
@@ -202,7 +225,18 @@ const saveJournalChanges = async () => {
       mood_score: store.currentMoodScore,
       mood_label: store.currentMoodLabel,
       sleep_score: store.currentSleepScore,
+      media: allMedia,
     });
+    
+    // Attach media to journal on server if online and has server_id
+    if (props.journal.server_id && slides.length > 0) {
+      try {
+        const { attachToJournal } = useMediaUpload();
+        await attachToJournal(props.journal.server_id, slides);
+      } catch (mediaErr) {
+        console.warn('[EditModal] Media attach failed:', mediaErr);
+      }
+    }
     
     // Clear session
     clearSession();
@@ -216,6 +250,7 @@ const saveJournalChanges = async () => {
 };
 
 const closeWithoutSaving = () => {
+  store.clearSlideMedia();
   clearSession();
   emit('closed');
 };
@@ -223,6 +258,7 @@ const closeWithoutSaving = () => {
 const clearSession = () => {
   store.currentWritingContent = {};
   store.currentJournal = null;
+  store.clearSlideMedia();
   useTiptapEditorStore().editors = [];
 };
 </script>

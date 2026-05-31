@@ -152,6 +152,7 @@ export type LocalJournal = Journal & {
   needs_sync: 0 | 1;              // Boolean as integer
   synced_at?: string | null;      // ISO 8601 when last synced
   is_deleted: 0 | 1;              // Soft delete flag
+  media?: Array<{ id: string; url: string; alt?: string }>;  // Attached media images with backend IDs
 }
 
 export type LocalTemplate = JournalTemplate & {

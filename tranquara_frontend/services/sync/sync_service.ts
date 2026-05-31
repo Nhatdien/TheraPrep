@@ -9,6 +9,7 @@ import NetworkMonitor from './network_monitor';
 import SyncQueue from './sync_queue';
 import JournalsRepository from '../sqlite/journals_repository';
 import TranquaraSDK from '~/stores/tranquara_sdk';
+import { useMediaUpload } from '~/composables/useMediaUpload';
 import type { LocalJournal } from '~/types/user_journal';
 
 export type SyncCallback = (status: SyncStatus) => void;
@@ -192,6 +193,20 @@ export class SyncService {
       
       // Mark as synced in local database
       await JournalsRepository.markAsSynced(journal.id, response.id);
+      
+      // Attach media to journal on server if media exists
+      if (journal.media && journal.media.length > 0 && response.id) {
+        try {
+          const { attachToJournal } = useMediaUpload();
+          await attachToJournal(response.id, [
+            { slide_index: 0, media_ids: journal.media.map(m => m.id) }
+          ]);
+          console.log('[SyncService] Media attached to journal:', response.id);
+        } catch (mediaError) {
+          console.warn('[SyncService] Failed to attach media (will retry on next sync):', mediaError);
+          // Don't throw — media attachment failure shouldn't fail the whole sync
+        }
+      }
       
       console.log('[SyncService] Journal synced successfully:', journal.id, '→', response.id);
     } catch (error) {

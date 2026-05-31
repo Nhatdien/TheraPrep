@@ -35,6 +35,16 @@
         ref="editorRef"
         v-model="content"
         @on-update="onContentUpdate" />
+
+      <!-- Media attachments -->
+      <MediaUploader
+        :max-images="5"
+        :current-count="attachedMedia.length"
+        class="mt-3"
+        @uploaded="onMediaUploaded"
+        @removed="onMediaRemoved"
+        @error="(msg: string) => console.warn('Media:', msg)"
+      />
     </div>
 
     <!-- Bottom Toolbar -->
@@ -88,6 +98,7 @@ import { useAuthStore } from "~/stores/stores/auth_store";
 import EmotionSliderV2 from "~/components/Common/EmotionSliderV2.vue";
 import TranquaraSDK from "~/stores/tranquara_sdk";
 import { useAIGuard } from "~/composables/useAIGuard";
+import { useMediaUpload } from "~/composables/useMediaUpload";
 
 definePageMeta({
   layout: "detail",
@@ -110,6 +121,8 @@ const editorRef = ref<any>(null);
 const autoSaveStatus = ref("ready");
 const lastSavedAt = ref<Date | null>(null);
 const isGeneratingQuestion = ref(false);
+const attachedMedia = ref<Array<{ id: string; url: string; alt?: string }>>([]);
+const { attachToJournal } = useMediaUpload();
 
 // Map autoSaveStatus keys to i18n
 const autoSaveStatusText = computed(() => {
@@ -167,6 +180,14 @@ const onContentUpdate = () => {
 const confirmMood = () => {
   moodLabel.value = computedMoodLabel.value;
   showMoodPicker.value = false;
+};
+
+const onMediaUploaded = (mediaId: string, url: string) => {
+  attachedMedia.value.push({ id: mediaId, url });
+};
+
+const onMediaRemoved = (mediaId: string) => {
+  attachedMedia.value = attachedMedia.value.filter((m) => m.id !== mediaId);
 };
 
 const handleGoDeeper = async () => {
@@ -233,14 +254,26 @@ const saveAndClose = async () => {
       await journalStore.initializeDatabase();
     }
 
-    await journalStore.createJournal({
+    const newJournal = await journalStore.createJournal({
       collection_id: null, // Free-form journal has no collection
       title: title.value || t("journal.untitledJournal"),
       content: content.value,
       content_html: content.value, // For free-form, content IS html
       mood_score: moodScore.value,
       mood_label: moodLabel.value,
+      media: attachedMedia.value,
     });
+
+    // Attach media to journal on server if online
+    if (newJournal?.server_id && attachedMedia.value.length > 0) {
+      try {
+        await attachToJournal(newJournal.server_id, [
+          { slide_index: 0, media_ids: attachedMedia.value.map((m) => m.id) },
+        ]);
+      } catch (mediaErr) {
+        console.warn('[FreeformJournal] Media attach failed:', mediaErr);
+      }
+    }
 
     autoSaveStatus.value = "saved";
 

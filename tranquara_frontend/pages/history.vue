@@ -221,6 +221,9 @@
 
             <!-- Content Preview -->
             <div v-if="getJournalContentPreview(entry.content)" class="text-sm text-muted" v-html="getJournalContentPreview(entry.content)"></div>
+
+            <!-- Media thumbnails -->
+            <MediaCardPreview v-if="entry.media?.length" :images="entry.media" mode="history" />
           </div>
         </div>
       </div>

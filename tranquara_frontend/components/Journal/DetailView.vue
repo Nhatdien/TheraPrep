@@ -59,6 +59,9 @@
       <div class="prose dark:prose-invert max-w-none md:max-w-prose journal-content" :class="{ 'hide-sleep-entries': journal.sleep_score !== null && journal.sleep_score !== undefined }">
         <div v-html="journal.content_html || journal.content"></div>
       </div>
+
+      <!-- Media Grid -->
+      <MediaGrid v-if="journal.media?.length" :images="journal.media.map(m => ({ id: m.id, url: m.url, alt: m.alt || '' }))" />
     </main>
 
     <!-- Delete Confirmation Modal -->

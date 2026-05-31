@@ -62,8 +62,8 @@ export class JournalsRepository {
     const query = `
       INSERT INTO user_journals (
         id, server_id, user_id, collection_id, title, content, content_html,
-        mood_score, mood_label, sleep_score, created_at, updated_at, needs_sync, synced_at, is_deleted
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        mood_score, mood_label, sleep_score, created_at, updated_at, needs_sync, synced_at, is_deleted, media
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
 
     await db.run(query, [
@@ -82,6 +82,7 @@ export class JournalsRepository {
       newJournal.needs_sync,
       newJournal.synced_at || null,
       newJournal.is_deleted,
+      newJournal.media ? JSON.stringify(newJournal.media) : null,
     ]);
 
     // Persist to IndexedDB (web platform)
@@ -189,7 +190,7 @@ export class JournalsRepository {
       UPDATE user_journals SET
         title = ?, content = ?, content_html = ?,
         mood_score = ?, mood_label = ?, sleep_score = ?,
-        collection_id = ?, updated_at = ?, needs_sync = ?
+        collection_id = ?, updated_at = ?, needs_sync = ?, media = ?
       WHERE id = ?;
     `;
 
@@ -203,6 +204,7 @@ export class JournalsRepository {
       updated.collection_id || null,
       updated.updated_at,
       updated.needs_sync,
+      updated.media ? JSON.stringify(updated.media) : null,
       id,
     ]);
 
@@ -303,7 +305,7 @@ export class JournalsRepository {
           UPDATE user_journals SET
             title = ?, content = ?, content_html = ?,
             mood_score = ?, mood_label = ?, sleep_score = ?, collection_id = ?,
-            updated_at = ?, needs_sync = 0, synced_at = ?
+            updated_at = ?, needs_sync = 0, synced_at = ?, media = ?
           WHERE id = ?;
         `;
 
@@ -317,6 +319,7 @@ export class JournalsRepository {
           serverJournal.collection_id || null,
           serverJournal.updated_at,
           new Date().toISOString(),
+          serverJournal.media ? JSON.stringify(serverJournal.media) : null,
           existing.id,
         ]);
 
@@ -329,8 +332,8 @@ export class JournalsRepository {
       const query = `
         INSERT INTO user_journals (
           id, server_id, user_id, collection_id, title, content, content_html,
-          mood_score, mood_label, sleep_score, created_at, updated_at, needs_sync, synced_at, is_deleted
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0);
+          mood_score, mood_label, sleep_score, created_at, updated_at, needs_sync, synced_at, is_deleted, media
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0, ?);
       `;
 
       await db.run(query, [
@@ -347,6 +350,7 @@ export class JournalsRepository {
         serverJournal.created_at,
         serverJournal.updated_at,
         new Date().toISOString(),
+        serverJournal.media ? JSON.stringify(serverJournal.media) : null,
       ]);
 
       console.log('[JournalsRepo] Inserted from server:', serverJournal.id);
@@ -517,7 +521,7 @@ export class JournalsRepository {
               UPDATE user_journals SET
                 title = ?, content = ?, content_html = ?,
                 mood_score = ?, mood_label = ?, sleep_score = ?, collection_id = ?,
-                updated_at = ?, needs_sync = 0, synced_at = ?
+                updated_at = ?, needs_sync = 0, synced_at = ?, media = ?
               WHERE id = ?;
             `;
 
@@ -531,6 +535,7 @@ export class JournalsRepository {
               serverJournal.collection_id || null,
               serverJournal.updated_at,
               new Date().toISOString(),
+              serverJournal.media ? JSON.stringify(serverJournal.media) : null,
               existing.id,
             ]);
 
@@ -546,8 +551,8 @@ export class JournalsRepository {
           const insertQuery = `
             INSERT INTO user_journals (
               id, server_id, user_id, collection_id, title, content, content_html,
-              mood_score, mood_label, sleep_score, created_at, updated_at, needs_sync, synced_at, is_deleted
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0);
+              mood_score, mood_label, sleep_score, created_at, updated_at, needs_sync, synced_at, is_deleted, media
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0, ?);
           `;
 
           await db.run(insertQuery, [
@@ -564,6 +569,7 @@ export class JournalsRepository {
             serverJournal.created_at,
             serverJournal.updated_at,
             new Date().toISOString(),
+            serverJournal.media ? JSON.stringify(serverJournal.media) : null,
           ]);
 
           console.log('[JournalsRepo] Inserted from server:', serverJournal.id);
@@ -616,6 +622,14 @@ export class JournalsRepository {
    * Helper: Map SQLite row to LocalJournal type
    */
   private mapRowToJournal(row: any): LocalJournal {
+    let media: LocalJournal['media'] = undefined;
+    if (row.media) {
+      try {
+        media = JSON.parse(row.media);
+      } catch {
+        media = undefined;
+      }
+    }
     return {
       id: row.id,
       server_id: row.server_id,
@@ -632,6 +646,7 @@ export class JournalsRepository {
       needs_sync: row.needs_sync,
       synced_at: row.synced_at,
       is_deleted: row.is_deleted,
+      media,
     };
   }
 

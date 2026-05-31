@@ -35,6 +35,7 @@ export const userJournalStore = defineStore("user_journal", {
     currentMoodLabel: "Okay" as string,
     currentSleepScore: null as number | null, // 0-100 sleep quality
     currentJournal: null as LocalJournal | null,
+    currentSlideMedia: {} as { [slideIndex: number]: Array<{ id: string; url: string; alt?: string }> },
     isInitialized: false,
     isSyncing: false,
     isOnline: false,
@@ -436,7 +437,7 @@ export const userJournalStore = defineStore("user_journal", {
     /**
      * Create new journal (offline-first: write to SQLite immediately)
      */
-    async createJournal(journal: CreateJournalRequest, overrideDate?: string) {
+    async createJournal(journal: CreateJournalRequest & { media?: Array<{ id: string; url: string; alt?: string }> }, overrideDate?: string) {
       try {
         const userId = getUserId();
         if (!userId) {
@@ -453,6 +454,7 @@ export const userJournalStore = defineStore("user_journal", {
           mood_score: journal.mood_score,
           mood_label: journal.mood_label,
           sleep_score: journal.sleep_score,
+          media: journal.media,
         }, overrideDate);
 
         // Update store state
@@ -487,7 +489,7 @@ export const userJournalStore = defineStore("user_journal", {
     /**
      * Update journal (offline-first: write to SQLite immediately)
      */
-    async updateJournal(journal: Partial<LocalJournal> & { id: string }) {
+    async updateJournal(journal: Partial<LocalJournal> & { id: string; media?: Array<{ id: string; url: string; alt?: string }> }) {
       try {
         // Update in local SQLite
         const updated = await JournalsRepository.update(journal.id, journal);
@@ -707,6 +709,20 @@ export const userJournalStore = defineStore("user_journal", {
       this.currentWritingContent[key] = value;
     },
 
+    updateSlideMedia(slideIndex: number, media: Array<{ id: string; url: string; alt?: string }>) {
+      this.currentSlideMedia[slideIndex] = media;
+    },
+
+    removeSlideMedia(slideIndex: number, mediaId: string) {
+      if (this.currentSlideMedia[slideIndex]) {
+        this.currentSlideMedia[slideIndex] = this.currentSlideMedia[slideIndex].filter(m => m.id !== mediaId);
+      }
+    },
+
+    clearSlideMedia() {
+      this.currentSlideMedia = {};
+    },
+
     /**
      * Update current mood
      */
@@ -724,6 +740,7 @@ export const userJournalStore = defineStore("user_journal", {
       this.currentMoodLabel = "Okay";
       this.currentSleepScore = null;
       this.currentJournal = null;
+      this.currentSlideMedia = {};
     },
 
   },

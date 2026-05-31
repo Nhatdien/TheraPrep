@@ -176,7 +176,20 @@ const nextNode = async () => {
       !userJournalStore().currentJournal
     ) {
       try {
-        await saveJournal(
+        // Collect per-slide media from store
+        const slideMedia = userJournalStore().currentSlideMedia;
+        const allMedia: Array<{ id: string; url: string; alt?: string }> = [];
+        const slides: Array<{ slide_index: number; media_ids: string[] }> = [];
+
+        Object.entries(slideMedia).forEach(([slideIndex, media]) => {
+          if (media && media.length > 0) {
+            const idx = parseInt(slideIndex, 10);
+            slides.push({ slide_index: idx, media_ids: media.map(m => m.id) });
+            allMedia.push(...media);
+          }
+        });
+
+        const newJournal = await saveJournal(
           {
             content: generateJournalHtml(
               userJournalStore().currentWritingContent,
@@ -187,7 +200,18 @@ const nextNode = async () => {
             sleep_score: userJournalStore().currentSleepScore,
           },
           (useRoute()?.params?.id || null) as string | null,
+          allMedia,
         );
+
+        // Attach media to journal on server if online
+        if (newJournal?.server_id && slides.length > 0) {
+          try {
+            const { attachToJournal } = useMediaUpload();
+            await attachToJournal(newJournal.server_id, slides);
+          } catch (mediaErr) {
+            console.warn('[ModalContents] Media attach failed:', mediaErr);
+          }
+        }
       } catch (err) {
         console.error('[ModalContents] Journal save failed:', err);
         // TODO: show a user-facing error toast here
@@ -196,6 +220,9 @@ const nextNode = async () => {
 
     // Mark slide group as completed for learn-type collections
     markSlideGroupCompleted();
+
+    // Clear slide media after save
+    userJournalStore().clearSlideMedia();
 
     closeSlideGroup();
   } else {
@@ -209,6 +236,7 @@ const prevNode = () => {
   if (!carousel.value?.emblaApi?.canScrollPrev()) {
     // The journal will be created if the journal is not empty or
     // user have interact with the chatbot in that journal session
+    userJournalStore().clearSlideMedia();
     closeSlideGroup();
   } else {
     carousel.value?.emblaApi?.scrollPrev();

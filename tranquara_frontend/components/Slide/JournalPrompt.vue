@@ -10,7 +10,18 @@
       ref="editor"
       @on-update="onEditorUpdate"
       v-model="currentNote" />
-    
+
+    <!-- Media attachments -->
+    <MediaUploader
+      :max-images="5"
+      :current-count="attachedMedia.length"
+      :initial-media="initialMedia"
+      class="mt-3"
+      @uploaded="onMediaUploaded"
+      @removed="onMediaRemoved"
+      @error="(msg: string) => console.warn('Media:', msg)"
+    />
+
     <!-- Go Deeper with Direction Selection -->
     <div class="mt-5 flex justify-end" v-if="hasContent && !isGeneratingQuestion">
       <JournalGoDeepDirections
@@ -37,6 +48,9 @@ const currentNote = ref("");
 const isGeneratingQuestion = ref(false);
 const { canUseAI, yourStory } = useAIGuard();
 const { locale } = useI18n();
+const store = userJournalStore();
+
+const attachedMedia = ref<Array<{ id: string; url: string; alt?: string }>>([]);
 
 const editor = ref()
 const props = defineProps({
@@ -56,6 +70,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  initialMedia: {
+    type: Array as PropType<Array<{ id: string; url: string; alt?: string }>>,
+    default: () => [],
+  },
   slideGroupContext: {
     type: Object,
     default: null,
@@ -71,6 +89,16 @@ const hasContent = computed(() => {
   const stripped = currentNote.value.replace(/<[^>]*>/g, "").trim();
   return stripped.length > 0;
 });
+
+const onMediaUploaded = (mediaId: string, url: string) => {
+  attachedMedia.value.push({ id: mediaId, url });
+  store.updateSlideMedia(props.index, [...attachedMedia.value]);
+};
+
+const onMediaRemoved = (mediaId: string) => {
+  attachedMedia.value = attachedMedia.value.filter((m) => m.id !== mediaId);
+  store.updateSlideMedia(props.index, [...attachedMedia.value]);
+};
 
 const onEditorUpdate = () => {
   // Use question text, falling back to content id to avoid 'undefined' as key
@@ -135,6 +163,12 @@ const handleGoDeeper = async (direction: string) => {
 
 onMounted(() => {
   useTiptapEditorStore().editors[props.index] = editor.value?.editor;
+
+  // Pre-fill media if provided (for edit mode)
+  if (props.initialMedia?.length) {
+    attachedMedia.value = [...props.initialMedia];
+    store.updateSlideMedia(props.index, [...attachedMedia.value]);
+  }
   
   // Pre-fill content if provided (for edit mode)
   if (props.initialContent) {

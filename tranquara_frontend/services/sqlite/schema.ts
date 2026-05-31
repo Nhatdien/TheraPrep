@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS user_journals (
   updated_at TEXT NOT NULL,
   needs_sync INTEGER DEFAULT 1,
   synced_at TEXT,
-  is_deleted INTEGER DEFAULT 0
+  is_deleted INTEGER DEFAULT 0,
+  media TEXT
 );`;
 
 export const CREATE_USER_JOURNALS_INDEX_USER_ID = `
@@ -219,7 +220,7 @@ CREATE TABLE IF NOT EXISTS user_custom_template (
 );`;
 
 // Database version tracking
-export const DB_VERSION = 11;
+export const DB_VERSION = 12;
 export const DB_NAME = 'tranquara_journals.db';
 
 /**
@@ -302,5 +303,9 @@ export const MIGRATIONS: Record<number, string[]> = {
   // v11: Add sleep_score column to user_journals
   11: [
     `ALTER TABLE user_journals ADD COLUMN sleep_score INTEGER CHECK (sleep_score >= 0 AND sleep_score <= 100);`,
+  ],
+  // v12: Add media column to user_journals (JSON array of {id, url, alt})
+  12: [
+    `ALTER TABLE user_journals ADD COLUMN media TEXT;`,
   ],
 };

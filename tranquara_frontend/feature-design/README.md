@@ -45,6 +45,7 @@ This documentation hub provides comprehensive design specifications for all Ther
 | **Progress Tracking** | 🔄 In Progress | Medium | [📁 07. Progress](./07.%20Progress/) |
 | **Multi-Language Support** | 🧠 Planned | High | [📁 08. Multi-Language](./08.%20Multi-Language/) |
 | **Therapy Toolkit** | 🧠 Planned | High | [📁 09. Therapy Toolkit](./09.%20Therapy%20Toolkit/) |
+| **Media Upload** | 🔄 In Progress | High | [📁 12. Media Upload](./12.%20Media%20Upload/) |
 
 ### Supporting Documentation
 

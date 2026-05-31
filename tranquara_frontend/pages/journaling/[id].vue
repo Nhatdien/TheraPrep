@@ -50,6 +50,16 @@
               v-model="content"
               @on-update="onContentUpdate"
             />
+            <!-- Media attachments -->
+            <MediaUploader
+              :max-images="5"
+              :current-count="attachedMedia.length"
+              :initial-media="attachedMedia"
+              class="mt-3"
+              @uploaded="onMediaUploaded"
+              @removed="onMediaRemoved"
+              @error="(msg: string) => console.warn('Media:', msg)"
+            />
           </div>
         </div>
 
@@ -129,6 +139,7 @@ import EmotionSliderV2 from "~/components/Common/EmotionSliderV2.vue";
 import TranquaraSDK from "~/stores/tranquara_sdk";
 import type { LocalJournal } from "~/types/user_journal";
 import { useAIGuard } from "~/composables/useAIGuard";
+import { useMediaUpload } from "~/composables/useMediaUpload";
 
 definePageMeta({ layout: "detail" });
 
@@ -154,6 +165,8 @@ const showMoodPicker = ref(false);
 const editorRef = ref<any>(null);
 const autoSaveStatus = ref("ready");
 const isGeneratingQuestion = ref(false);
+const attachedMedia = ref<Array<{ id: string; url: string; alt?: string }>>([]);
+const { attachToJournal } = useMediaUpload();
 
 // Map autoSaveStatus keys to i18n
 const autoSaveStatusText = computed(() => {
@@ -236,6 +249,7 @@ const enterEdit = () => {
     content.value = journal.value.content_html || journal.value.content || "";
     moodScore.value = journal.value.mood_score ?? 5;
     moodLabel.value = journal.value.mood_label || t('journal.moodLabels.5');
+    attachedMedia.value = journal.value.media ? [...journal.value.media] : [];
   }
   isEditing.value = true;
 };
@@ -263,6 +277,14 @@ const onContentUpdate = () => {
 const confirmMood = () => {
   moodLabel.value = computedMoodLabel.value;
   showMoodPicker.value = false;
+};
+
+const onMediaUploaded = (mediaId: string, url: string) => {
+  attachedMedia.value.push({ id: mediaId, url });
+};
+
+const onMediaRemoved = (mediaId: string) => {
+  attachedMedia.value = attachedMedia.value.filter((m) => m.id !== mediaId);
 };
 
 const handleGoDeeper = async (direction: string) => {
@@ -321,7 +343,19 @@ const saveAndClose = async () => {
       content_html: content.value,
       mood_score: moodScore.value,
       mood_label: moodLabel.value,
+      media: attachedMedia.value,
     });
+
+    // Attach media to journal on server if online
+    if (journal.value.server_id && attachedMedia.value.length > 0) {
+      try {
+        await attachToJournal(journal.value.server_id, [
+          { slide_index: 0, media_ids: attachedMedia.value.map((m) => m.id) },
+        ]);
+      } catch (mediaErr) {
+        console.warn('[EditJournal] Media attach failed:', mediaErr);
+      }
+    }
 
     // Reload journal and return to view mode
     const updated = await journalStore.getJournalById(journal.value.id);

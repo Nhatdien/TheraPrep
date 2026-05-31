@@ -447,7 +447,13 @@
       "fair": "Fair",
       "rested": "Rested",
       "refreshed": "Refreshed"
-    }
+    },
+    "addPhoto": "Add photo",
+    "maxPhotosReached": "Maximum {max} photos per slide",
+    "imageTooLarge": "Image too large. Maximum size: {size}MB",
+    "unsupportedFormat": "Unsupported format. Use JPEG, PNG, WebP, or GIF",
+    "uploadFailed": "Upload failed. Please try again.",
+    "Nphotos": "{count} photos"
   },
   "onboarding": {
     "profile": "Profile",
