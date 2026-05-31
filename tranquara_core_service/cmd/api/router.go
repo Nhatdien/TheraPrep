@@ -105,8 +105,16 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPut, "/v1/custom-template", app.authMiddleWare(app.upsertCustomTemplateHandler))
 
 	// Data Portability routes (export/import user data)
-	router.HandlerFunc(http.MethodGet, "/v1/data/export", app.authMiddleWare(app.exportUserDataHandler))
-	router.HandlerFunc(http.MethodPost, "/v1/data/import", app.authMiddleWare(app.importUserDataHandler))
+		router.HandlerFunc(http.MethodGet, "/v1/data/export", app.authMiddleWare(app.exportUserDataHandler))
+		router.HandlerFunc(http.MethodPost, "/v1/data/import", app.authMiddleWare(app.importUserDataHandler))
+
+		// Media upload
+		router.HandlerFunc(http.MethodPost, "/v1/media/presign", app.authMiddleWare(app.mediaPresignHandler))
+		router.HandlerFunc(http.MethodPost, "/v1/media/:id/confirm", app.authMiddleWare(app.mediaConfirmHandler))
+		router.HandlerFunc(http.MethodGet, "/v1/media/:id", app.authMiddleWare(app.getMediaHandler))
+		router.HandlerFunc(http.MethodDelete, "/v1/media/:id", app.authMiddleWare(app.deleteMediaHandler))
+		router.HandlerFunc(http.MethodGet, "/v1/journal/:journalEntryId/media", app.authMiddleWare(app.getJournalMediaHandler))
+		router.HandlerFunc(http.MethodPost, "/v1/journal/attach-media", app.authMiddleWare(app.attachMediaHandler))
 
 	// Admin — Template management routes
 	// NOTE: export/import use a separate prefix to avoid httprouter wildcard conflict with /:id

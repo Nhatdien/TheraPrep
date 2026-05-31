@@ -16,6 +16,7 @@ import (
 	"tranquara.net/internal/data"
 	"tranquara.net/internal/jsonlog"
 	"tranquara.net/internal/mailer"
+	"tranquara.net/internal/media"
 	"tranquara.net/internal/pubsub"
 )
 
@@ -53,6 +54,8 @@ type application struct {
 	models        data.Models
 	mailer        mailer.Mailer
 	wg            sync.WaitGroup
+	mediaRepo     *media.Repository
+	r2Storage     *media.R2Storage
 }
 
 func main() {
@@ -130,12 +133,36 @@ func main() {
 		logger.PrintInfo("Waiting for messages", nil)
 	}
 
+	// Initialize media repository (DB)
+	mediaRepo := media.NewRepository(db)
+
+	// Initialize R2 storage (optional — logs warning if not configured)
+	var r2Storage *media.R2Storage
+	r2AccountID := os.Getenv("R2_ACCOUNT_ID")
+	r2AccessKey := os.Getenv("R2_ACCESS_KEY_ID")
+	r2SecretKey := os.Getenv("R2_SECRET_ACCESS_KEY")
+	r2Bucket := os.Getenv("R2_BUCKET_NAME")
+	r2PublicURL := os.Getenv("R2_PUBLIC_URL")
+
+	if r2AccountID != "" && r2AccessKey != "" && r2SecretKey != "" {
+		r2Storage, err = media.NewR2Storage(r2AccountID, r2AccessKey, r2SecretKey, r2Bucket, r2PublicURL)
+		if err != nil {
+			logger.PrintError(err, map[string]string{"message": "Failed to initialize R2 storage"})
+		} else {
+			logger.PrintInfo("R2 storage initialized successfully", map[string]string{"bucket": r2Bucket})
+		}
+	} else {
+		logger.PrintInfo("R2 storage not configured — media upload will be unavailable", nil)
+	}
+
 	app := &application{
 		config:        cfg,
 		logger:        logger,
 		rabbitchannel: channel,
 		models:        models,
 		mailer:        mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
+		mediaRepo:     mediaRepo,
+		r2Storage:     r2Storage,
 	}
 
 	err = app.serve()
