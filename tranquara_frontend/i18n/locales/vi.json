@@ -4,7 +4,7 @@
   },
   "nav": {
     "today": "Hôm nay",
-    "toolkit": "Bộ công cụ",
+    "toolkit": "Công cụ",
     "library": "Thư viện",
     "history": "Lịch sử",
     "profile": "Hồ sơ",
@@ -26,7 +26,7 @@
     "yourJourney": "Hành trình của bạn",
     "journalingStreak": "Chuỗi viết nhật ký",
     "homework": {
-      "title": "Bài tập trị liệu",
+      "title": "Bài tập thực hành",
       "viewAll": "Xem tất cả",
       "moreItems": "+{count} mục khác"
     }
@@ -93,7 +93,7 @@
       "wellBeing": "Sức khỏe",
       "mentalHealth": "Sức khỏe tinh thần",
       "sleep": "Giấc ngủ",
-      "therapy": "Trị liệu",
+      "therapy": "Tư vấn",
       "journal": "Nhật ký",
       "meditation": "Thiền",
       "positivity": "Tích cực",
@@ -186,7 +186,7 @@
       "aiPersonalizationDesc": "Câu hỏi & phân tích được cá nhân hoá",
       "yourStory": "Câu chuyện của bạn",
       "yourStoryDesc": "Giúp AI hiểu bạn hơn",
-      "yourStoryPlaceholder": "Ví dụ: Mình đang chuẩn bị cho buổi trị liệu đầu tiên và đang lo lắng về công việc...",
+      "yourStoryPlaceholder": "Ví dụ: Mình đang chuẩn bị cho buổi tư vấn đầu tiên và đang lo lắng về công việc...",
       "yourStoryUpdated": "Đã cập nhật câu chuyện",
       "analytics": "Phân tích",
       "analyticsDesc": "Giúp cải thiện ứng dụng",
@@ -453,7 +453,7 @@
     "profile": "Hồ sơ",
     "profileDesc": "Hãy cho chúng tôi biết về bạn",
     "preferences": "Tuỳ chọn",
-    "preferencesDesc": "Chọn mục tiêu và trải nghiệm trị liệu của bạn",
+    "preferencesDesc": "Chọn mục tiêu và trải nghiệm tư vấn của bạn",
     "gender": "Giới tính",
     "ageRange": "Độ tuổi",
     "male": "Nam",
@@ -462,12 +462,12 @@
     "goalQuestion": "Bạn muốn dùng ứng dụng này để làm gì?",
     "goals": {
       "journaling": "Ghi lại cảm xúc qua nhật ký",
-      "therapy": "Chuẩn bị cho buổi trị liệu",
+      "therapy": "Chuẩn bị cho buổi tư vấn",
       "tracking": "Theo dõi cảm xúc",
       "selfReflection": "Tự suy ngẫm",
       "other": "Khác"
     },
-    "experienceQuestion": "Bạn đã từng tham gia trị liệu tâm lý chưa?",
+    "experienceQuestion": "Bạn đã từng tham gia tư vấn tâm lý chưa?",
     "experience": {
       "yes": "Có",
       "no": "Không",
@@ -535,20 +535,20 @@
     }
   },
   "toolkit": {
-    "title": "Bộ công cụ trị liệu",
-    "subtitle": "Công cụ hỗ trợ trước, trong và sau buổi trị liệu",
+    "title": "Công cụ hỗ trợ",
+    "subtitle": "Công cụ hỗ trợ trước, trong và sau buổi tư vấn",
     "tabs": {
       "prepare": "Chuẩn bị",
       "track": "Theo dõi",
       "ground": "Ổn định tâm lý"
     },
     "emptyState": {
-      "insights": "Tạo bản phân tích AI từ nhật ký để sẵn sàng cho buổi trị liệu.",
-      "session": "Theo dõi buổi trị liệu — từ chuẩn bị đến nhìn lại.",
-      "homework": "Bài tập và hành động từ buổi trị liệu sẽ hiện ở đây."
+      "insights": "Tạo bản phân tích AI từ nhật ký để sẵn sàng cho buổi tư vấn.",
+      "session": "Theo dõi buổi tư vấn — từ chuẩn bị đến nhìn lại.",
+      "homework": "Bài tập và hành động từ buổi tư vấn sẽ hiện ở đây."
     },
     "sessionFlow": {
-      "title": "Quy trình theo dõi buổi trị liệu",
+      "title": "Quy trình theo dõi buổi tư vấn",
       "step1": "Lên lịch",
       "step2": "Chuẩn bị",
       "step3": "Tham dự",
@@ -575,12 +575,12 @@
     },
     "journey": {
       "title": "Lộ trình chuẩn bị",
-      "description": "Từng bước giúp bạn sẵn sàng cho buổi trị liệu.",
+      "description": "Từng bước giúp bạn sẵn sàng cho buổi tư vấn.",
       "overallProgress": "Hoàn thành {percent}%",
       "chaptersProgress": "{completed}/{total} chương",
       "step1": {
-        "label": "Tìm hiểu về trị liệu",
-        "description": "Dấu hiệu cần trị liệu, buổi đầu tiên, những gì cần kỳ vọng"
+        "label": "Tìm hiểu về tư vấn",
+        "description": "Dấu hiệu cần tư vấn, buổi đầu tiên, những gì cần kỳ vọng"
       },
       "step2": {
         "label": "Tiền sử sức khỏe tinh thần",
@@ -591,13 +591,13 @@
         "description": "Giấc ngủ, chế độ ăn, hỗ trợ xã hội, thói quen hàng ngày"
       },
       "step4": {
-        "label": "Chuẩn bị cho buổi trị liệu",
-        "description": "Mục tiêu, lo ngại, những gì nhà trị liệu cần biết"
+        "label": "Chuẩn bị cho buổi tư vấn",
+        "description": "Mục tiêu, lo ngại, những gì chuyên gia tư vấn cần biết"
       }
     },
     "prepPack": {
       "title": "Phân tích nhật ký",
-      "description": "Tóm tắt thông minh từ nhật ký của bạn — giúp bạn bước vào buổi trị liệu sẵn sàng và tự tin hơn.",
+      "description": "Tóm tắt thông minh từ nhật ký của bạn — giúp bạn bước vào buổi tư vấn sẵn sàng và tự tin hơn.",
       "generate": "Tạo phân tích",
       "generating": "Đang phân tích nhật ký của bạn...",
       "noJournals": "Bạn chưa có nhật ký nào. Hãy bắt đầu viết để tạo phân tích nhé.",
@@ -621,7 +621,7 @@
       "keyThemes": "Chủ đề nổi bật",
       "emotionalHighlights": "Cảm xúc nổi bật",
       "patterns": "Xu hướng cảm xúc & hành vi",
-      "discussionPoints": "Điều cần chia sẻ với nhà trị liệu",
+      "discussionPoints": "Điều cần chia sẻ với chuyên gia tư vấn",
       "growthMoments": "Điểm sáng tích cực",
       "personalNotes": "Ghi chú của bạn",
       "notFound": "Không tìm thấy báo cáo này.",
@@ -641,49 +641,49 @@
       }
     },
     "session": {
-      "title": "Theo dõi buổi trị liệu",
-      "noSession": "Chưa có buổi trị liệu. Hãy lên lịch buổi trị liệu tiếp theo.",
-      "schedule": "Lên lịch buổi trị liệu",
-      "scheduleTitle": "Buổi trị liệu của bạn khi nào?",
+      "title": "Theo dõi buổi tư vấn",
+      "noSession": "Chưa có buổi tư vấn. Hãy lên lịch buổi tư vấn tiếp theo.",
+      "schedule": "Lên lịch buổi tư vấn",
+      "scheduleTitle": "Buổi tư vấn của bạn khi nào?",
       "scheduleConfirm": "Xác nhận",
-      "prepare": "Chuẩn bị cho buổi trị liệu",
+      "prepare": "Chuẩn bị cho buổi tư vấn",
       "logAfter": "Ghi lại cảm nhận",
-      "delete": "Xóa buổi trị liệu",
-      "deleteConfirm": "Xóa buổi trị liệu này? Hành động này không thể hoàn tác.",
+      "delete": "Xóa buổi tư vấn",
+      "deleteConfirm": "Xóa buổi tư vấn này? Hành động này không thể hoàn tác.",
       "pastSessions": "Các buổi trước",
       "before": {
-        "title": "Trước buổi trị liệu",
+        "title": "Trước buổi tư vấn",
         "mood": "Bạn đang cảm thấy thế nào?",
         "talkingPoints": "Bạn muốn nói về điều gì?",
         "priority": "Ưu tiên hàng đầu của tôi"
       },
       "after": {
-        "title": "Sau buổi trị liệu",
+        "title": "Sau buổi tư vấn",
         "mood": "Bạn cảm thấy thế nào bây giờ?",
         "takeaways": "Những điều tâm đắc",
         "homework": "Bài tập / Hành động",
         "addHomework": "Thêm bài tập",
-        "rating": "Đánh giá buổi trị liệu"
+        "rating": "Đánh giá buổi tư vấn"
       },
       "status": {
         "scheduled": "Đã lên lịch",
-        "beforeCompleted": "Sẵn sàng cho buổi trị liệu",
+        "beforeCompleted": "Sẵn sàng cho buổi tư vấn",
         "completed": "Hoàn thành"
       },
       "detail": {
-        "title": "Chi tiết buổi trị liệu",
+        "title": "Chi tiết buổi tư vấn",
         "moodComparison": "Tâm trạng",
         "moodBefore": "Trước",
         "moodAfter": "Sau",
         "talkingPoints": "Chủ đề muốn nói",
         "priority": "Ưu tiên hàng đầu",
         "takeaways": "Điều tâm đắc",
-        "relatedJournals": "Nhật ký liên quan đến buổi trị liệu",
-        "notFound": "Không tìm thấy buổi trị liệu."
+        "relatedJournals": "Nhật ký liên quan đến buổi tư vấn",
+        "notFound": "Không tìm thấy buổi tư vấn."
       }
     },
     "homework": {
-      "title": "Bài tập trị liệu",
+      "title": "Bài tập thực hành",
       "empty": "Chưa có bài tập nào",
       "completed": "Hoàn thành",
       "addPlaceholder": "Thêm mục..."
