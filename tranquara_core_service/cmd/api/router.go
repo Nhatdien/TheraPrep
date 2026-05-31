@@ -104,6 +104,10 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/custom-template", app.authMiddleWare(app.getCustomTemplateHandler))
 	router.HandlerFunc(http.MethodPut, "/v1/custom-template", app.authMiddleWare(app.upsertCustomTemplateHandler))
 
+	// Data Portability routes (export/import user data)
+	router.HandlerFunc(http.MethodGet, "/v1/data/export", app.authMiddleWare(app.exportUserDataHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/data/import", app.authMiddleWare(app.importUserDataHandler))
+
 	// Admin — Template management routes
 	// NOTE: export/import use a separate prefix to avoid httprouter wildcard conflict with /:id
 	router.HandlerFunc(http.MethodGet, "/v1/admin/templates", app.adminMiddleware(app.adminListTemplates))

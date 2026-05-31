@@ -11,6 +11,7 @@
           variant="ghost"
           block
           class="justify-start"
+          :loading="exporting"
           @click="handleExportData"
         >
           <div class="py-4 flex items-center justify-between w-full">
@@ -26,6 +27,36 @@
             <ChevronRight class="w-5 h-5 text-muted" />
           </div>
         </UButton>
+
+        <!-- Import Data -->
+        <UButton
+          :padded="false"
+          color="neutral"
+          variant="ghost"
+          block
+          class="justify-start"
+          @click="triggerImportFile"
+        >
+          <div class="py-4 flex items-center justify-between w-full">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                <Upload class="w-5 h-5 text-muted" />
+              </div>
+              <div class="text-left">
+                <p class="text-sm font-medium text-default">{{ $t('settings.dataManagement.importData') }}</p>
+                <p class="text-xs text-muted">{{ $t('settings.dataManagement.importDataDesc') }}</p>
+              </div>
+            </div>
+            <ChevronRight class="w-5 h-5 text-muted" />
+          </div>
+        </UButton>
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".json"
+          class="hidden"
+          @change="handleImportFile"
+        />
 
         <!-- Delete Account -->
         <UButton
@@ -157,9 +188,11 @@
 </template>
 
 <script setup lang="ts">
-import { Download, Trash2, ChevronRight, AlertTriangle } from 'lucide-vue-next';
+import { Download, Upload, Trash2, ChevronRight, AlertTriangle } from 'lucide-vue-next';
 import { useAuthStore } from '~/stores/stores/auth_store';
 import { useSettingsStore } from '~/stores/stores/settings_store';
+import TranquaraSDK from '~/stores/tranquara_sdk';
+import type { ExportFile } from '~/stores/data_portability';
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
@@ -170,14 +203,96 @@ const username = computed(() => authStore.user?.preferred_username || '');
 
 // ─── Export ─────────────────────────────────────────────────────────────────
 
-const handleExportData = () => {
-  // TODO: Implement data export in a future phase
-  toast.add({
-    title: t('settings.dataManagement.exportComingSoon'),
-    description: t('settings.dataManagement.exportComingSoonDesc'),
-    icon: 'i-lucide-info',
-    color: 'info',
-  });
+const exporting = ref(false);
+
+const handleExportData = async () => {
+  exporting.value = true;
+  try {
+    const sdk = await TranquaraSDK.getInstance();
+    const data = await sdk.exportData();
+
+    // Create downloadable JSON file
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tranquara_export_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast.add({
+      title: t('settings.dataManagement.exportSuccess'),
+      description: t('settings.dataManagement.exportSuccessDesc', { count: data.counts.journals + data.counts.emotion_logs }),
+      icon: 'i-lucide-check',
+      color: 'success',
+    });
+  } catch (error) {
+    console.error('Export failed:', error);
+    toast.add({
+      title: t('settings.dataManagement.exportFailed'),
+      description: t('settings.dataManagement.exportFailedDesc'),
+      icon: 'i-lucide-alert-circle',
+      color: 'error',
+    });
+  } finally {
+    exporting.value = false;
+  }
+};
+
+// ─── Import ─────────────────────────────────────────────────────────────────
+
+const fileInput = ref<HTMLInputElement | null>(null);
+
+const triggerImportFile = () => {
+  fileInput.value?.click();
+};
+
+const handleImportFile = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const importData: ExportFile = JSON.parse(text);
+
+    // Basic client-side validation
+    if (importData.app !== 'tranquara') {
+      toast.add({
+        title: t('settings.dataManagement.importInvalidFile'),
+        description: t('settings.dataManagement.importInvalidFileDesc'),
+        icon: 'i-lucide-alert-circle',
+        color: 'error',
+      });
+      return;
+    }
+
+    const sdk = await TranquaraSDK.getInstance();
+    const result = await sdk.importData(importData);
+
+    const totalImported = result.result.imported.journals + result.result.imported.emotion_logs +
+      result.result.imported.learned_slide_groups + result.result.imported.therapy_sessions;
+
+    toast.add({
+      title: t('settings.dataManagement.importSuccess'),
+      description: t('settings.dataManagement.importSuccessDesc', { count: totalImported }),
+      icon: 'i-lucide-check',
+      color: 'success',
+    });
+  } catch (error) {
+    console.error('Import failed:', error);
+    toast.add({
+      title: t('settings.dataManagement.importFailed'),
+      description: t('settings.dataManagement.importFailedDesc'),
+      icon: 'i-lucide-alert-circle',
+      color: 'error',
+    });
+  } finally {
+    // Reset file input so same file can be re-imported
+    if (target) target.value = '';
+  }
 };
 
 // ─── Delete Account ─────────────────────────────────────────────────────────
