@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "TheraPrep"
+    "name": "Ember"
   },
   "nav": {
     "today": "Today",
@@ -160,7 +160,7 @@
     "terms": "Terms",
     "privacy": "Privacy",
     "support": "Support",
-    "appVersion": "Theraprep v{version}"
+    "appVersion": "Ember v{version}"
   },
   "settings": {
     "personalization": "personalization.",
@@ -232,7 +232,7 @@
     },
     "logout": {
       "button": "Logout",
-      "confirmTitle": "Log out of TheraPrep?",
+      "confirmTitle": "Log out of Ember?",
       "confirmDesc": "Your data will remain synced when you log back in. Local data will be preserved on this device.",
       "confirmButton": "Log Out"
     },
@@ -252,9 +252,9 @@
     },
     "memories": {
       "heading": "memories.",
-      "description": "Insights TheraPrep AI has learned from your journals. Used to personalize your experience. Only you can see them.",
+      "description": "Insights Ember AI has learned from your journals. Used to personalize your experience. Only you can see them.",
       "noMemories": "No memories yet",
-      "noMemoriesDesc": "Keep journaling and TheraPrep will learn about you over time.",
+      "noMemoriesDesc": "Keep journaling and Ember will learn about you over time.",
       "memoryRemoved": "Memory removed",
       "memoryRemoveFailed": "Failed to delete memory",
       "categories": {
@@ -334,12 +334,12 @@
     "signIn": "Sign In",
     "dontHaveAccount": "Don't have an account?",
     "createAccount": "Create Account",
-    "joinTheraPrep": "Join TheraPrep today",
+    "joinTheraPrep": "Join Ember today",
     "email": "Email",
     "enterEmail": "Enter your email",
     "username": "Username",
     "chooseUsername": "Choose a username",
-    "usernameHint": "Your unique identifier on TheraPrep",
+    "usernameHint": "Your unique identifier on Ember",
     "createPassword": "Create a password",
     "passwordHint": "At least 8 characters",
     "confirmPassword": "Confirm Password",
@@ -835,7 +835,7 @@
     "retryNow": "Retry sync"
   },
   "admin": {
-    "title": "TheraPrep Admin",
+    "title": "Ember Admin",
     "backToApp": "Back to App",
     "nav": {
       "dashboard": "Dashboard",

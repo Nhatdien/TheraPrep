@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "TheraPrep"
+    "name": "Ember"
   },
   "nav": {
     "today": "Hôm nay",
@@ -160,7 +160,7 @@
     "terms": "Điều khoản",
     "privacy": "Quyền riêng tư",
     "support": "Hỗ trợ",
-    "appVersion": "Theraprep v{version}"
+    "appVersion": "Ember v{version}"
   },
   "settings": {
     "personalization": "Cá nhân hoá",
@@ -232,7 +232,7 @@
     },
     "logout": {
       "button": "Đăng xuất",
-      "confirmTitle": "Đăng xuất khỏi TheraPrep?",
+      "confirmTitle": "Đăng xuất khỏi Ember?",
       "confirmDesc": "Dữ liệu sẽ vẫn được đồng bộ khi bạn đăng nhập lại. Dữ liệu cục bộ sẽ được giữ lại trên thiết bị.",
       "confirmButton": "Đăng xuất"
     },
@@ -252,9 +252,9 @@
     },
     "memories": {
       "heading": "Ghi nhớ",
-      "description": "Những điều TheraPrep AI ghi nhớ từ nhật ký của bạn để cá nhân hoá trải nghiệm. Chỉ bạn mới có thể xem.",
+      "description": "Những điều Ember AI ghi nhớ từ nhật ký của bạn để cá nhân hoá trải nghiệm. Chỉ bạn mới có thể xem.",
       "noMemories": "Chưa có ghi chú nào",
-      "noMemoriesDesc": "Tiếp tục viết nhật ký — TheraPrep sẽ dần hiểu bạn hơn.",
+      "noMemoriesDesc": "Tiếp tục viết nhật ký — Ember sẽ dần hiểu bạn hơn.",
       "memoryRemoved": "Đã xoá ghi nhớ",
       "memoryRemoveFailed": "Không thể xoá ghi nhớ",
       "categories": {
@@ -334,12 +334,12 @@
     "signIn": "Đăng nhập",
     "dontHaveAccount": "Chưa có tài khoản?",
     "createAccount": "Tạo tài khoản",
-    "joinTheraPrep": "Bắt đầu hành trình cùng TheraPrep",
+    "joinTheraPrep": "Bắt đầu hành trình cùng Ember",
     "email": "Email",
     "enterEmail": "Nhập email của bạn",
     "username": "Tên đăng nhập",
     "chooseUsername": "Chọn tên đăng nhập",
-    "usernameHint": "Tên định danh duy nhất của bạn trên TheraPrep",
+    "usernameHint": "Tên định danh duy nhất của bạn trên Ember",
     "createPassword": "Tạo mật khẩu",
     "passwordHint": "Ít nhất 8 ký tự",
     "confirmPassword": "Xác nhận mật khẩu",
@@ -835,7 +835,7 @@
     "retryNow": "Thử đồng bộ lại"
   },
   "admin": {
-    "title": "TheraPrep Admin",
+    "title": "Ember Admin",
     "backToApp": "Quay lại ứng dụng",
     "nav": {
       "dashboard": "Tổng quan",
