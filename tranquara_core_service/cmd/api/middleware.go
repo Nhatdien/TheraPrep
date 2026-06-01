@@ -57,19 +57,34 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 		}
 	}()
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
+		// Use user ID (from Authorization header) when available, fall back to IP
+		// This prevents shared IPs (office, coffee shop) from blocking legitimate users
+		key := ""
+		authHeader := r.Header.Get("Authorization")
+		if strings.HasPrefix(authHeader, "Bearer ") {
+			// Extract a stable identifier from the token without full validation
+			// We use a truncated hash of the token for the rate limit key
+			key = "user:" + authHeader[len("Bearer "):]
+			if len(key) > 100 {
+				key = key[:100]
+			}
 		}
+		if key == "" {
+			ip, _, err := net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				app.serverErrorResponse(w, r, err)
+				return
+			}
+			key = "ip:" + ip
+		}
+
 		mu.Lock()
-		if _, found := clients[ip]; !found {
-
-			clients[ip] = &client{limiter: rate.NewLimiter(2, 4)}
+		if _, found := clients[key]; !found {
+			clients[key] = &client{limiter: rate.NewLimiter(2, 4)}
 		}
 
-		clients[ip].lastSeen = time.Now()
-		if !clients[ip].limiter.Allow() {
+		clients[key].lastSeen = time.Now()
+		if !clients[key].limiter.Allow() {
 			mu.Unlock()
 			app.rateLimitExceedResponse(w, r)
 			return

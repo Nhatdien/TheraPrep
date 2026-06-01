@@ -4,7 +4,11 @@ import json
 import traceback
 import concurrent.futures
 from dotenv import load_dotenv
-from service.prompts import get_system_prompt, build_user_prompt, PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT
+from service.prompts import (
+    get_system_prompt, build_user_prompt,
+    PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT,
+    CRISIS_CHECK_SYSTEM_PROMPT, CRISIS_CHECK_USER_PROMPT
+)
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from database.vector_database import (
@@ -360,42 +364,98 @@ class AIProcessor():
             traceback.print_exc()
             return []
 
+    # ─── Crisis Detection (Layer 2: AI-based) ──────────────────────────────
+
+    # Minimum confidence threshold to trigger crisis response
+    CRISIS_CONFIDENCE_THRESHOLD = 0.7
+
+    def check_crisis(self, content: str) -> dict:
+        """
+        Dedicated lightweight LLM call to check if content is crisis-related.
+        Runs in parallel with RAG retrieval to minimize added latency.
+
+        Returns:
+            {"is_crisis": bool, "confidence": float, "message": str|None}
+        """
+        try:
+            user_prompt = CRISIS_CHECK_USER_PROMPT.format(content=content[:1500])
+
+            response = self.model.invoke([
+                SystemMessage(content=CRISIS_CHECK_SYSTEM_PROMPT),
+                HumanMessage(content=user_prompt),
+            ])
+
+            raw = _extract_json_from_response(response.content)
+            result = json.loads(raw)
+
+            is_crisis = result.get("is_crisis", False)
+            confidence = float(result.get("confidence", 0.0))
+            message = result.get("message")
+
+            # Apply confidence threshold
+            if is_crisis and confidence < self.CRISIS_CONFIDENCE_THRESHOLD:
+                print(f"[crisis-check] Below threshold ({confidence:.2f} < {self.CRISIS_CONFIDENCE_THRESHOLD}), treating as safe")
+                is_crisis = False
+
+            print(f"[crisis-check] is_crisis={is_crisis}, confidence={confidence:.2f}")
+            return {
+                "is_crisis": is_crisis,
+                "confidence": confidence,
+                "message": message if is_crisis else None,
+            }
+
+        except (json.JSONDecodeError, Exception) as e:
+            # On error, be conservative — don't block the user
+            print(f"[crisis-check] Error (defaulting to safe): {e}")
+            return {"is_crisis": False, "confidence": 0.0, "message": None}
+
     def generate_journal_question(self, user_id: str, content: str, mood_score: int,
                                   slide_prompt: str = None, slide_group_context: dict = None,
                                   current_slide_id: str = None, collection_title: str = None,
                                   direction: str = None, your_story: str = None,
-                                  app_language: str = None) -> str:
+                                  app_language: str = None) -> dict:
         """
         Generate a single follow-up question based on journal content.
-        Enhanced with RAG retrieval of past journals for personalized questions.
+        Enhanced with RAG retrieval and parallel AI-based crisis detection.
 
-        Args:
-            user_id: User's UUID for Qdrant filtering
-            content: User's current journal text
-            mood_score: User's mood rating (1-10)
-            slide_prompt: Current slide question/prompt
-            slide_group_context: Full slide group data including all slides
-            current_slide_id: ID of the current slide being worked on
-            collection_title: Name of the collection (e.g., "Daily Reflection")
-            direction: Reflection direction ('why', 'emotions', 'patterns', 'challenge', 'growth')
-            your_story: User's personal story/context
+        Returns:
+            {
+                "question": str | None,          # The follow-up question (null if crisis)
+                "crisis_detected": bool,          # Whether crisis was detected
+                "crisis_message": str | None      # Warm message if crisis detected
+            }
         """
-        # Get system prompt (with optional direction enhancement)
-        system_prompt = get_system_prompt(direction)
-
         depth = get_top_k_for_direction(direction)
         memory_depth = max(5, depth)
 
-        # --- RAG: Retrieve journals + memories IN PARALLEL to reduce latency ---
-        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        # --- Run crisis check + RAG retrieval ALL IN PARALLEL ---
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            crisis_future = executor.submit(self.check_crisis, content)
             journals_future = executor.submit(
                 self._retrieve_past_journals, user_id, content, depth
             )
             memories_future = executor.submit(
                 self._retrieve_user_memories, user_id, content, memory_depth
             )
+
+            # Get crisis result first — if crisis, skip question generation
+            crisis_result = crisis_future.result()
+
+            # Still retrieve RAG data (they're already running, don't waste them)
             past_journals_context = journals_future.result()
             user_memories_context = memories_future.result()
+
+        # --- If crisis detected, return crisis response immediately ---
+        if crisis_result["is_crisis"]:
+            print(f"[crisis] Crisis detected (confidence={crisis_result['confidence']:.2f}), skipping question generation")
+            return {
+                "question": None,
+                "crisis_detected": True,
+                "crisis_message": crisis_result["message"],
+            }
+
+        # --- Safe: proceed with question generation ---
+        system_prompt = get_system_prompt(direction)
 
         # --- Debug: Log retrieved RAG context ---
         print(f"[RAG-DEBUG] User {user_id} | Direction: {direction} | top_k: {depth}")
@@ -443,7 +503,11 @@ class AIProcessor():
         if question.startswith("'") and question.endswith("'"):
             question = question[1:-1]
 
-        return question
+        return {
+            "question": question,
+            "crisis_detected": False,
+            "crisis_message": None,
+        }
 
     def generate_prep_pack(self, journal_entries: list[dict],
                            memories: list[str], language: str = "en") -> dict:

@@ -277,6 +277,7 @@
     "subtitle": "How would you like to explore this further?",
     "button": "Go Deeper",
     "thinking": "Thinking...",
+    "fallbackMessage": "AI is busy, but here's a question for you to reflect on:",
     "directions": {
       "why": {
         "label": "Understand why",
@@ -806,6 +807,31 @@
     "disabledDesc": "Enable AI Personalization in Settings to use this feature.",
     "offlineTitle": "You're offline",
     "offlineDesc": "AI insights will be available when you're back online. Your journal is saved locally."
+  },
+  "crisis": {
+    "title": "You're Not Alone",
+    "message": "We noticed you might be going through a difficult moment. There are people ready to listen and support you right now.",
+    "hotlineNgayMai": "Ngày Mai Hotline",
+    "hotlineNgayMaiNumber": "096 306 1414",
+    "hotlineNgayMaiDesc": "Crisis support, suicide prevention (Vietnam)",
+    "hotline111": "National Hotline 111",
+    "hotline111Number": "111",
+    "hotline111Desc": "Crisis support, free, 24/7 (Vietnam)",
+    "hotline988": "988 Suicide & Crisis Lifeline",
+    "hotline988Number": "988",
+    "hotline988Desc": "Crisis support, free, 24/7 (US)",
+    "vietnamHotlines": "Vietnam Hotlines",
+    "callHotline": "Call now",
+    "copyNumber": "Copy",
+    "copied": "Copied ✓",
+    "internationalLink": "Find a helpline in your country",
+    "continueWriting": "I want to continue writing"
+  },
+  "syncWarning": {
+    "failedItemsTitle": "Some journals failed to sync",
+    "failedItemsMessage": "{count} journal(s) could not be uploaded after multiple attempts. Your data is saved on your device, but please sync soon to avoid data loss.",
+    "dismiss": "Understood",
+    "retryNow": "Retry sync"
   },
   "admin": {
     "title": "TheraPrep Admin",

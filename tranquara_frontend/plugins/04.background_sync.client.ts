@@ -14,6 +14,7 @@ import NetworkMonitor from '~/services/sync/network_monitor';
 import KeycloakService from '~/stores/auth/keycloak_service';
 import { userJournalStore } from '~/stores/stores/user_journal';
 import { useToolkitStore } from '~/stores/stores/therapy_toolkit_store';
+import SyncQueue from '~/services/sync/sync_queue';
 
 export default defineNuxtPlugin(() => {
   console.log('[BackgroundSync] Plugin initializing...');
@@ -54,6 +55,18 @@ export default defineNuxtPlugin(() => {
       toolkitStore.setOnline(true);
       await toolkitStore.fullBiDirectionalSync();
       console.log('[BackgroundSync] Toolkit sync complete');
+
+      // #10: Check for failed sync items and warn user
+      const failedItems = SyncQueue.getFailedItems();
+      if (failedItems.length > 0) {
+        console.warn('[BackgroundSync] %d items failed to sync after max retries', failedItems.length);
+        // Emit event for UI to show warning toast
+        if (process.client && window) {
+          window.dispatchEvent(new CustomEvent('tranquara:sync-failed', {
+            detail: { count: failedItems.length }
+          }));
+        }
+      }
     } catch (error) {
       console.error('[BackgroundSync] Sync error:', error);
     }

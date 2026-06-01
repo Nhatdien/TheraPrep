@@ -30,6 +30,20 @@
     <!-- Content -->
     <div v-else-if="prepPack" class="space-y-6">
 
+      <!-- Crisis Warning Banner -->
+      <div v-if="prepPack.crisis_warning" class="p-4 rounded-xl border-2 border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl shrink-0">💜</span>
+          <div>
+            <h3 class="font-semibold text-amber-800 dark:text-amber-300 text-sm">{{ $t('crisis.title') }}</h3>
+            <p class="text-sm text-amber-700 dark:text-amber-400 mt-1">{{ prepPack.crisis_message }}</p>
+            <div class="flex gap-2 mt-3">
+              <UButton size="sm" icon="i-lucide-phone" @click="isCrisisModalOpen = true">{{ $t('crisis.callHotline') }}</UButton>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Top cards: 2-col grid on desktop -->
       <div class="lg:grid lg:grid-cols-2 lg:gap-6 space-y-6 lg:space-y-0">
 
@@ -245,6 +259,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Crisis Modal -->
+    <CrisisModal v-model="isCrisisModalOpen" />
   </section>
 </template>
 
@@ -260,6 +277,7 @@ import { userJournalStore } from "~/stores/stores/user_journal";
 import { JOURNEY_STEPS } from "~/types/therapy_toolkit";
 import type { PrepPack } from "~/types/therapy_toolkit";
 import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
+import CrisisModal from '~/components/CrisisModal.vue';
 
 const { t } = useI18n();
 const { dateLocale } = useLocalizedDate();
@@ -276,6 +294,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
 const isLoading = ref(true);
 const prepPack = ref<PrepPack | null>(null);
+const isCrisisModalOpen = ref(false);
 
 const trendColor = computed(() => {
   if (!prepPack.value?.mood_overview?.trend) return 'text-muted';

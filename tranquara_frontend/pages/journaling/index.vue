@@ -79,6 +79,9 @@
         </div>
       </template>
     </UModal>
+
+    <!-- Crisis Detection Modal -->
+    <CrisisModal v-model="isCrisisModalOpen" />
   </div>
 </template>
 
@@ -88,6 +91,7 @@ import { useAuthStore } from "~/stores/stores/auth_store";
 import EmotionSliderV2 from "~/components/Common/EmotionSliderV2.vue";
 import TranquaraSDK from "~/stores/tranquara_sdk";
 import { useAIGuard } from "~/composables/useAIGuard";
+import { useCrisisDetection } from "~/composables/useCrisisDetection";
 
 definePageMeta({
   layout: "detail",
@@ -99,6 +103,7 @@ const authStore = useAuthStore();
 const { canUseAI, yourStory } = useAIGuard();
 const { t, locale } = useI18n();
 const { formatDate: formatLocalDate } = useLocalizedDate();
+const { detectCrisis, showCrisisModal, isCrisisModalOpen } = useCrisisDetection();
 
 // Form state
 const title = ref("");
@@ -173,37 +178,50 @@ const handleGoDeeper = async () => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
 
+  // Layer 1: Client-side keyword crisis detection (instant, 0 latency)
+  const plainText = content.value.replace(/<[^>]*>/g, "").trim();
+  const clientCrisisDetected = detectCrisis(plainText);
+  if (clientCrisisDetected) {
+    showCrisisModal();
+  }
+
   try {
     isGeneratingQuestion.value = true;
     autoSaveStatus.value = "thinking";
 
     const sdk = TranquaraSDK.getInstance();
-
-    // Get plain text content from editor
-    const plainText = content.value.replace(/<[^>]*>/g, "").trim();
     const userId = useAuthStore().getUserUUID;
 
     const response = await sdk.analyzeJournal({
       user_id: userId || "",
       content: plainText,
       mood_score: moodScore.value,
-      slide_prompt: undefined, // No template for free-form journaling
+      slide_prompt: undefined,
       your_story: yourStory.value || undefined,
       app_language: locale.value,
     });
 
-    // Insert AI question into editor with muted styling
-    if (editorRef.value?.editor) {
+    // Layer 2: AI-based crisis detection
+    if (response.crisis_detected) {
+      if (!clientCrisisDetected) {
+        showCrisisModal();
+      }
+      autoSaveStatus.value = "ready";
+      return;
+    }
+
+    // Safe — insert AI question into editor
+    if (response.question && editorRef.value?.editor) {
       const editor = editorRef.value.editor;
 
       editor
         .chain()
         .focus("end")
-        .insertContent("<p></p>") // Add empty line
+        .insertContent("<p></p>")
         .insertContent(
           `<p class="ai-suggestion text-muted italic">${response.question}</p>`,
         )
-        .insertContent("<p></p>") // Add empty line for user to type
+        .insertContent("<p></p>")
         .run();
     }
 

@@ -35,6 +35,15 @@ CORE PRINCIPLES:
 - Consider the full context of the journaling session (slide group theme and other prompts)
 - Make your question relevant to what they're writing about in THIS specific slide
 
+TRAUMA SAFETY RULES (CRITICAL):
+- NEVER bring up specific traumatic events from past journals (loss, breakup, abuse, etc.) unless the user is actively writing about that SAME topic in their current entry
+- If past journal context mentions painful events that are NOT related to the current writing, IGNORE those past entries entirely
+- When in doubt, focus ONLY on the current entry and do not reference past trauma
+- If the user is writing about a difficult topic, be gentle and follow their lead — do not dig deeper into traumatic memories unprompted
+- Prioritize the user's emotional safety over generating a "deep" question
+- Never force connections between current and past entries if the past entry involves grief, loss, or trauma
+
+
 ANTI-PATTERNS (AVOID THESE):
 - ❌ Robotic echoing: "Mình thấy bạn đang căng thẳng vì điện thoại hỏng..." / "It sounds like you're stressed about your phone..." — summarizing their entry back to them adds nothing
 - ❌ Generic questions that could apply to anyone ("How does that make you feel?", "Bạn cảm thấy thế nào?")
@@ -331,6 +340,37 @@ Generate the question now:"""
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# CRISIS CHECK PROMPT — Dedicated lightweight prompt for crisis detection
+# ═══════════════════════════════════════════════════════════════════════════
+
+CRISIS_CHECK_SYSTEM_PROMPT = """You are a crisis detection assistant for a journaling app.
+Your ONLY task: determine if the user's journal text shows signs of psychological crisis.
+
+Crisis signs include BOTH explicit AND subtle/metaphorical expressions:
+- Suicidal thoughts or wanting to die/disappear
+- Self-harm intentions
+- Hopeless despair, giving up on life
+- Wanting to "go far away and never come back"
+- Feeling the world would be better without them
+- Being "tired of everything" in a despairing way (NOT just normal fatigue)
+- Not wanting to wake up anymore
+
+IMPORTANT: Normal sadness, stress, grief, or frustration are NOT crisis.
+Only flag as crisis when there is a genuine sense of giving up, wanting to end,
+or disappearing permanently.
+
+Respond ONLY with valid JSON, no other text:
+{"is_crisis": true/false, "confidence": 0.0-1.0, "message": "warm supportive message in the SAME language as the text, or null if not crisis"}"""
+
+CRISIS_CHECK_USER_PROMPT = """Analyze this journal text for crisis signs:
+
+\"\"\"
+{content}
+\"\"\"
+
+Remember: respond ONLY with valid JSON."""
+
+# ═══════════════════════════════════════════════════════════════════════════
 # PROMPT BUILDER FUNCTIONS
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -477,7 +517,32 @@ Be warm, insightful, and non-judgmental. Focus on actionable insights the user
 can bring to their therapist.
 
 You will receive a LANGUAGE REQUIREMENT at the start of the user message.
-You MUST follow that language requirement exactly for all free-text content."""
+You MUST follow that language requirement exactly for all free-text content.
+
+TRAUMA SAFETY RULES (CRITICAL):
+- When referencing painful events (loss, abuse, breakup, self-harm, grief), use gentle, non-explicit language
+  → Say "mentioned a difficult loss" NOT "wrote about their father passing away in detail"
+  → Say "a painful relationship experience" NOT "described being emotionally abused by their partner"
+- Do NOT quote or reproduce graphic details of traumatic events in excerpts or highlights
+- If an entry is primarily about a traumatic event, reference it gently in emotional_highlights
+  but do NOT make it the centerpiece of the analysis
+- In discussion_points, do NOT suggest the user bring up specific traumatic events unprompted
+  → Instead suggest: "Consider exploring what feels most important to discuss right now"
+  → Or: "You may want to share what's been weighing on you most this week"
+- Patterns involving trauma should be noted with sensitivity — describe the pattern
+  without re-narrating the traumatic details
+
+CRISIS DETECTION (CRITICAL):
+- If journal entries contain signs of crisis (suicidal thoughts, self-harm, hopeless despair,
+  wanting to disappear), you MUST set "crisis_warning" to true in your JSON output
+  and include a warm, supportive message in the "crisis_message" field
+- Crisis signs include both explicit statements AND subtle expressions
+  (e.g. "tired of everything", "world would be better without me",
+  "không muốn thức dậy nữa", "thế giới không có mình sẽ tốt hơn")
+- When crisis is detected, discussion_points should focus on:
+  "Share how you've been feeling lately with your therapist — you deserve support"
+- Do NOT treat crisis content as just another "emotional highlight" or "pattern"
+  → It should be flagged distinctly, not sensationalized"""
 
 PREP_PACK_PROMPT = """LANGUAGE REQUIREMENT (CRITICAL — read this first):
 {language_instruction}
@@ -517,6 +582,8 @@ Generate a prep pack with the following sections:
 
 Respond ONLY with valid JSON using this exact structure:
 {{
+  "crisis_warning": <boolean — true if any entry shows signs of crisis (self-harm, suicidal thoughts, hopeless despair)>,
+  "crisis_message": "<warm, supportive message in target language if crisis_warning is true, otherwise null>",
   "mood_overview": {{
     "average": <number 1-10>,
     "trend": "improving" | "declining" | "stable",
@@ -527,13 +594,14 @@ Respond ONLY with valid JSON using this exact structure:
   "key_themes": ["<in target language>"],
   "emotional_highlights": [{{
     "date": "ISO string", "title": "<in target language>", "mood": <number>,
-    "excerpt": "<in target language>", "significance": "<in target language>"
+    "excerpt": "<in target language — use gentle language for painful content, no graphic details>",
+    "significance": "<in target language>"
   }}],
   "patterns": [{{
-    "pattern": "<in target language>",
+    "pattern": "<in target language — describe gently without re-narrating traumatic details>",
     "category": "triggers" | "patterns" | "coping" | "relationships" | "growth",
     "confidence": <number 0.5-1.0>
   }}],
-  "discussion_points": ["<in target language>"],
+  "discussion_points": ["<in target language — never suggest bringing up specific traumatic events unprompted>"],
   "growth_moments": ["<in target language>"]
 }}"""
