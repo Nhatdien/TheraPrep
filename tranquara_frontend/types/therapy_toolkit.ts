@@ -81,6 +81,8 @@ export interface PrepPack {
   journal_count: number;
   created_at: string;
   needs_sync?: boolean;
+  crisis_warning?: boolean;
+  crisis_message?: string | null;
 }
 
 export interface MoodOverview {

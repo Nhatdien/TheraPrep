@@ -267,6 +267,7 @@
     "subtitle": "Bạn muốn khám phá thêm theo hướng nào?",
     "button": "Khám phá thêm",
     "thinking": "Đang suy nghĩ...",
+    "fallbackMessage": "AI đang bận, nhưng đây là một câu hỏi để bạn suy ngẫm:",
     "directions": {
       "why": {
         "label": "Hiểu lý do",
@@ -796,6 +797,31 @@
     "disabledDesc": "Bật Cá nhân hoá AI trong Cài đặt để dùng tính năng này.",
     "offlineTitle": "Bạn đang ngoại tuyến",
     "offlineDesc": "Phân tích AI sẽ có sẵn khi bạn kết nối lại. Nhật ký được lưu cục bộ."
+  },
+  "crisis": {
+    "title": "Bạn không một mình",
+    "message": "Chúng tôi nhận thấy bạn có thể đang trải qua thời khắc khó khăn. Có những người sẵn sàng lắng nghe và hỗ trợ bạn ngay bây giờ.",
+    "hotlineNgayMai": "Đường dây Ngày Mai",
+    "hotlineNgayMaiNumber": "096 306 1414",
+    "hotlineNgayMaiDesc": "Hỗ trợ tâm lý khủng hoảng, phòng chống tự tử",
+    "hotline111": "Tổng đài Quốc gia 111",
+    "hotline111Number": "111",
+    "hotline111Desc": "Hỗ trợ khủng hoảng, miễn phí, 24/7",
+    "hotline988": "988 Suicide & Crisis Lifeline (Mỹ)",
+    "hotline988Number": "988",
+    "hotline988Desc": "Hỗ trợ khủng hoảng, miễn phí, 24/7 (tiếng Anh)",
+    "vietnamHotlines": "Đường dây nóng Việt Nam",
+    "callHotline": "Gọi ngay",
+    "copyNumber": "Sao chép",
+    "copied": "Đã sao chép ✓",
+    "internationalLink": "Tìm đường dây nóng tại quốc gia của bạn",
+    "continueWriting": "Mình vẫn muốn viết tiếp"
+  },
+  "syncWarning": {
+    "failedItemsTitle": "Một số nhật ký chưa đồng bộ được",
+    "failedItemsMessage": "{count} nhật ký không thể tải lên sau nhiều lần thử. Dữ liệu của bạn được lưu trên thiết bị, nhưng hãy đảm bảo đồng bộ sớm để không mất dữ liệu.",
+    "dismiss": "Đã hiểu",
+    "retryNow": "Thử đồng bộ lại"
   },
   "admin": {
     "title": "TheraPrep Admin",

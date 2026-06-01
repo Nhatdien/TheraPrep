@@ -17,7 +17,7 @@ async def analyze_journal(request: AnalyzeJournalRequest):
         ai_processor = AIProcessor.get_instance()
 
         # Run the blocking LLM call in a thread to avoid blocking the async event loop
-        question = await asyncio.to_thread(
+        result = await asyncio.to_thread(
             ai_processor.generate_journal_question,
             user_id=request.user_id,
             content=request.content,
@@ -31,7 +31,7 @@ async def analyze_journal(request: AnalyzeJournalRequest):
             app_language=request.app_language,
         )
 
-        return {"question": question}
+        return result
 
     except Exception as e:
         raise HTTPException(

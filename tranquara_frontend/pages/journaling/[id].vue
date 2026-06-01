@@ -119,6 +119,9 @@
     <div v-else class="flex items-center justify-center h-full">
       <p class="text-muted">{{ $t('journal.notFound') }}</p>
     </div>
+
+    <!-- Crisis Detection Modal -->
+    <CrisisModal v-model="isCrisisModalOpen" />
   </div>
 </template>
 
@@ -129,6 +132,8 @@ import EmotionSliderV2 from "~/components/Common/EmotionSliderV2.vue";
 import TranquaraSDK from "~/stores/tranquara_sdk";
 import type { LocalJournal } from "~/types/user_journal";
 import { useAIGuard } from "~/composables/useAIGuard";
+import { useCrisisDetection } from "~/composables/useCrisisDetection";
+import { useFallbackQuestions } from "~/composables/useFallbackQuestions";
 
 definePageMeta({ layout: "detail" });
 
@@ -138,6 +143,8 @@ const journalStore = userJournalStore();
 const { canUseAI, yourStory } = useAIGuard();
 const { t, locale } = useI18n();
 const { formatDate: formatLocalDate } = useLocalizedDate();
+const { isCrisisModalOpen, detectCrisis, showCrisisModal } = useCrisisDetection();
+const { getFallbackQuestion } = useFallbackQuestions();
 
 // State
 const isLoading = ref(true);
@@ -267,16 +274,34 @@ const confirmMood = () => {
   showMoodPicker.value = false;
 };
 
+const insertQuestionToEditor = (question: string) => {
+  if (editorRef.value?.editor) {
+    editorRef.value.editor
+      .chain()
+      .focus('end')
+      .insertContent('<p></p>')
+      .insertContent('<p class="ai-suggestion" style="color: #888; font-style: italic;">' + question + '</p>')
+      .insertContent('<p></p>')
+      .run();
+  }
+};
+
 const handleGoDeeper = async (direction: string) => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
+  
+  // Layer 1: Client-side keyword crisis detection (instant, 0 latency)
+  const plainText = content.value.replace(/<[^>]*>/g, '').trim();
+  const clientCrisisDetected = detectCrisis(plainText);
+  if (clientCrisisDetected) {
+    showCrisisModal();
+  }
   
   try {
     isGeneratingQuestion.value = true;
     autoSaveStatus.value = "thinking";
     
     const sdk = TranquaraSDK.getInstance();
-    const plainText = content.value.replace(/<[^>]*>/g, '').trim();
     const userId = useAuthStore().getUserUUID;
     
     const response = await sdk.analyzeJournal({
@@ -289,21 +314,26 @@ const handleGoDeeper = async (direction: string) => {
       app_language: locale.value,
     });
     
-    if (editorRef.value?.editor) {
-      editorRef.value.editor
-        .chain()
-        .focus('end')
-        .insertContent('<p></p>')
-        .insertContent('<p class="ai-suggestion" style="color: #888; font-style: italic;">' + response.question + '</p>')
-        .insertContent('<p></p>')
-        .run();
+    // Layer 2: AI-based crisis detection — backend returns structured response
+    if (response.crisis_detected) {
+      // AI detected crisis — show modal (if not already shown by Layer 1)
+      if (!clientCrisisDetected) {
+        showCrisisModal();
+      }
+      autoSaveStatus.value = "unsavedChanges";
+    } else if (response.question) {
+      // Safe — insert the follow-up question
+      insertQuestionToEditor(response.question);
+      autoSaveStatus.value = "questionAdded";
+      setTimeout(() => { autoSaveStatus.value = "unsavedChanges"; }, 2000);
     }
-    
-    autoSaveStatus.value = "questionAdded";
-    setTimeout(() => { autoSaveStatus.value = "unsavedChanges"; }, 2000);
   } catch (error) {
+    // Fallback question when AI fails
     console.error("[GoDeeper] Error:", error);
-    autoSaveStatus.value = "error";
+    const fallbackQ = getFallbackQuestion(direction);
+    const prefix = t('goDeeper.fallbackMessage');
+    insertQuestionToEditor(prefix + ' ' + fallbackQ);
+    autoSaveStatus.value = "questionAdded";
     setTimeout(() => { autoSaveStatus.value = "unsavedChanges"; }, 2000);
   } finally {
     isGeneratingQuestion.value = false;

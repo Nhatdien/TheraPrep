@@ -19,6 +19,9 @@
         @select="handleGoDeeper"
       />
     </div>
+
+    <!-- Crisis Detection Modal -->
+    <CrisisModal v-model="isCrisisModalOpen" />
   </div>
 </template>
 
@@ -26,11 +29,13 @@
 import TranquaraSDK from "~/stores/tranquara_sdk";
 import { useAuthStore } from "~/stores/stores/auth_store";
 import { useAIGuard } from "~/composables/useAIGuard";
+import { useCrisisDetection } from "~/composables/useCrisisDetection";
 
 const currentNote = ref("");
 const isGeneratingQuestion = ref(false);
 const { canUseAI, yourStory } = useAIGuard();
 const { locale } = useI18n();
+const { isCrisisModalOpen, detectCrisis, showCrisisModal } = useCrisisDetection();
 
 const editor = ref()
 const props = defineProps({
@@ -79,13 +84,18 @@ const handleGoDeeper = async (direction: string) => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
   
+  // Layer 1: Client-side keyword crisis detection (instant, 0 latency)
+  const plainText = currentNote.value.replace(/<[^>]*>/g, '').trim();
+  const clientCrisisDetected = detectCrisis(plainText);
+  if (clientCrisisDetected) {
+    showCrisisModal();
+  }
+  
   try {
     isGeneratingQuestion.value = true;
     
     const sdk = TranquaraSDK.getInstance();
     
-    // Get plain text content from editor
-    const plainText = currentNote.value.replace(/<[^>]*>/g, '').trim();
     const slidePrompt = props.content?.question || props.content?.question_content;
     const userId = useAuthStore().getUserUUID;
     
@@ -94,16 +104,24 @@ const handleGoDeeper = async (direction: string) => {
       content: plainText,
       mood_score: userJournalStore().currentMoodScore,
       slide_prompt: slidePrompt,
-      slide_group_context: props.slideGroupContext,  // Pass full slide group context
-      current_slide_id: props.content?.id,            // Pass current slide ID
-      collection_title: props.collectionTitle,         // Pass collection title
-      direction: direction as 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth',  // Pass selected direction
+      slide_group_context: props.slideGroupContext,
+      current_slide_id: props.content?.id,
+      collection_title: props.collectionTitle,
+      direction: direction as 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth',
       your_story: yourStory.value || undefined,
       app_language: locale.value,
     });
     
-    // Insert AI question into editor with muted styling
-    if (editor.value?.editor) {
+    // Layer 2: AI-based crisis detection
+    if (response.crisis_detected) {
+      if (!clientCrisisDetected) {
+        showCrisisModal();
+      }
+      return; // Don't insert question
+    }
+    
+    // Safe — insert AI question into editor
+    if (response.question && editor.value?.editor) {
       const editorInstance = editor.value.editor;
       
       editorInstance

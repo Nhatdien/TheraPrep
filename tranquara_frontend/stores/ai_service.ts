@@ -17,10 +17,18 @@ export class AIService extends Base {
     direction?: 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth';
     your_story?: string;          // User's personal context from settings
     app_language?: string;        // User's app language setting ('en' | 'vi')
-  }): Promise<{ question: string }> {
+  }): Promise<{
+    question: string | null;
+    crisis_detected: boolean;
+    crisis_message: string | null;
+  }> {
     const url = `${this.config.websocket_url || 'http://localhost:8000'}/api/analyze-journal`;
     
-    const response = await this.fetch<{ question: string }>(url, {
+    const response = await this.fetch<{
+      question: string | null;
+      crisis_detected: boolean;
+      crisis_message: string | null;
+    }>(url, {
       method: "POST",
       body: JSON.stringify(params),
     });
