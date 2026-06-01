@@ -96,6 +96,7 @@
 <script setup>
 import { useEditor, EditorContent } from "@tiptap/vue-3";
 import { StarterKit } from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
 import { CustomParagraph } from "@/components/TiptapExtensions/CustomParagraph";
 
 import {
@@ -129,7 +130,7 @@ const editor = useEditor({
     },
   },
   content: modelValue.value || "",
-  extensions: [StarterKit.configure({ paragraph: false }), CustomParagraph],
+  extensions: [StarterKit.configure({ paragraph: false }), CustomParagraph, Underline],
   onUpdate: ({ editor }) => {
     modelValue.value = editor.getHTML();
     emits("onUpdate");

@@ -11,20 +11,35 @@
       @on-update="onEditorUpdate"
       v-model="currentNote" />
     
-    <!-- Go Deeper with Direction Selection -->
-    <div class="mt-5 flex justify-end" v-if="hasContent && !isGeneratingQuestion">
+    <!-- Bottom toolbar: Format + Go Deeper -->
+    <div class="mt-3 flex items-center justify-between">
+      <!-- Format Button -->
+      <UButton
+        variant="ghost"
+        size="sm"
+        @click="isFormatDrawerOpen = true"
+        class="font-semibold tracking-tight">
+        Aa
+      </UButton>
+
+      <!-- Go Deeper with Direction Selection -->
       <JournalGoDeepDirections
+        v-if="hasContent && !isGeneratingQuestion"
         :loading="isGeneratingQuestion"
         :disabled="!hasContent || isGeneratingQuestion"
         @select="handleGoDeeper"
       />
+
+      <!-- Persistent AI loading indicator -->
+      <div v-if="isGeneratingQuestion" class="flex items-center gap-2 text-sm text-muted">
+        <span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <span>{{ $t('goDeeper.thinking') }}</span>
+      </div>
     </div>
 
-    <!-- Persistent AI loading indicator (visible outside slideover) -->
-    <div v-if="isGeneratingQuestion" class="mt-4 flex items-center justify-center gap-2 text-sm text-muted">
-      <span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      <span>{{ $t('goDeeper.thinking') }}</span>
-    </div>
+    <!-- Format Drawer -->
+    <JournalFormatDrawer v-model="isFormatDrawerOpen" :editor="editor?.editor" />
+
     <!-- Crisis Detection Modal -->
     <CrisisModal v-model="isCrisisModalOpen" />
   </div>
@@ -43,6 +58,7 @@ const { locale } = useI18n();
 const { isCrisisModalOpen, detectCrisis, showCrisisModal } = useCrisisDetection();
 
 const editor = ref()
+const isFormatDrawerOpen = ref(false);
 const props = defineProps({
   content: {
     type: Object,

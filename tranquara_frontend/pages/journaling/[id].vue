@@ -78,6 +78,15 @@
             <UIcon :name="selectedMoodIcon" class="text-lg" />
             <span class="ml-1 text-sm text-muted truncate max-w-[120px] sm:max-w-[180px]">{{ moodLabel }}</span>
           </UButton>
+
+          <!-- Format Button -->
+          <UButton
+            variant="ghost"
+            size="sm"
+            @click="isFormatDrawerOpen = true"
+            class="shrink-0 font-semibold tracking-tight">
+            Aa
+          </UButton>
           
           <!-- Go Deeper Button -->
           <JournalGoDeepDirections
@@ -91,6 +100,9 @@
           <span class="text-xs text-muted whitespace-nowrap">{{ autoSaveStatusText }}</span>
         </div>
       </div>
+
+      <!-- Format Drawer -->
+      <JournalFormatDrawer v-model="isFormatDrawerOpen" :editor="editorRef?.editor" />
 
       <!-- Mood Picker Modal -->
       <UModal v-model:open="showMoodPicker">
@@ -161,6 +173,7 @@ const showMoodPicker = ref(false);
 const editorRef = ref<any>(null);
 const autoSaveStatus = ref("ready");
 const isGeneratingQuestion = ref(false);
+const isFormatDrawerOpen = ref(false);
 
 // Map autoSaveStatus keys to i18n
 const autoSaveStatusText = computed(() => {

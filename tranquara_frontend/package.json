@@ -25,6 +25,7 @@
     "@nuxtjs/i18n": "^10.2.3",
     "@pinia/nuxt": "^0.6.0",
     "@tailwindcss/postcss": "^4.1.10",
+    "@tiptap/extension-underline": "^2.27.2",
     "@tiptap/pm": "^2.25.0",
     "@tiptap/starter-kit": "^2.25.0",
     "@tiptap/vue-3": "^2.25.0",

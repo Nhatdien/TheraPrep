@@ -23,52 +23,57 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 				app.serverErrorResponse(w, r, fmt.Errorf("%s", err))
 			}
 		}()
-
 		next.ServeHTTP(w, r)
 	})
 }
 
 func (app *application) rateLimit(next http.Handler) http.Handler {
-	// Define a client struct to hold the rate limiter and last seen time for each
-	// client.
 	type client struct {
 		limiter  *rate.Limiter
 		lastSeen time.Time
 	}
 	var (
-		mu sync.Mutex
-		// Update the map so the values are pointers to a client struct.
+		mu      sync.Mutex
 		clients = make(map[string]*client)
 	)
+
+	// Default limits (can override via config)
+	rps := float64(50)
+	burst := 100
 
 	go func() {
 		for {
 			time.Sleep(time.Minute)
-
 			mu.Lock()
-
-			for ip, client := range clients {
+			for key, client := range clients {
 				if time.Since(client.lastSeen) > 3*time.Minute {
-					delete(clients, ip)
+					delete(clients, key)
 				}
 			}
-
 			mu.Unlock()
 		}
 	}()
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Use user ID (from Authorization header) when available, fall back to IP
-		// This prevents shared IPs (office, coffee shop) from blocking legitimate users
 		key := ""
+		isWrite := r.Method != http.MethodGet && r.Method != http.MethodHead
+
 		authHeader := r.Header.Get("Authorization")
 		if strings.HasPrefix(authHeader, "Bearer ") {
-			// Extract a stable identifier from the token without full validation
-			// We use a truncated hash of the token for the rate limit key
 			key = "user:" + authHeader[len("Bearer "):]
 			if len(key) > 100 {
 				key = key[:100]
 			}
+			// Authenticated users get higher limits
+			if isWrite {
+				rps = 25
+				burst = 50
+			} else {
+				rps = 50
+				burst = 100
+			}
 		}
+
 		if key == "" {
 			ip, _, err := net.SplitHostPort(r.RemoteAddr)
 			if err != nil {
@@ -76,14 +81,28 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 				return
 			}
 			key = "ip:" + ip
+			// Anonymous users get stricter limits
+			if isWrite {
+				rps = 5
+				burst = 10
+			} else {
+				rps = 20
+				burst = 30
+			}
 		}
 
 		mu.Lock()
 		if _, found := clients[key]; !found {
-			clients[key] = &client{limiter: rate.NewLimiter(2, 4)}
+			clients[key] = &client{
+				limiter:  rate.NewLimiter(rate.Limit(rps), burst),
+				lastSeen: time.Now(),
+			}
 		}
 
 		clients[key].lastSeen = time.Now()
+		clients[key].limiter.SetLimit(rate.Limit(rps))
+		clients[key].limiter.SetBurst(burst)
+
 		if !clients[key].limiter.Allow() {
 			mu.Unlock()
 			app.rateLimitExceedResponse(w, r)
@@ -95,12 +114,9 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 }
 
 func (app *application) testPostMiddleWare(previous http.Handler) http.Handler {
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		previous.ServeHTTP(w, r)
-
 		app.logger.PrintInfo("post-middleware called", nil)
-
 	})
 }
 
@@ -119,13 +135,10 @@ func (app *application) authMiddleWare(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		prefix := "Bearer "
-		cutBearerToken := strings.TrimPrefix(authHeader, prefix)
-		token, err := jwt.Parse(cutBearerToken, func(t *jwt.Token) (interface{}, error) {
+		token, err := jwt.Parse(strings.TrimPrefix(authHeader, "Bearer "), func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
 				return nil, fmt.Errorf("error with signing method")
 			}
-
 			return pubKey, nil
 		})
 
@@ -154,12 +167,9 @@ func (app *application) GetUserFromContext(ctx context.Context) jwt.MapClaims {
 
 func (app *application) GetUserUUIDFromContext(ctx context.Context) (uuid.UUID, error) {
 	claims := ctx.Value(userCtxKey).(jwt.MapClaims)
-
 	return uuid.Parse(claims["sub"].(string))
 }
 
-// adminMiddleware wraps authMiddleWare and additionally checks that the
-// authenticated user's UUID is in the ADMIN_USERS environment variable.
 func (app *application) adminMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return app.authMiddleWare(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := app.GetUserUUIDFromContext(r.Context())
@@ -175,20 +185,13 @@ func (app *application) adminMiddleware(next http.HandlerFunc) http.HandlerFunc 
 		}
 
 		adminUUIDs := strings.Split(adminUsersEnv, ",")
-		isAdmin := false
 		for _, adminUUID := range adminUUIDs {
-			trimmed := strings.TrimSpace(adminUUID)
-			if trimmed == userID.String() {
-				isAdmin = true
-				break
+			if strings.TrimSpace(adminUUID) == userID.String() {
+				next.ServeHTTP(w, r)
+				return
 			}
 		}
 
-		if !isAdmin {
-			app.errorResponse(w, r, http.StatusForbidden, "Forbidden")
-			return
-		}
-
-		next.ServeHTTP(w, r)
+		app.errorResponse(w, r, http.StatusForbidden, "Forbidden")
 	})
 }

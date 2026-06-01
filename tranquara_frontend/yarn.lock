@@ -3946,6 +3946,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-underline@npm:^2.27.2":
+  version: 2.27.2
+  resolution: "@tiptap/extension-underline@npm:2.27.2"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+  checksum: 10c0/a0225d9bbd64f342a45b88fa86628e7f7784492f529fab061fa235ac4f56e73012fdcf4d4a15313b71a69f0562971c4b09146a15c928a3a7d79a01ce39b5537d
+  languageName: node
+  linkType: hard
+
 "@tiptap/pm@npm:^2.25.0, @tiptap/pm@npm:^2.27.2":
   version: 2.27.2
   resolution: "@tiptap/pm@npm:2.27.2"
@@ -13016,6 +13025,7 @@ __metadata:
     "@pinia/nuxt": "npm:^0.6.0"
     "@tailwindcss/postcss": "npm:^4.1.10"
     "@tailwindcss/typography": "npm:^0.5.16"
+    "@tiptap/extension-underline": "npm:^2.27.2"
     "@tiptap/pm": "npm:^2.25.0"
     "@tiptap/starter-kit": "npm:^2.25.0"
     "@tiptap/vue-3": "npm:^2.25.0"
