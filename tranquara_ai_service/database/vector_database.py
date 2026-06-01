@@ -1,7 +1,7 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, Filter, FieldCondition, MatchValue
 from langchain_qdrant import QdrantVectorStore
-from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import os
 import numpy as np
 
@@ -21,7 +21,8 @@ else:
     client = QdrantClient(host=qdrant_host, port=qdrant_port)
 
 # --- Shared config ---
-VECTOR_SIZE = 1536  # OpenAI text-embedding-ada-002
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/gemini-embedding-001")
+VECTOR_SIZE = 3072  # Gemini gemini-embedding-001 default output dimensions
 DISTANCE_METRIC = Distance.COSINE
 
 JOURNAL_COLLECTION = "journal_entries"
@@ -29,7 +30,7 @@ MEMORY_COLLECTION = "user_memories"
 
 # --- Lazy initialization ---
 # QdrantVectorStore validates embeddings at construction time by calling
-# OpenAI's API. If the API key is invalid or the quota is exhausted, this
+# the Gemini API. If the API key is invalid or the quota is exhausted, this
 # would crash the service on import. Lazy init defers that call until the
 # store is actually used, so the service can still start.
 
@@ -53,15 +54,23 @@ def get_top_k_for_direction(direction: str | None) -> int:
 
 
 def _get_embeddings():
-    """Lazily create the shared OpenAIEmbeddings instance."""
+    """Lazily create the shared GoogleGenerativeAIEmbeddings instance."""
     global _embeddings
     if _embeddings is None:
-        _embeddings = OpenAIEmbeddings()
+        _embeddings = GoogleGenerativeAIEmbeddings(
+            model=EMBEDDING_MODEL,
+            google_api_key=os.environ["GOOGLE_API_KEY"],
+        )
     return _embeddings
 
 
 def _ensure_collection(name: str):
-    """Create a Qdrant collection if it doesn't already exist."""
+    """Create a Qdrant collection if it doesn't already exist.
+    
+    If the collection exists but has a different vector size (e.g., migrated
+    from OpenAI 1536-dim to Gemini 3072-dim), it will be recreated.
+    """
+    global _journal_vector_store, _memory_vector_store
     if not client.collection_exists(name):
         print(f"Creating collection: {name}")
         client.recreate_collection(
@@ -70,7 +79,54 @@ def _ensure_collection(name: str):
                 size=VECTOR_SIZE, distance=DISTANCE_METRIC),
         )
     else:
-        print(f"Collection '{name}' already exists.")
+        # Check if existing collection has matching vector dimensions
+        try:
+            collection_info = client.get_collection(name)
+            vectors_config = collection_info.config.params.vectors
+            # Handle both single VectorParams and dict of named vectors
+            if hasattr(vectors_config, 'size'):
+                existing_size = vectors_config.size
+            elif isinstance(vectors_config, dict) and vectors_config:
+                existing_size = next(iter(vectors_config.values())).size
+            else:
+                print(f"[migration] Collection '{name}' has unexpected vector config. Recreating.")
+                client.recreate_collection(
+                    collection_name=name,
+                    vectors_config=VectorParams(
+                        size=VECTOR_SIZE, distance=DISTANCE_METRIC),
+                )
+                if name == JOURNAL_COLLECTION:
+                    _journal_vector_store = None
+                elif name == MEMORY_COLLECTION:
+                    _memory_vector_store = None
+                return
+
+            if existing_size != VECTOR_SIZE:
+                print(f"[migration] Collection '{name}' has vector size {existing_size}, "
+                      f"but expected {VECTOR_SIZE}. Recreating collection.")
+                client.recreate_collection(
+                    collection_name=name,
+                    vectors_config=VectorParams(
+                        size=VECTOR_SIZE, distance=DISTANCE_METRIC),
+                )
+                # Reset vector stores so they re-initialize with the new collection
+                if name == JOURNAL_COLLECTION:
+                    _journal_vector_store = None
+                elif name == MEMORY_COLLECTION:
+                    _memory_vector_store = None
+            else:
+                print(f"Collection '{name}' already exists (size={existing_size}).")
+        except Exception as e:
+            print(f"[qdrant] Error checking collection '{name}': {e}. Will attempt to recreate.")
+            client.recreate_collection(
+                collection_name=name,
+                vectors_config=VectorParams(
+                    size=VECTOR_SIZE, distance=DISTANCE_METRIC),
+            )
+            if name == JOURNAL_COLLECTION:
+                _journal_vector_store = None
+            elif name == MEMORY_COLLECTION:
+                _memory_vector_store = None
 
 
 def _get_journal_vector_store() -> QdrantVectorStore:
@@ -127,7 +183,8 @@ def search_user_journals(user_id: str, query: str, top_k: int = 5) -> list:
 
 
 def index_journal(journal_id: str, user_id: str, content: str,
-                  title: str = "", mood_score: int = None,
+                  content_html: str = None, title: str = "",
+                  mood_score: int = None,
                   mood_label: str = None, created_at: str = None):
     """
     Index a journal entry into Qdrant for future RAG retrieval.
@@ -136,16 +193,32 @@ def index_journal(journal_id: str, user_id: str, content: str,
     Args:
         journal_id: UUID of the journal (used as Qdrant point ID for upsert)
         user_id: UUID of the user who owns this journal
-        content: The journal text content to embed
+        content: The journal text content (TipTap JSON — not human-readable)
+        content_html: Rendered HTML version of content — preferred for embedding
+                      because plain `content` is TipTap JSON which is not
+                      meaningful for LLM consumption or semantic search.
         title: Journal title
         mood_score: 1-10 mood rating
         mood_label: Mood label (e.g. "Sunny", "Storm")
         created_at: ISO timestamp of journal creation
     """
+    import re as _re
     from langchain_core.documents import Document
 
-    # Build the text to embed: title + content for richer semantic meaning
-    embed_text = f"{title}\n{content}" if title else content
+    # Determine the best text to embed:
+    # 1. content_html (rendered HTML, most readable) → strip tags for clean text
+    # 2. content (TipTap JSON) → last resort, poor for semantic search
+    if content_html:
+        # Strip HTML tags to get plain text for embedding
+        plain_text = _re.sub(r'<[^>]+>', ' ', content_html)
+        plain_text = _re.sub(r'\s+', ' ', plain_text).strip()
+        embed_source = "content_html"
+    else:
+        plain_text = content
+        embed_source = "content (raw)"
+
+    # Build the text to embed: title + readable content for richer semantic meaning
+    embed_text = f"{title}\n{plain_text}" if title else plain_text
 
     doc = Document(
         page_content=embed_text,
@@ -165,7 +238,8 @@ def index_journal(journal_id: str, user_id: str, content: str,
         documents=[doc],
         ids=[journal_id]
     )
-    print(f"Indexed journal {journal_id} for user {user_id}")
+    print(f"Indexed journal {journal_id} for user {user_id} "
+          f"(embed_source={embed_source}, chars={len(embed_text)})")
 
 
 def delete_journal(journal_id: str):
@@ -186,7 +260,7 @@ def delete_journal(journal_id: str):
 
 
 def get_user_journals_by_date_range(user_id: str, date_start: str,
-                                    date_end: str, limit: int = 200) -> list:
+                                    date_end: str, limit: int = 200) -> list[dict]:
     """
     Scroll ALL journal entries for a user within a date range from Qdrant.
     Unlike search_user_journals (similarity-based), this retrieves all matching entries.
@@ -222,24 +296,34 @@ def get_user_journals_by_date_range(user_id: str, date_start: str,
         # Filter by date range in Python
         filtered = []
         for point in results:
-            payload = point.payload or {}
-            metadata = payload.get("metadata", {})
-            created_at = metadata.get("created_at", "")
+            try:
+                payload = getattr(point, "payload", None) or {}
+                if not isinstance(payload, dict):
+                    continue
+                metadata = payload.get("metadata") or {}
+                if not isinstance(metadata, dict):
+                    metadata = {}
+                created_at = metadata.get("created_at", "")
+                if not isinstance(created_at, str):
+                    created_at = str(created_at) if created_at is not None else ""
 
-            # Compare date portion only (ISO format sorts lexicographically)
-            entry_date = created_at[:10] if created_at else ""
-            if date_start <= entry_date <= date_end:
-                filtered.append({
-                    "journal_id": metadata.get("journal_id", ""),
-                    "title": metadata.get("title", "Untitled"),
-                    "content": payload.get("page_content", ""),
-                    "mood_score": metadata.get("mood_score"),
-                    "mood_label": metadata.get("mood_label"),
-                    "created_at": created_at,
-                })
+                # Compare date portion only (ISO format sorts lexicographically)
+                entry_date = created_at[:10] if created_at else ""
+                if date_start <= entry_date <= date_end:
+                    filtered.append({
+                        "journal_id": metadata.get("journal_id", ""),
+                        "title": metadata.get("title", "Untitled"),
+                        "content": payload.get("page_content", ""),
+                        "mood_score": metadata.get("mood_score"),
+                        "mood_label": metadata.get("mood_label"),
+                        "created_at": created_at,
+                    })
+            except Exception as point_err:
+                print(f"[qdrant] Error processing journal point: {point_err}")
+                continue
 
         print(f"[qdrant] Found {len(filtered)} journals for user {user_id} "
-              f"in range {date_start} – {date_end} (scrolled {len(results)} total)")
+              f"in range {date_start} \u2013 {date_end} (scrolled {len(results)} total)")
         return filtered
 
     except Exception as e:
@@ -291,23 +375,25 @@ def get_all_user_memories(user_id: str, limit: int = 100) -> list:
     Returns:
         List of matching Documents with metadata
     """
-    from qdrant_client.models import ScrollRequest
-
-    results, _ = client.scroll(
-        collection_name=MEMORY_COLLECTION,
-        scroll_filter=Filter(
-            must=[
-                FieldCondition(
-                    key="metadata.user_id",
-                    match=MatchValue(value=user_id)
-                )
-            ]
-        ),
-        limit=limit,
-        with_payload=True,
-        with_vectors=True,
-    )
-    return results
+    try:
+        results, _ = client.scroll(
+            collection_name=MEMORY_COLLECTION,
+            scroll_filter=Filter(
+                must=[
+                    FieldCondition(
+                        key="metadata.user_id",
+                        match=MatchValue(value=user_id)
+                    )
+                ]
+            ),
+            limit=limit,
+            with_payload=True,
+            with_vectors=True,
+        )
+        return results if results else []
+    except Exception as e:
+        print(f"[qdrant] Error scrolling user memories: {e}")
+        return []
 
 
 def index_memory(memory_id: str, user_id: str, content: str,

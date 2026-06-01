@@ -11,8 +11,8 @@
           </template>
         </UAvatar>
         <div class="flex-1 min-w-0">
-          <h2 class="text-lg font-semibold text-highlighted truncate">{{ displayName }}</h2>
-          <p class="text-sm text-muted truncate">{{ email }}</p>
+          <h2 class="text-lg font-semibold text-highlighted truncate" :title="displayName">{{ displayName }}</h2>
+          <p class="text-sm text-muted truncate" :title="email">{{ email }}</p>
         </div>
       </div>
     </UCard>

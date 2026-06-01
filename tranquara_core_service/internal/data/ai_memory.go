@@ -144,12 +144,22 @@ func (m AIMemoryModel) BatchCreate(userID uuid.UUID, memories []AIMemory) ([]*AI
 	return created, nil
 }
 
-// GetActiveJournalUsersSince returns user IDs that have created/updated journals since the given time.
-func (m AIMemoryModel) GetActiveJournalUsersSince(since time.Time) ([]uuid.UUID, error) {
+// ActiveJournalUser represents a user with recent journal activity and their language preference.
+type ActiveJournalUser struct {
+	UserID   uuid.UUID `json:"user_id"`
+	Language string    `json:"language"`
+}
+
+// GetActiveJournalUsersSince returns users that have created/updated journals since the given time,
+// including their language preference from user_informations.settings.
+func (m AIMemoryModel) GetActiveJournalUsersSince(since time.Time) ([]ActiveJournalUser, error) {
 	query := `
-		SELECT DISTINCT user_id
-		FROM user_journals
-		WHERE updated_at >= $1
+		SELECT DISTINCT
+			uj.user_id,
+			COALESCE(ui.settings->'personalization'->>'language', 'en') as language
+		FROM user_journals uj
+		LEFT JOIN user_informations ui ON uj.user_id = ui.user_id
+		WHERE uj.updated_at >= $1
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -161,14 +171,14 @@ func (m AIMemoryModel) GetActiveJournalUsersSince(since time.Time) ([]uuid.UUID,
 	}
 	defer rows.Close()
 
-	var userIDs []uuid.UUID
+	var users []ActiveJournalUser
 	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
+		var user ActiveJournalUser
+		if err := rows.Scan(&user.UserID, &user.Language); err != nil {
 			return nil, err
 		}
-		userIDs = append(userIDs, id)
+		users = append(users, user)
 	}
 
-	return userIDs, rows.Err()
+	return users, rows.Err()
 }

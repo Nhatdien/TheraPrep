@@ -15,7 +15,7 @@
 
       <button type="button" @click="e?.chain().focus().toggleBulletList().run()" :class="active('bulletList')" class="tb" title="Bullet list">• List</button>
       <button type="button" @click="e?.chain().focus().toggleOrderedList().run()" :class="active('orderedList')" class="tb" title="Ordered list">1. List</button>
-      <button type="button" @click="e?.chain().focus().toggleBlockquote().run()" :class="active('blockquote')" class="tb" title="Blockquote">❝</button>
+      <button type="button" @click="e?.chain().focus().toggleBlockquote().run()" :class="active('blockquote')" class="tb" title="Blockquote"><UIcon name="i-lucide-quote" class="w-4 h-4" /></button>
 
       <div class="w-px h-4 bg-gray-200 dark:bg-gray-600 mx-1" />
 
@@ -85,7 +85,7 @@ function active(type: string, attrs?: Record<string, unknown>) {
 }
 .tiptap-content :deep(.ProseMirror p.is-editor-empty:first-child::before) {
   content: attr(data-placeholder);
-  color: #9ca3af;
+  color: var(--ui-text-muted);
   pointer-events: none;
   float: left;
   height: 0;

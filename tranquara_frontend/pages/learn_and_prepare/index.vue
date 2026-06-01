@@ -3,7 +3,9 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold lg:text-3xl">{{ $t('learn.library') }}</h1>
-      <UButton variant="ghost" size="lg" icon="i-lucide-user" class="rounded-full lg:hidden" />
+      <NuxtLink to="/profile" class="w-10 h-10 rounded-full bg-muted flex items-center justify-center lg:hidden">
+        <User class="w-5 h-5 text-toned" />
+      </NuxtLink>
     </div>
 
     <!-- Sync Status Banner -->
@@ -124,7 +126,8 @@ import {
   Sun,
   Feather,
   Users,
-  Smile
+  Smile,
+  User
 } from "lucide-vue-next";
 
 const journalStore = userJournalStore();

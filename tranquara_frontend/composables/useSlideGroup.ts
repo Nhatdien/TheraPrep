@@ -128,19 +128,32 @@ export const useSlideGroup = (props?: {
     const collection = store.templates.find((template) => template.id === collectionId)
     if (!collection) return undefined;
 
+    const lang = locale.value;
     let groups: SlideGroup[] = [];
-    if (typeof collection.slide_groups === 'string') {
-      try {
-         groups = JSON.parse(collection.slide_groups);
-      } catch (e) {
-         groups = [];
+
+    // Use Vietnamese slide groups when available and locale is vi
+    if (lang === 'vi') {
+      const viGroups = (collection as any).slide_groups_vi;
+      if (viGroups) {
+        groups = typeof viGroups === 'string' ? JSON.parse(viGroups) : viGroups;
       }
-    } else {
-      groups = collection.slide_groups || [];
+    }
+
+    // Fallback to default slide_groups
+    if (!groups.length) {
+      if (typeof collection.slide_groups === 'string') {
+        try {
+           groups = JSON.parse(collection.slide_groups);
+        } catch (e) {
+           groups = [];
+        }
+      } else {
+        groups = collection.slide_groups || [];
+      }
     }
 
     const group = groups.find((group) => group.id === slideGroupId);
-    return group ? localizeSlideGroup(group, locale.value) : undefined;
+    return group ? localizeSlideGroup(group, lang) : undefined;
   }
 
   const openSlideGroup = (slideGroupId: string, collectionId: string) => {

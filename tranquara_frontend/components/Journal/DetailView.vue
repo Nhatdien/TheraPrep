@@ -2,13 +2,16 @@
   <div class="flex flex-col h-full bg-background">
     <!-- Header -->
     <header
-      class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+      class="flex items-center justify-between p-4 border-b border-default">
       <UButton
         variant="ghost"
         icon="i-lucide-arrow-left"
         @click="emit('back')" />
       <div class="flex items-center gap-2">
-        <h1 class="text-xl font-bold truncate max-w-[180px] md:max-w-sm lg:max-w-md">
+        <h1
+          class="text-xl font-bold truncate max-w-[180px] md:max-w-sm lg:max-w-md"
+          :title="journal.title || $t('journal.untitledJournal')"
+        >
           {{ journal.title || $t('journal.untitledJournal') }}
         </h1>
         <SyncBadge

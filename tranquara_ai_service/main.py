@@ -38,6 +38,7 @@ def ai_tasks_callback(ch, method, properties, body):
                 journal_id=payload.id,
                 user_id=payload.user_id,
                 content=payload.content,
+                content_html=payload.content_html,
                 title=payload.title,
                 mood_score=payload.mood_score,
                 mood_label=payload.mood_label,

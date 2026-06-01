@@ -8,7 +8,7 @@
         :r="radius"
         fill="none"
         stroke="currentColor"
-        class="text-zinc-800"
+        class="text-dimmed"
         :stroke-width="strokeWidth"
       />
     </svg>

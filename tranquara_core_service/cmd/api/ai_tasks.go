@@ -17,13 +17,14 @@ type AITaskMessage struct {
 
 // JournalIndexPayload is the payload sent to AI service for Qdrant indexing.
 type JournalIndexPayload struct {
-	ID        uuid.UUID `json:"id"`
-	UserID    uuid.UUID `json:"user_id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	MoodScore *int      `json:"mood_score,omitempty"`
-	MoodLabel *string   `json:"mood_label,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
+	ID           uuid.UUID `json:"id"`
+	UserID       uuid.UUID `json:"user_id"`
+	Title        string    `json:"title"`
+	Content      string    `json:"content"`
+	ContentHTML  *string   `json:"content_html,omitempty"` // Rendered HTML — preferred for AI readability
+	MoodScore    *int      `json:"mood_score,omitempty"`
+	MoodLabel    *string   `json:"mood_label,omitempty"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 // publishJournalToAI publishes a journal to the ai_tasks queue for Qdrant indexing.
@@ -35,13 +36,14 @@ func (app *application) publishJournalToAI(journal *data.UserJournal) {
 	}
 
 	payload := JournalIndexPayload{
-		ID:        journal.ID,
-		UserID:    journal.UserID,
-		Title:     journal.Title,
-		Content:   journal.Content,
-		MoodScore: journal.MoodScore,
-		MoodLabel: journal.MoodLabel,
-		CreatedAt: journal.CreatedAt,
+		ID:          journal.ID,
+		UserID:      journal.UserID,
+		Title:       journal.Title,
+		Content:     journal.Content,
+		ContentHTML: journal.ContentHTML,
+		MoodScore:   journal.MoodScore,
+		MoodLabel:   journal.MoodLabel,
+		CreatedAt:   journal.CreatedAt,
 	}
 
 	message := AITaskMessage{

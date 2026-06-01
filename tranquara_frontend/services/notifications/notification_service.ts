@@ -100,7 +100,7 @@ class NotificationService {
       body = type === 'morning' ? t('settings.notifications.morningCheckinDesc') : t('settings.notifications.eveningReflectionDesc');
     } catch {
       // Fallback if i18n is not available
-      title = type === 'morning' ? '🌅 Morning Check-In' : '🌙 Evening Reflection';
+      title = type === 'morning' ? 'Morning Check-In' : 'Evening Reflection';
       body = type === 'morning'
         ? 'Start your day with a quick mindfulness check-in.'
         : 'Take a moment to reflect on your day.';

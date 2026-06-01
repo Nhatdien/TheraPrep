@@ -38,6 +38,7 @@ export class AuthService {
   private refreshToken: string | null = null;
   private tokenExpiry: number | null = null;
   private readonly googlePkceVerifierStorageKey = 'google_oauth_pkce_verifier';
+  private readonly googleOAuthRedirectUriStorageKey = 'google_oauth_redirect_uri';
 
   // Keycloak configuration - get from environment at runtime
   private get KEYCLOAK_URL(): string {
@@ -190,7 +191,7 @@ export class AuthService {
     if (process.client) {
       const verifier = this.generatePkceVerifier();
       const challenge = await this.createCodeChallenge(verifier);
-      sessionStorage.setItem(this.googlePkceVerifierStorageKey, verifier);
+      await storage.set(this.googlePkceVerifierStorageKey, verifier);
       query.set('code_challenge', challenge);
       query.set('code_challenge_method', 'S256');
     }
@@ -205,7 +206,7 @@ export class AuthService {
     });
 
     if (process.client) {
-      const verifier = sessionStorage.getItem(this.googlePkceVerifierStorageKey);
+      const verifier = await storage.get<string>(this.googlePkceVerifierStorageKey);
       if (verifier) {
         query.set('code_verifier', verifier);
       }
@@ -260,10 +261,22 @@ export class AuthService {
     }
 
     if (process.client) {
-      sessionStorage.removeItem(this.googlePkceVerifierStorageKey);
+      await storage.remove(this.googlePkceVerifierStorageKey);
     }
 
     return true;
+  }
+
+  async setOAuthRedirectUri(redirectUri: string): Promise<void> {
+    await storage.set(this.googleOAuthRedirectUriStorageKey, redirectUri);
+  }
+
+  async getOAuthRedirectUri(): Promise<string | null> {
+    return await storage.get<string>(this.googleOAuthRedirectUriStorageKey);
+  }
+
+  async clearOAuthRedirectUri(): Promise<void> {
+    await storage.remove(this.googleOAuthRedirectUriStorageKey);
   }
 
   async requestPasswordReset(email: string): Promise<boolean> {

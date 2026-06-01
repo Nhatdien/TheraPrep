@@ -1,6 +1,6 @@
 <template>
   <button
-    class="w-full flex items-center justify-between py-4 first:pt-0 last:pb-0 text-left"
+    class="w-full flex items-center justify-between py-4 first:pt-0 last:pb-0 text-left min-h-[48px]"
     @click="$emit('click')"
   >
     <div class="flex items-center gap-3">

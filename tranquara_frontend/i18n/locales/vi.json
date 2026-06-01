@@ -4,14 +4,14 @@
   },
   "nav": {
     "today": "Hôm nay",
-    "toolkit": "Bộ công cụ",
+    "toolkit": "Công cụ",
     "library": "Thư viện",
     "history": "Lịch sử",
     "profile": "Hồ sơ",
     "newJournal": "Nhật ký mới"
   },
   "home": {
-    "today": "hôm nay.",
+    "today": "Hôm nay",
     "yourEntries": "Bài viết của bạn",
     "greeting": {
       "morning": "Chào buổi sáng,",
@@ -26,7 +26,7 @@
     "yourJourney": "Hành trình của bạn",
     "journalingStreak": "Chuỗi viết nhật ký",
     "homework": {
-      "title": "Bài tập trị liệu",
+      "title": "Bài tập thực hành",
       "viewAll": "Xem tất cả",
       "moreItems": "+{count} mục khác"
     }
@@ -46,7 +46,7 @@
     "noEntries": "Chưa có bài viết nào",
     "clearFilters": "Xoá bộ lọc",
     "startFirst": "Bắt đầu bài viết đầu tiên",
-    "filters": "bộ lọc.",
+    "filters": "Bộ lọc",
     "search": "Tìm kiếm",
     "searchPlaceholder": "Tìm kiếm bài viết...",
     "dateRange": "Khoảng thời gian",
@@ -93,7 +93,7 @@
       "wellBeing": "Sức khỏe",
       "mentalHealth": "Sức khỏe tinh thần",
       "sleep": "Giấc ngủ",
-      "therapy": "Trị liệu",
+      "therapy": "Tư vấn",
       "journal": "Nhật ký",
       "meditation": "Thiền",
       "positivity": "Tích cực",
@@ -145,7 +145,7 @@
     }
   },
   "profile": {
-    "title": "hồ sơ.",
+    "title": "Hồ sơ",
     "personalize": "Cá nhân hoá",
     "account": "Tài khoản",
     "colorTheme": "Giao diện màu",
@@ -155,7 +155,7 @@
     "notificationsSubtitle": "Lời nhắc sáng & tối",
     "yourData": "Dữ liệu của bạn",
     "yourDataSubtitle": "Xuất, đồng bộ & quản lý dữ liệu",
-    "dataSync": "dữ liệu & đồng bộ.",
+    "dataSync": "Dữ liệu & Đồng bộ",
     "logout": "Đăng xuất",
     "terms": "Điều khoản",
     "privacy": "Quyền riêng tư",
@@ -163,7 +163,7 @@
     "appVersion": "Theraprep v{version}"
   },
   "settings": {
-    "personalization": "cá nhân hoá.",
+    "personalization": "Cá nhân hoá",
     "theme": "Giao diện",
     "fontSize": "Cỡ chữ",
     "reduceMotion": "Giảm chuyển động",
@@ -181,12 +181,12 @@
     "language": "Ngôn ngữ",
     "languageSubtitle": "Ngôn ngữ hiển thị",
     "aiPrivacy": {
-      "heading": "AI & riêng tư.",
+      "heading": "AI & Riêng tư",
       "aiPersonalization": "Cá nhân hoá AI",
       "aiPersonalizationDesc": "Câu hỏi & phân tích được cá nhân hoá",
       "yourStory": "Câu chuyện của bạn",
       "yourStoryDesc": "Giúp AI hiểu bạn hơn",
-      "yourStoryPlaceholder": "Ví dụ: Mình đang chuẩn bị cho buổi trị liệu đầu tiên và đang lo lắng về công việc...",
+      "yourStoryPlaceholder": "Ví dụ: Mình đang chuẩn bị cho buổi tư vấn đầu tiên và đang lo lắng về công việc...",
       "yourStoryUpdated": "Đã cập nhật câu chuyện",
       "analytics": "Phân tích",
       "analyticsDesc": "Giúp cải thiện ứng dụng",
@@ -194,7 +194,7 @@
       "aiDisabledDesc": "Nhật ký vẫn được lưu bình thường nhưng sẽ không có câu hỏi gợi mở hay phân tích từ AI."
     },
     "dataManagement": {
-      "heading": "quản lý dữ liệu.",
+      "heading": "Quản lý dữ liệu",
       "exportData": "Xuất dữ liệu",
       "exportDataDesc": "Tải bài viết dưới dạng JSON",
       "deleteAccount": "Xoá tài khoản",
@@ -213,8 +213,18 @@
       "usernameNoMatch": "Tên người dùng không khớp",
       "exportFirst": "Xuất trước",
       "continue": "Tiếp tục",
-      "exportComingSoon": "Tính năng xuất sắp có",
-      "exportComingSoonDesc": "Xuất dữ liệu sẽ có trong bản cập nhật tương lai.",
+      "importData": "Nhập dữ liệu",
+      "importDataDesc": "Nhập dữ liệu từ file",
+      "exportSuccess": "Xuất dữ liệu thành công",
+      "exportSuccessDesc": "Dữ liệu đã được tải xuống ({count} mục)",
+      "exportFailed": "Xuất thất bại",
+      "exportFailedDesc": "Không thể xuất dữ liệu. Vui lòng thử lại sau.",
+      "importSuccess": "Nhập dữ liệu thành công",
+      "importSuccessDesc": "{count} mục đã được nhập thành công",
+      "importFailed": "Nhập thất bại",
+      "importFailedDesc": "Không thể nhập dữ liệu. Vui lòng kiểm tra file và thử lại.",
+      "importInvalidFile": "File không hợp lệ",
+      "importInvalidFileDesc": "File này không phải là file hợp lệ.",
       "accountDeleted": "Đã xoá tài khoản",
       "accountDeletedDesc": "Tất cả dữ liệu đã được gỡ bỏ.",
       "deletionFailed": "Xoá thất bại",
@@ -227,11 +237,11 @@
       "confirmButton": "Đăng xuất"
     },
     "notifications": {
-      "heading": "nhắc nhở.",
+      "heading": "Nhắc nhở",
       "morningCheckin": "Nhắc nhở buổi sáng",
       "morningCheckinDesc": "Khởi đầu ngày với tâm trí tỉnh táo và rõ ràng",
       "eveningReflection": "Suy ngẫm buổi tối",
-      "eveningReflectionDesc": "Nhìn lại ngày qua qua trang nhật ký",
+      "eveningReflectionDesc": "Nhìn lại một ngày qua trang nhật ký",
       "permissionNote": "Cần cấp quyền thông báo trên thiết bị. Tính năng nhắc nhở sẽ có trong phiên bản tới.",
       "morningEnabled": "Đã bật nhắc nhở buổi sáng",
       "morningDisabled": "Đã tắt nhắc nhở buổi sáng",
@@ -241,10 +251,10 @@
       "channelDesc": "Nhắc nhở check-in buổi sáng và tối"
     },
     "memories": {
-      "heading": "ghi nhớ.",
-      "description": "Những điều TheraPrep AI ghi lại từ nhật ký của bạn để cá nhân hoá trải nghiệm. Chỉ bạn mới có thể xem.",
+      "heading": "Ghi nhớ",
+      "description": "Những điều TheraPrep AI ghi nhớ từ nhật ký của bạn để cá nhân hoá trải nghiệm. Chỉ bạn mới có thể xem.",
       "noMemories": "Chưa có ghi chú nào",
-      "noMemoriesDesc": "Tiếp tục viết nhật ký — TheraPrep sẽ dần hiểu bạn hơn theo thời gian.",
+      "noMemoriesDesc": "Tiếp tục viết nhật ký — TheraPrep sẽ dần hiểu bạn hơn.",
       "memoryRemoved": "Đã xoá ghi nhớ",
       "memoryRemoveFailed": "Không thể xoá ghi nhớ",
       "categories": {
@@ -307,7 +317,7 @@
     "begin": "Bắt đầu",
     "collection": "Bộ sưu tập",
     "loading": "Đang tải...",
-    "error": "Đã xảy ra lỗi",
+    "error": "Có lỗi xảy ra",
     "retry": "Thử lại",
     "view": "Xem",
     "details": "Chi tiết"
@@ -437,14 +447,14 @@
       "tired": "Mệt mỏi",
       "fair": "Tạm được",
       "rested": "Ngủ đủ giấc",
-      "refreshed": "Sảng khoái, tràn đầy năng lượng"
+      "refreshed": "Tỉnh táo, tràn đầy năng lượng"
     }
   },
   "onboarding": {
     "profile": "Hồ sơ",
     "profileDesc": "Hãy cho chúng tôi biết về bạn",
     "preferences": "Tuỳ chọn",
-    "preferencesDesc": "Chọn mục tiêu và trải nghiệm trị liệu của bạn",
+    "preferencesDesc": "Chọn mục tiêu và trải nghiệm tư vấn của bạn",
     "gender": "Giới tính",
     "ageRange": "Độ tuổi",
     "male": "Nam",
@@ -453,12 +463,12 @@
     "goalQuestion": "Bạn muốn dùng ứng dụng này để làm gì?",
     "goals": {
       "journaling": "Ghi lại cảm xúc qua nhật ký",
-      "therapy": "Chuẩn bị cho buổi trị liệu",
+      "therapy": "Chuẩn bị cho buổi tư vấn",
       "tracking": "Theo dõi cảm xúc",
       "selfReflection": "Tự suy ngẫm",
       "other": "Khác"
     },
-    "experienceQuestion": "Bạn đã từng tham gia trị liệu tâm lý chưa?",
+    "experienceQuestion": "Bạn đã từng tham gia tư vấn tâm lý chưa?",
     "experience": {
       "yes": "Có",
       "no": "Không",
@@ -472,7 +482,7 @@
     "formSubmitted": "Đã hoàn tất!"
   },
   "learnSub": {
-    "collections": "bộ sưu tập.",
+    "collections": "Bộ sưu tập",
     "collectionsDescription": "Bài học về các chủ đề thiết yếu trong cuộc sống - được thiết kế để truyền cảm hứng suy ngẫm và phát triển bản thân.",
     "chapters": "{count} chương",
     "journalTemplates": "Mẫu nhật ký",
@@ -492,13 +502,13 @@
     "guidedFlow": "Nhật ký theo hướng dẫn",
     "finish": "Hoàn tất",
     "continue": "Tiếp tục",
-      "moodInstruction": "Kéo thanh để thể hiện cảm xúc của bạn",
+      "moodInstruction": "Kéo thanh trượt cho biết bạn đang cảm thấy thế nào",
     "defaultMoodQuestion": "Bạn đang cảm thấy thế nào?",
-    "sleepQuestion": "Giấc ngủ của bạn hôm qua thế nào",
-    "journalDefaultQuestion": "Bạn đang nghĩ gì?",
-    "sleepInstruction": "Bạn cảm thấy sảng khoái thế nào khi thức dậy?",
+    "sleepQuestion": "Đêm qua bạn ngủ thế nào?",
+    "journalDefaultQuestion": "Bạn đang nghĩ về điều gì?",
+    "sleepInstruction": "Sáng nay tỉnh dậy bạn thấy thế nào?",
     "badSleep": "Trằn trọc",
-    "goodSleep": "Sâu giấc",
+    "goodSleep": "Ngủ sâu",
     "sleepScoreLabels": {
       "low": "Hôm nay bạn nên nghỉ ngơi nhẹ nhàng.",
       "mid": "Hãy giữ nhịp độ vừa phải để cơ thể phục hồi tốt hơn.",
@@ -526,20 +536,20 @@
     }
   },
   "toolkit": {
-    "title": "Bộ công cụ trị liệu",
-    "subtitle": "Công cụ hỗ trợ trước, trong và sau buổi trị liệu",
+    "title": "Công cụ hỗ trợ",
+    "subtitle": "Công cụ hỗ trợ trước, trong và sau buổi tư vấn",
     "tabs": {
       "prepare": "Chuẩn bị",
       "track": "Theo dõi",
       "ground": "Ổn định tâm lý"
     },
     "emptyState": {
-      "insights": "Tạo bản phân tích AI từ nhật ký để sẵn sàng cho buổi trị liệu.",
-      "session": "Theo dõi buổi trị liệu — từ chuẩn bị đến phản ánh.",
-      "homework": "Bài tập và hành động từ buổi trị liệu sẽ hiện ở đây."
+      "insights": "Tạo bản phân tích AI từ nhật ký để sẵn sàng cho buổi tư vấn.",
+      "session": "Theo dõi buổi tư vấn — từ chuẩn bị đến nhìn lại.",
+      "homework": "Bài tập và hành động từ buổi tư vấn sẽ hiện ở đây."
     },
     "sessionFlow": {
-      "title": "Quy trình theo dõi buổi trị liệu",
+      "title": "Quy trình theo dõi buổi tư vấn",
       "step1": "Lên lịch",
       "step2": "Chuẩn bị",
       "step3": "Tham dự",
@@ -566,12 +576,12 @@
     },
     "journey": {
       "title": "Lộ trình chuẩn bị",
-      "description": "Từng bước giúp bạn sẵn sàng cho buổi trị liệu.",
+      "description": "Từng bước giúp bạn sẵn sàng cho buổi tư vấn.",
       "overallProgress": "Hoàn thành {percent}%",
       "chaptersProgress": "{completed}/{total} chương",
       "step1": {
-        "label": "Tìm hiểu về trị liệu",
-        "description": "Dấu hiệu cần trị liệu, buổi đầu tiên, những gì cần kỳ vọng"
+        "label": "Tìm hiểu về tư vấn",
+        "description": "Dấu hiệu cần tư vấn, buổi đầu tiên, những gì cần kỳ vọng"
       },
       "step2": {
         "label": "Tiền sử sức khỏe tinh thần",
@@ -582,13 +592,13 @@
         "description": "Giấc ngủ, chế độ ăn, hỗ trợ xã hội, thói quen hàng ngày"
       },
       "step4": {
-        "label": "Chuẩn bị cho buổi trị liệu",
-        "description": "Mục tiêu, lo ngại, những gì nhà trị liệu cần biết"
+        "label": "Chuẩn bị cho buổi tư vấn",
+        "description": "Mục tiêu, lo ngại, những gì chuyên gia tư vấn cần biết"
       }
     },
     "prepPack": {
       "title": "Phân tích nhật ký",
-      "description": "Tóm tắt thông minh từ nhật ký của bạn — giúp bạn bước vào buổi trị liệu sẵn sàng và tự tin hơn.",
+      "description": "Tóm tắt thông minh từ nhật ký của bạn — giúp bạn bước vào buổi tư vấn sẵn sàng và tự tin hơn.",
       "generate": "Tạo phân tích",
       "generating": "Đang phân tích nhật ký của bạn...",
       "noJournals": "Bạn chưa có nhật ký nào. Hãy bắt đầu viết để tạo phân tích nhé.",
@@ -612,7 +622,7 @@
       "keyThemes": "Chủ đề nổi bật",
       "emotionalHighlights": "Cảm xúc nổi bật",
       "patterns": "Xu hướng cảm xúc & hành vi",
-      "discussionPoints": "Điều cần chia sẻ với nhà trị liệu",
+      "discussionPoints": "Điều cần chia sẻ với chuyên gia tư vấn",
       "growthMoments": "Điểm sáng tích cực",
       "personalNotes": "Ghi chú của bạn",
       "notFound": "Không tìm thấy báo cáo này.",
@@ -632,49 +642,49 @@
       }
     },
     "session": {
-      "title": "Theo dõi buổi trị liệu",
-      "noSession": "Chưa có buổi trị liệu. Hãy lên lịch buổi trị liệu tiếp theo.",
-      "schedule": "Lên lịch buổi trị liệu",
-      "scheduleTitle": "Buổi trị liệu của bạn khi nào?",
+      "title": "Theo dõi buổi tư vấn",
+      "noSession": "Chưa có buổi tư vấn. Hãy lên lịch buổi tư vấn tiếp theo.",
+      "schedule": "Lên lịch buổi tư vấn",
+      "scheduleTitle": "Buổi tư vấn của bạn khi nào?",
       "scheduleConfirm": "Xác nhận",
-      "prepare": "Chuẩn bị cho buổi trị liệu",
+      "prepare": "Chuẩn bị cho buổi tư vấn",
       "logAfter": "Ghi lại cảm nhận",
-      "delete": "Xóa buổi trị liệu",
-      "deleteConfirm": "Xóa buổi trị liệu này? Hành động này không thể hoàn tác.",
+      "delete": "Xóa buổi tư vấn",
+      "deleteConfirm": "Xóa buổi tư vấn này? Hành động này không thể hoàn tác.",
       "pastSessions": "Các buổi trước",
       "before": {
-        "title": "Trước buổi trị liệu",
+        "title": "Trước buổi tư vấn",
         "mood": "Bạn đang cảm thấy thế nào?",
         "talkingPoints": "Bạn muốn nói về điều gì?",
         "priority": "Ưu tiên hàng đầu của tôi"
       },
       "after": {
-        "title": "Sau buổi trị liệu",
+        "title": "Sau buổi tư vấn",
         "mood": "Bạn cảm thấy thế nào bây giờ?",
-        "takeaways": "Những điều rút ra",
+        "takeaways": "Những điều tâm đắc",
         "homework": "Bài tập / Hành động",
         "addHomework": "Thêm bài tập",
-        "rating": "Đánh giá buổi trị liệu"
+        "rating": "Đánh giá buổi tư vấn"
       },
       "status": {
         "scheduled": "Đã lên lịch",
-        "beforeCompleted": "Sẵn sàng cho buổi trị liệu",
+        "beforeCompleted": "Sẵn sàng cho buổi tư vấn",
         "completed": "Hoàn thành"
       },
       "detail": {
-        "title": "Chi tiết buổi trị liệu",
+        "title": "Chi tiết buổi tư vấn",
         "moodComparison": "Tâm trạng",
         "moodBefore": "Trước",
         "moodAfter": "Sau",
         "talkingPoints": "Chủ đề muốn nói",
         "priority": "Ưu tiên hàng đầu",
-        "takeaways": "Điều rút ra",
-        "relatedJournals": "Nhật ký liên quan đến buổi trị liệu",
-        "notFound": "Không tìm thấy buổi trị liệu."
+        "takeaways": "Điều tâm đắc",
+        "relatedJournals": "Nhật ký liên quan đến buổi tư vấn",
+        "notFound": "Không tìm thấy buổi tư vấn."
       }
     },
     "homework": {
-      "title": "Bài tập trị liệu",
+      "title": "Bài tập thực hành",
       "empty": "Chưa có bài tập nào",
       "completed": "Hoàn thành",
       "addPlaceholder": "Thêm mục..."
@@ -903,7 +913,7 @@
       "titleVi": "Tiêu đề (VI)",
       "titleViPlaceholder": "Tiêu đề bộ sưu tập...",
       "description": "Mô tả",
-      "descriptionPlaceholder": "Tóm tắt ngắn gọn về nội dung ngườidùng sẽ học...",
+      "descriptionPlaceholder": "Tóm tắt ngắn gọn về nội dung người dùng sẽ học...",
       "descriptionVi": "Mô tả (VI)",
       "descriptionViPlaceholder": "Mô tả ngắn gọn...",
       "type": "Loại",
