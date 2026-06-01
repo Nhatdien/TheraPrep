@@ -19,7 +19,7 @@ export interface CustomTemplateState {
 
 export const useCustomTemplateStore = defineStore('custom_template', {
   state: (): CustomTemplateState => ({
-    title: 'My Daily Template',
+    title: '',
     slideGroups: [],
     isLoaded: false,
   }),
@@ -97,7 +97,7 @@ export const useCustomTemplateStore = defineStore('custom_template', {
 
     /** Clear local state (called on logout) */
     clear() {
-      this.title = 'My Daily Template';
+      this.title = '';
       this.slideGroups = [];
       this.isLoaded = false;
     },

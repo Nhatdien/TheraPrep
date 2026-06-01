@@ -36,15 +36,14 @@
         viewport: 'h-full',
         dot: 'w-6 h-1 rounded-full',
       }">
-      <Transition name="guided-slide" mode="out-in">
         <div
           :key="currentIndex"
-          class="h-[70vh] max-h-[760px] lg:h-[64vh] rounded-2xl border border-default/60 bg-default shadow-sm overflow-hidden flex flex-col">
+          class="h-[70vh] max-h-[760px] lg:h-[64vh] rounded-2xl border border-default/60 bg-default shadow-sm flex flex-col overflow-hidden">
           <!-- Per-slide illustration (shown when slide has illustration field) -->
           <div
-            v-if="currentSlideIllustration"
+            v-if="(item as any)?.illustration"
             class="flex items-center justify-center bg-illus-dark shrink-0 h-36">
-            <component :is="currentSlideIllustration" class="w-28 h-28" />
+            <component :is="(item as any)?.illustration" class="w-28 h-28" />
           </div>
           <!-- Slide content -->
           <div class="flex-1 overflow-y-auto p-5 sm:p-7">
@@ -58,7 +57,6 @@
               :initialContent="userJournalStore().currentWritingContent[(item as any)?.content?.question || (item as any)?.content?.question_content] || ''"></component>
           </div>
         </div>
-      </Transition>
       <!-- <CommonMarkdownEditor v-model="item.currentNote"></CommonMarkdownEditor> -->
     </UCarousel>
 
@@ -110,11 +108,10 @@ const carousel = useTemplateRef("carousel");
 const currentIndex = ref(0);
 
 // Per-slide illustration — resolved from slide's `illustration` field (keyword string)
-const currentSlideIllustration = computed(() => {
-  const slide = carouselItems.value[currentIndex.value]?.content;
+const resolveIllustration = (slide: any) => {
   if (!slide?.illustration) return null;
   return getIllustrationComponent(slide.illustration);
-});
+};
 
 // Use the prop instead of route params
 const {
@@ -158,6 +155,7 @@ const carouselItems = ref(
     return {
       content: slide as any,
       currentNote: "",
+      illustration: resolveIllustration(slide),
     };
   }) || [],
 );
@@ -169,7 +167,7 @@ const currentSlideMeta = computed(
 const isLastSlide = computed(() => currentIndex.value >= totalSlides.value - 1);
 const canGoPrev = computed(() => currentIndex.value > 0);
 
-const nextNode = () => {
+const nextNode = async () => {
   if (!carousel.value?.emblaApi?.canScrollNext()) {
     // The journal will be created if the journal is not empty or
     // user have interact with the chatbot in that journal session
@@ -177,17 +175,23 @@ const nextNode = () => {
       !isEmptyJournal(userJournalStore().currentWritingContent as any) &&
       !userJournalStore().currentJournal
     ) {
-      saveJournal(
-        {
-          content: generateJournalHtml(
-            userJournalStore().currentWritingContent,
-          ),
-          mood_score: userJournalStore().currentMoodScore,
-          mood_label: userJournalStore().currentMoodLabel,
-          title: activeSlideGroup.value?.title || "",
-        },
-        (useRoute()?.params?.id || null) as string | null,
-      );
+      try {
+        await saveJournal(
+          {
+            content: generateJournalHtml(
+              userJournalStore().currentWritingContent,
+            ),
+            mood_score: userJournalStore().currentMoodScore,
+            mood_label: userJournalStore().currentMoodLabel,
+            title: activeSlideGroup.value?.title || "",
+            sleep_score: userJournalStore().currentSleepScore,
+          },
+          (useRoute()?.params?.id || null) as string | null,
+        );
+      } catch (err) {
+        console.error('[ModalContents] Journal save failed:', err);
+        // TODO: show a user-facing error toast here
+      }
     }
 
     // Mark slide group as completed for learn-type collections
@@ -246,16 +250,4 @@ onMounted(() => {
   transform: scale(0.94);
 }
 
-.guided-slide-enter-active,
-.guided-slide-leave-active {
-  transition:
-    opacity var(--motion-smooth) var(--motion-ease-standard),
-    transform var(--motion-smooth) var(--motion-ease-standard);
-}
-
-.guided-slide-enter-from,
-.guided-slide-leave-to {
-  opacity: 0;
-  transform: translateY(12px);
-}
 </style>

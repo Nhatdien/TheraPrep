@@ -7,7 +7,7 @@
       <p>{{ collection.title }}</p>
       <p class="text-dimmed">{{ collection.description }}</p>
       <p class="self-end mt-auto">
-        {{ collection.slide_groups.length }} lessons
+        {{ collection.slide_groups.length }} {{ $t('learnSub.lessons', collection.slide_groups.length) }}
       </p>
     </div>
   </div>

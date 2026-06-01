@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="mb-5">
-      <h2 class="text-2xl sm:text-3xl font-semibold leading-tight text-highlighted">{{ content?.question || content?.question_content }}</h2>
-      <blockquote class="text-default text-sm sm:text-base leading-7 mt-3 border-l-2 border-primary/40 pl-3">
+      <h2 class="text-2xl sm:text-3xl font-semibold leading-tight text-highlighted text-center">{{ content?.question || content?.question_content || $t('slide.journalDefaultQuestion') }}</h2>
+      <p v-if="content?.content || content?.question_description" class="text-muted text-sm sm:text-base leading-7 mt-3 text-center">
         {{ content?.content || content?.question_description }}
-      </blockquote>
+      </p>
     </div>
     <CommonMarkdownEditor
       ref="editor"
@@ -12,12 +12,18 @@
       v-model="currentNote" />
     
     <!-- Go Deeper with Direction Selection -->
-    <div class="mt-5 flex justify-end" v-if="hasContent">
+    <div class="mt-5 flex justify-end" v-if="hasContent && !isGeneratingQuestion">
       <JournalGoDeepDirections
         :loading="isGeneratingQuestion"
         :disabled="!hasContent || isGeneratingQuestion"
         @select="handleGoDeeper"
       />
+    </div>
+
+    <!-- Persistent AI loading indicator (visible outside slideover) -->
+    <div v-if="isGeneratingQuestion" class="mt-4 flex items-center justify-center gap-2 text-sm text-muted">
+      <span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <span>{{ $t('goDeeper.thinking') }}</span>
     </div>
   </div>
 </template>
@@ -30,6 +36,7 @@ import { useAIGuard } from "~/composables/useAIGuard";
 const currentNote = ref("");
 const isGeneratingQuestion = ref(false);
 const { canUseAI, yourStory } = useAIGuard();
+const { locale } = useI18n();
 
 const editor = ref()
 const props = defineProps({
@@ -66,8 +73,10 @@ const hasContent = computed(() => {
 });
 
 const onEditorUpdate = () => {
+  // Use question text, falling back to content id to avoid 'undefined' as key
+  const key = props.content?.question || props.content?.question_content || props.content?.id || 'journal_entry';
   userJournalStore().updateCurrentWritingContent(
-    props.content?.question || props.content?.question_content,
+    key,
     currentNote.value
   );
 };
@@ -96,6 +105,7 @@ const handleGoDeeper = async (direction: string) => {
       collection_title: props.collectionTitle,         // Pass collection title
       direction: direction as 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth',  // Pass selected direction
       your_story: yourStory.value || undefined,
+      app_language: locale.value,
     });
     
     // Insert AI question into editor with muted styling
@@ -108,7 +118,7 @@ const handleGoDeeper = async (direction: string) => {
         .insertContent('<p></p>', {
           contentType: 'html',
         })
-        .insertContent(`<p class="ai-suggestion" style="color: #888; font-style: italic;">${response.question}</p>`, {
+        .insertContent(`<p class="ai-suggestion text-muted italic">${response.question}</p>`, {
           contentType: 'html',
         })
         .insertContent('<p></p>', {
@@ -134,8 +144,9 @@ onMounted(() => {
       editor.value.editor.commands.setContent(props.initialContent);
     }
     // Also update the store
+    const key = props.content?.question || props.content?.question_content || props.content?.id || 'journal_entry';
     userJournalStore().updateCurrentWritingContent(
-      props.content?.question || props.content?.question_content,
+      key,
       props.initialContent
     );
   }
@@ -149,8 +160,9 @@ watch(() => props.initialContent, (newContent) => {
   if (newContent === currentNote.value) return;
   currentNote.value = newContent;
   editor.value.editor.commands.setContent(newContent);
+  const key = props.content?.question || props.content?.question_content || props.content?.id || 'journal_entry';
   userJournalStore().updateCurrentWritingContent(
-    props.content?.question || props.content?.question_content,
+    key,
     newContent
   );
 }, { immediate: true });

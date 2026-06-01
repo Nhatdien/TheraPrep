@@ -702,14 +702,14 @@ CREATE INDEX idx_homework_items_user ON homework_items(user_id);
   },
   "toolkit": {
     "title": "bộ công cụ.",
-    "subtitle": "Bạn đồng hành trị liệu",
+    "subtitle": "Bạn đồng hành tư vấn",
     "journey": {
       "title": "hành trình chuẩn bị",
       "overallProgress": "{percent}% đã chuẩn bị",
       "chaptersProgress": "{completed}/{total} chương",
       "step1": {
-        "label": "Tìm hiểu về trị liệu",
-        "description": "Hiểu về trị liệu và những gì cần mong đợi"
+        "label": "Tìm hiểu về tư vấn",
+        "description": "Hiểu về tư vấn và những gì cần mong đợi"
       },
       "step2": {
         "label": "Nhìn lại lịch sử sức khỏe",
@@ -720,13 +720,13 @@ CREATE INDEX idx_homework_items_user ON homework_items(user_id);
         "description": "Giấc ngủ, chế độ ăn, hệ thống hỗ trợ"
       },
       "step4": {
-        "label": "Chuẩn bị cho buổi trị liệu",
+        "label": "Chuẩn bị cho buổi tư vấn",
         "description": "Mục tiêu, lo ngại và điều cần nói với chuyên gia"
       }
     },
     "prepPack": {
-      "title": "gói chuẩn bị buổi trị liệu",
-      "description": "Tóm tắt AI từ nhật ký của bạn cho buổi trị liệu",
+      "title": "gói chuẩn bị buổi tư vấn",
+      "description": "Tóm tắt AI từ nhật ký của bạn cho buổi tư vấn",
       "generate": "Tạo gói chuẩn bị",
       "generating": "Đang phân tích nhật ký của bạn...",
       "lastGenerated": "Lần cuối: {date} · {count} nhật ký",
@@ -747,27 +747,27 @@ CREATE INDEX idx_homework_items_user ON homework_items(user_id);
       "emptyState": "Khi bạn đã viết nhật ký, bạn có thể tạo Gói Chuẩn Bị"
     },
     "session": {
-      "title": "buổi trị liệu sắp tới",
-      "schedule": "Lên lịch buổi trị liệu",
-      "noSession": "Chưa có buổi trị liệu nào",
+      "title": "buổi tư vấn sắp tới",
+      "schedule": "Lên lịch buổi tư vấn",
+      "noSession": "Chưa có buổi tư vấn nào",
       "pastSessions": "các buổi trước",
       "before": {
-        "title": "Trước buổi trị liệu",
+        "title": "Trước buổi tư vấn",
         "mood": "Bạn đang cảm thấy thế nào?",
         "talkingPoints": "Bạn muốn nói về điều gì?",
         "priority": "Ưu tiên hàng đầu của tôi"
       },
       "after": {
-        "title": "Sau buổi trị liệu",
+        "title": "Sau buổi tư vấn",
         "mood": "Bạn cảm thấy thế nào bây giờ?",
         "takeaways": "Những điều rút ra",
         "homework": "Bài tập / Hành động",
         "addHomework": "Thêm bài tập",
-        "rating": "Đánh giá buổi trị liệu"
+        "rating": "Đánh giá buổi tư vấn"
       },
       "status": {
         "scheduled": "Đã lên lịch",
-        "beforeCompleted": "Sẵn sàng cho buổi trị liệu",
+        "beforeCompleted": "Sẵn sàng cho buổi tư vấn",
         "completed": "Hoàn thành"
       }
     },
@@ -787,7 +787,7 @@ CREATE INDEX idx_homework_items_user ON homework_items(user_id);
       }
     },
     "homework": {
-      "title": "bài tập trị liệu",
+      "title": "bài tập thực hành",
       "empty": "Chưa có bài tập nào",
       "completed": "Hoàn thành"
     }

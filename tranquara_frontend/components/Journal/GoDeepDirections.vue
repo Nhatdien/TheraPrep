@@ -1,5 +1,5 @@
 <template>
-  <div class="go-deep-directions">
+  <div class="inline-block">
     <!-- Mobile: Bottom Sheet Drawer -->
     <USlideover
       v-if="isMobile"
@@ -21,17 +21,23 @@
       </UButton>
 
       <template #body>
-        <div class="direction-options">
+        <div class="flex flex-col gap-3 p-4">
           <button
             v-for="dir in directions"
             :key="dir.value"
-            class="direction-button"
+            class="flex items-center gap-4 px-4 py-4 rounded-xl border border-default bg-elevated text-left w-full transition-all duration-200 ease-out hover:border-primary hover:bg-primary/5 hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
             @click="selectDirection(dir.value)"
           >
-            <div class="direction-icon">{{ dir.icon }}</div>
-            <div class="direction-content">
-              <div class="direction-label">{{ $t(`goDeeper.directions.${dir.value}.label`) }}</div>
-              <div class="direction-description">{{ $t(`goDeeper.directions.${dir.value}.description`) }}</div>
+            <div class="flex-shrink-0 text-primary">
+              <IconWhy v-if="dir.value === 'why'" :size="28" :active="true" />
+              <IconEmotions v-else-if="dir.value === 'emotions'" :size="28" :active="true" />
+              <IconPatterns v-else-if="dir.value === 'patterns'" :size="28" :active="true" />
+              <IconChallenge v-else-if="dir.value === 'challenge'" :size="28" :active="true" />
+              <IconGrowth v-else-if="dir.value === 'growth'" :size="28" :active="true" />
+            </div>
+            <div class="flex-1 flex flex-col gap-1 min-w-0">
+              <div class="text-base font-semibold text-default">{{ $t(`goDeeper.directions.${dir.value}.label`) }}</div>
+              <div class="text-sm text-muted leading-snug">{{ $t(`goDeeper.directions.${dir.value}.description`) }}</div>
             </div>
           </button>
         </div>
@@ -59,13 +65,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
+import IconWhy from '~/components/Icons/IconWhy.vue';
+import IconEmotions from '~/components/Icons/IconEmotions.vue';
+import IconPatterns from '~/components/Icons/IconPatterns.vue';
+import IconChallenge from '~/components/Icons/IconChallenge.vue';
+import IconGrowth from '~/components/Icons/IconGrowth.vue';
 
 // Define props
 const props = defineProps<{
   loading?: boolean;
   disabled?: boolean;
-  modelValue?: boolean; // For controlling open state
+  modelValue?: boolean;
 }>();
 
 // Define emits
@@ -104,13 +115,13 @@ const buttonLabel = computed(() => {
   return props.loading ? t('goDeeper.thinking') : t('goDeeper.button');
 });
 
-// Direction options (icons + values only; labels come from i18n)
+// Direction options
 const directions = [
-  { value: 'why', icon: '🧠' },
-  { value: 'emotions', icon: '💭' },
-  { value: 'patterns', icon: '🔁' },
-  { value: 'challenge', icon: '🧩' },
-  { value: 'growth', icon: '🌱' },
+  { value: 'why', icon: 'i-lucide-lightbulb' },
+  { value: 'emotions', icon: 'i-lucide-heart' },
+  { value: 'patterns', icon: 'i-lucide-repeat' },
+  { value: 'challenge', icon: 'i-lucide-puzzle' },
+  { value: 'growth', icon: 'i-lucide-sprout' },
 ];
 
 // Dropdown items for desktop
@@ -125,90 +136,10 @@ const dropdownItems = computed(() => [
 // Handle direction selection
 function selectDirection(direction: string) {
   emit('select', direction);
-  isOpen.value = false; // Close drawer/dropdown
+  // Delay closing so parent loading state has time to render before
+  // the slideover (and its trigger button) is unmounted
+  nextTick(() => {
+    isOpen.value = false;
+  });
 }
 </script>
-
-<style scoped>
-.go-deep-directions {
-  display: inline-block;
-}
-
-.direction-options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-}
-
-.direction-button {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
-  width: 100%;
-}
-
-.direction-button:hover {
-  border-color: #3b82f6;
-  background: #f0f9ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.direction-button:active {
-  transform: translateY(0);
-}
-
-.direction-icon {
-  font-size: 32px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.direction-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.direction-label {
-  font-size: 16px;
-  font-weight: 600;
-  color: #111827;
-}
-
-.direction-description {
-  font-size: 13px;
-  color: #6b7280;
-  line-height: 1.4;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .direction-button {
-    border-color: #374151;
-    background: #1f2937;
-  }
-
-  .direction-button:hover {
-    border-color: #3b82f6;
-    background: #1e3a5f;
-  }
-
-  .direction-label {
-    color: #f9fafb;
-  }
-
-  .direction-description {
-    color: #9ca3af;
-  }
-}
-</style>

@@ -21,6 +21,7 @@ type UserJournal struct {
 	ContentHTML  *string    `json:"content_html,omitempty"` // Rendered HTML preview
 	MoodScore    *int       `json:"mood_score,omitempty"`   // 1-10 scale
 	MoodLabel    *string    `json:"mood_label,omitempty"`   // "Storm", "Sunny", etc.
+	SleepScore   *int       `json:"sleep_score,omitempty"`  // 0-100 sleep quality
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    time.Time  `json:"updated_at"`
 }
@@ -66,7 +67,7 @@ type UserJournalModel struct {
 func (journal UserJournalModel) Get(id uuid.UUID, userID uuid.UUID) (*UserJournal, error) {
 	query := `
 		SELECT id, user_id, collection_id, title, content, content_html, 
-		       mood_score, mood_label, created_at, updated_at 
+		       mood_score, mood_label, sleep_score, created_at, updated_at 
 		FROM user_journals 
 		WHERE id = $1 AND user_id = $2  
 	`
@@ -85,6 +86,7 @@ func (journal UserJournalModel) Get(id uuid.UUID, userID uuid.UUID) (*UserJourna
 		&userJournal.ContentHTML,
 		&userJournal.MoodScore,
 		&userJournal.MoodLabel,
+		&userJournal.SleepScore,
 		&userJournal.CreatedAt,
 		&userJournal.UpdatedAt,
 	)
@@ -170,7 +172,7 @@ func (journal UserJournalModel) GetAllTemplates() ([]*JournalTemplate, error) {
 func (journal UserJournalModel) GetList(userId uuid.UUID) ([]*UserJournal, error) {
 	query := `
 		SELECT COUNT(*) OVER(), id, user_id, collection_id, title, content, content_html,
-		       mood_score, mood_label, created_at, updated_at 
+		       mood_score, mood_label, sleep_score, created_at, updated_at 
 		FROM user_journals 
 		WHERE user_id = $1
 		ORDER BY created_at DESC
@@ -200,6 +202,7 @@ func (journal UserJournalModel) GetList(userId uuid.UUID) ([]*UserJournal, error
 			&userJournal.ContentHTML,
 			&userJournal.MoodScore,
 			&userJournal.MoodLabel,
+			&userJournal.SleepScore,
 			&userJournal.CreatedAt,
 			&userJournal.UpdatedAt,
 		)
@@ -240,9 +243,9 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 		}
 
 		query = `
-			INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-			RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at, updated_at
+			INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label, sleep_score, created_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, sleep_score, created_at, updated_at
 		`
 		args = []any{
 			userJournal.UserID,
@@ -252,13 +255,14 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 			userJournal.ContentHTML,
 			userJournal.MoodScore,
 			userJournal.MoodLabel,
+			userJournal.SleepScore,
 			userJournal.CreatedAt.UTC(),
 		}
 	} else {
 		query = `
-			INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label)
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
-			RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at, updated_at
+			INSERT INTO user_journals (user_id, collection_id, title, content, content_html, mood_score, mood_label, sleep_score)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, sleep_score, created_at, updated_at
 		`
 		args = []any{
 			userJournal.UserID,
@@ -268,6 +272,7 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 			userJournal.ContentHTML,
 			userJournal.MoodScore,
 			userJournal.MoodLabel,
+			userJournal.SleepScore,
 		}
 	}
 
@@ -280,6 +285,7 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 		&userJournal.ContentHTML,
 		&userJournal.MoodScore,
 		&userJournal.MoodLabel,
+		&userJournal.SleepScore,
 		&userJournal.CreatedAt,
 		&userJournal.UpdatedAt,
 	}
@@ -295,9 +301,9 @@ func (journal UserJournalModel) Insert(userJournal *UserJournal) (*UserJournal, 
 func (journal UserJournalModel) Update(userJournal *UserJournal) (*UserJournal, error) {
 	query := `
 		UPDATE user_journals
-		SET title = $1, content = $2, content_html = $3, mood_score = $4, mood_label = $5
-		WHERE id = $6
-		RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, created_at, updated_at
+		SET title = $1, content = $2, content_html = $3, mood_score = $4, mood_label = $5, sleep_score = $6
+		WHERE id = $7
+		RETURNING id, user_id, collection_id, title, content, content_html, mood_score, mood_label, sleep_score, created_at, updated_at
 	`
 
 	args := []any{
@@ -306,6 +312,7 @@ func (journal UserJournalModel) Update(userJournal *UserJournal) (*UserJournal, 
 		userJournal.ContentHTML,
 		userJournal.MoodScore,
 		userJournal.MoodLabel,
+		userJournal.SleepScore,
 		userJournal.ID,
 	}
 
@@ -318,6 +325,7 @@ func (journal UserJournalModel) Update(userJournal *UserJournal) (*UserJournal, 
 		&userJournal.ContentHTML,
 		&userJournal.MoodScore,
 		&userJournal.MoodLabel,
+		&userJournal.SleepScore,
 		&userJournal.CreatedAt,
 		&userJournal.UpdatedAt,
 	}
@@ -374,7 +382,7 @@ func (journal UserJournalModel) GetListWithFilter(userID uuid.UUID, filter *Quer
 	// Base SELECT with COUNT for pagination
 	queryBuilder.WriteString(`
 		SELECT COUNT(*) OVER(), id, user_id, collection_id, title, content, content_html,
-		       mood_score, mood_label, created_at, updated_at
+		       mood_score, mood_label, sleep_score, created_at, updated_at
 		FROM user_journals
 		WHERE user_id = $1
 	`)
@@ -457,6 +465,7 @@ func (journal UserJournalModel) GetListWithFilter(userID uuid.UUID, filter *Quer
 			&uj.ContentHTML,
 			&uj.MoodScore,
 			&uj.MoodLabel,
+			&uj.SleepScore,
 			&uj.CreatedAt,
 			&uj.UpdatedAt,
 		)
@@ -519,4 +528,287 @@ func (journal UserJournalModel) GetAllSince(userID uuid.UUID, since time.Time) (
 	}
 
 	return journals, rows.Err()
+}
+
+// ============================================================
+// Admin Template Management Methods
+// ============================================================
+
+// GetAllTemplatesAdmin returns ALL templates including inactive ones (for admin panel).
+func (journal UserJournalModel) GetAllTemplatesAdmin() ([]*JournalTemplate, error) {
+	query := `
+		SELECT id, title, title_vi, description, description_vi, category, type,
+		       slide_groups, slide_groups_vi, is_active, created_at, updated_at
+		FROM journal_templates
+		ORDER BY updated_at DESC
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := journal.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	templates := []*JournalTemplate{}
+	for rows.Next() {
+		var t JournalTemplate
+		var slideGroupsRaw []byte
+		var slideGroupsViRaw []byte
+
+		err = rows.Scan(
+			&t.ID, &t.Title, &t.TitleVi, &t.Description, &t.DescriptionVi,
+			&t.Category, &t.Type, &slideGroupsRaw, &slideGroupsViRaw,
+			&t.IsActive, &t.CreatedAt, &t.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if slideGroupsRaw != nil {
+			t.SlideGroups = json.RawMessage(slideGroupsRaw)
+		}
+		if slideGroupsViRaw != nil {
+			t.SlideGroupsVi = json.RawMessage(slideGroupsViRaw)
+		}
+
+		templates = append(templates, &t)
+	}
+
+	return templates, rows.Err()
+}
+
+// GetTemplateByID returns a single template by ID (regardless of is_active).
+func (journal UserJournalModel) GetTemplateByID(id uuid.UUID) (*JournalTemplate, error) {
+	query := `
+		SELECT id, title, title_vi, description, description_vi, category, type,
+		       slide_groups, slide_groups_vi, is_active, created_at, updated_at
+		FROM journal_templates
+		WHERE id = $1
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var t JournalTemplate
+	var slideGroupsRaw []byte
+	var slideGroupsViRaw []byte
+
+	err := journal.DB.QueryRowContext(ctx, query, id).Scan(
+		&t.ID, &t.Title, &t.TitleVi, &t.Description, &t.DescriptionVi,
+		&t.Category, &t.Type, &slideGroupsRaw, &slideGroupsViRaw,
+		&t.IsActive, &t.CreatedAt, &t.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrRecordNotFound
+		}
+		return nil, err
+	}
+
+	if slideGroupsRaw != nil {
+		t.SlideGroups = json.RawMessage(slideGroupsRaw)
+	}
+	if slideGroupsViRaw != nil {
+		t.SlideGroupsVi = json.RawMessage(slideGroupsViRaw)
+	}
+
+	return &t, nil
+}
+
+// InsertTemplate creates a new journal template and returns it.
+func (journal UserJournalModel) InsertTemplate(t *JournalTemplate) (*JournalTemplate, error) {
+	query := `
+		INSERT INTO journal_templates (title, title_vi, description, description_vi, category, type, slide_groups, slide_groups_vi, is_active)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		RETURNING id, title, title_vi, description, description_vi, category, type, slide_groups, slide_groups_vi, is_active, created_at, updated_at
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var result JournalTemplate
+	var slideGroupsRaw []byte
+	var slideGroupsViRaw []byte
+
+	err := journal.DB.QueryRowContext(ctx, query,
+		t.Title, t.TitleVi, t.Description, t.DescriptionVi,
+		t.Category, t.Type, t.SlideGroups, t.SlideGroupsVi, t.IsActive,
+	).Scan(
+		&result.ID, &result.Title, &result.TitleVi, &result.Description, &result.DescriptionVi,
+		&result.Category, &result.Type, &slideGroupsRaw, &slideGroupsViRaw,
+		&result.IsActive, &result.CreatedAt, &result.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if slideGroupsRaw != nil {
+		result.SlideGroups = json.RawMessage(slideGroupsRaw)
+	}
+	if slideGroupsViRaw != nil {
+		result.SlideGroupsVi = json.RawMessage(slideGroupsViRaw)
+	}
+
+	return &result, nil
+}
+
+// UpdateTemplate updates all fields of a template by ID and returns the updated row.
+func (journal UserJournalModel) UpdateTemplate(t *JournalTemplate) (*JournalTemplate, error) {
+	query := `
+		UPDATE journal_templates
+		SET title = $1, title_vi = $2, description = $3, description_vi = $4,
+		    category = $5, type = $6, slide_groups = $7, slide_groups_vi = $8,
+		    is_active = $9, updated_at = NOW()
+		WHERE id = $10
+		RETURNING id, title, title_vi, description, description_vi, category, type, slide_groups, slide_groups_vi, is_active, created_at, updated_at
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var result JournalTemplate
+	var slideGroupsRaw []byte
+	var slideGroupsViRaw []byte
+
+	err := journal.DB.QueryRowContext(ctx, query,
+		t.Title, t.TitleVi, t.Description, t.DescriptionVi,
+		t.Category, t.Type, t.SlideGroups, t.SlideGroupsVi, t.IsActive, t.ID,
+	).Scan(
+		&result.ID, &result.Title, &result.TitleVi, &result.Description, &result.DescriptionVi,
+		&result.Category, &result.Type, &slideGroupsRaw, &slideGroupsViRaw,
+		&result.IsActive, &result.CreatedAt, &result.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrRecordNotFound
+		}
+		return nil, err
+	}
+
+	if slideGroupsRaw != nil {
+		result.SlideGroups = json.RawMessage(slideGroupsRaw)
+	}
+	if slideGroupsViRaw != nil {
+		result.SlideGroupsVi = json.RawMessage(slideGroupsViRaw)
+	}
+
+	return &result, nil
+}
+
+// DeleteTemplate permanently removes a template by ID.
+func (journal UserJournalModel) DeleteTemplate(id uuid.UUID) error {
+	query := `DELETE FROM journal_templates WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := journal.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
+}
+
+// DuplicateTemplate clones a template with a new UUID and "(Copy)" suffix. The copy is inactive by default.
+func (journal UserJournalModel) DuplicateTemplate(id uuid.UUID) (*JournalTemplate, error) {
+	query := `
+		INSERT INTO journal_templates (title, title_vi, description, description_vi, category, type, slide_groups, slide_groups_vi, is_active)
+		SELECT title || ' (Copy)', title_vi, description, description_vi, category, type, slide_groups, slide_groups_vi, false
+		FROM journal_templates
+		WHERE id = $1
+		RETURNING id, title, title_vi, description, description_vi, category, type, slide_groups, slide_groups_vi, is_active, created_at, updated_at
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var result JournalTemplate
+	var slideGroupsRaw []byte
+	var slideGroupsViRaw []byte
+
+	err := journal.DB.QueryRowContext(ctx, query, id).Scan(
+		&result.ID, &result.Title, &result.TitleVi, &result.Description, &result.DescriptionVi,
+		&result.Category, &result.Type, &slideGroupsRaw, &slideGroupsViRaw,
+		&result.IsActive, &result.CreatedAt, &result.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrRecordNotFound
+		}
+		return nil, err
+	}
+
+	if slideGroupsRaw != nil {
+		result.SlideGroups = json.RawMessage(slideGroupsRaw)
+	}
+	if slideGroupsViRaw != nil {
+		result.SlideGroupsVi = json.RawMessage(slideGroupsViRaw)
+	}
+
+	return &result, nil
+}
+
+// ToggleActiveTemplate flips the is_active status of a template.
+func (journal UserJournalModel) ToggleActiveTemplate(id uuid.UUID) (*JournalTemplate, error) {
+	query := `
+		UPDATE journal_templates
+		SET is_active = NOT is_active, updated_at = NOW()
+		WHERE id = $1
+		RETURNING id, title, title_vi, description, description_vi, category, type, slide_groups, slide_groups_vi, is_active, created_at, updated_at
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var result JournalTemplate
+	var slideGroupsRaw []byte
+	var slideGroupsViRaw []byte
+
+	err := journal.DB.QueryRowContext(ctx, query, id).Scan(
+		&result.ID, &result.Title, &result.TitleVi, &result.Description, &result.DescriptionVi,
+		&result.Category, &result.Type, &slideGroupsRaw, &slideGroupsViRaw,
+		&result.IsActive, &result.CreatedAt, &result.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrRecordNotFound
+		}
+		return nil, err
+	}
+
+	if slideGroupsRaw != nil {
+		result.SlideGroups = json.RawMessage(slideGroupsRaw)
+	}
+	if slideGroupsViRaw != nil {
+		result.SlideGroupsVi = json.RawMessage(slideGroupsViRaw)
+	}
+
+	return &result, nil
+}
+
+// GetTemplateUserCount returns how many users have learned records for a given template.
+func (journal UserJournalModel) GetTemplateUserCount(id uuid.UUID) (int, error) {
+	query := `SELECT COUNT(DISTINCT user_id) FROM user_learned_slide_groups WHERE collection_id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var count int
+	err := journal.DB.QueryRowContext(ctx, query, id).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }

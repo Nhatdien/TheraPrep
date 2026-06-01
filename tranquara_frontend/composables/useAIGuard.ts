@@ -13,6 +13,7 @@ import NetworkMonitor from '~/services/sync/network_monitor';
 export function useAIGuard() {
   const settingsStore = useSettingsStore();
   const toast = useToast();
+  const { t } = useI18n();
 
   /** Whether AI features are currently enabled */
   const isAIEnabled = computed(() => settingsStore.aiEnabled);
@@ -36,8 +37,8 @@ export function useAIGuard() {
   const canUseAI = (): boolean => {
     if (!settingsStore.aiEnabled) {
       toast.add({
-        title: 'AI features are disabled',
-        description: 'Enable AI Personalization in Settings to use this feature.',
+        title: t('aiGuard.disabledTitle'),
+        description: t('aiGuard.disabledDesc'),
         icon: 'i-lucide-sparkles',
         color: 'warning',
       });
@@ -46,8 +47,8 @@ export function useAIGuard() {
 
     if (!NetworkMonitor.isConnected()) {
       toast.add({
-        title: 'You\'re offline',
-        description: 'AI insights will be available when you\'re back online. Your journal is saved locally.',
+        title: t('aiGuard.offlineTitle'),
+        description: t('aiGuard.offlineDesc'),
         icon: 'i-lucide-wifi-off',
         color: 'info',
       });

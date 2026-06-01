@@ -143,7 +143,7 @@ onMounted(async () => {
     await templateStore.loadCustomTemplate();
   }
   if (templateStore.isLoaded) {
-    localTitle.value = templateStore.title;
+    localTitle.value = templateStore.title || t('myTemplate.pageTitle');
     localSlides.value = templateStore.slideGroups.flatMap(g => g.slides).map(s => ({ ...s }));
   }
 });

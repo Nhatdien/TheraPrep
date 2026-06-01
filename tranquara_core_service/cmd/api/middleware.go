@@ -142,3 +142,38 @@ func (app *application) GetUserUUIDFromContext(ctx context.Context) (uuid.UUID, 
 
 	return uuid.Parse(claims["sub"].(string))
 }
+
+// adminMiddleware wraps authMiddleWare and additionally checks that the
+// authenticated user's UUID is in the ADMIN_USERS environment variable.
+func (app *application) adminMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return app.authMiddleWare(func(w http.ResponseWriter, r *http.Request) {
+		userID, err := app.GetUserUUIDFromContext(r.Context())
+		if err != nil {
+			app.errorResponse(w, r, http.StatusForbidden, "Forbidden")
+			return
+		}
+
+		adminUsersEnv := os.Getenv("ADMIN_USERS")
+		if adminUsersEnv == "" {
+			app.errorResponse(w, r, http.StatusForbidden, "Forbidden")
+			return
+		}
+
+		adminUUIDs := strings.Split(adminUsersEnv, ",")
+		isAdmin := false
+		for _, adminUUID := range adminUUIDs {
+			trimmed := strings.TrimSpace(adminUUID)
+			if trimmed == userID.String() {
+				isAdmin = true
+				break
+			}
+		}
+
+		if !isAdmin {
+			app.errorResponse(w, r, http.StatusForbidden, "Forbidden")
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}

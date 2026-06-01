@@ -33,6 +33,7 @@ export const userJournalStore = defineStore("user_journal", {
     currentWritingContent: {} as { [key: string]: string },
     currentMoodScore: 5 as number, // 1-10 scale (matches EmotionSliderV2)
     currentMoodLabel: "Okay" as string,
+    currentSleepScore: null as number | null, // 0-100 sleep quality
     currentJournal: null as LocalJournal | null,
     isInitialized: false,
     isSyncing: false,
@@ -451,6 +452,7 @@ export const userJournalStore = defineStore("user_journal", {
           content_html: journal.content_html,
           mood_score: journal.mood_score,
           mood_label: journal.mood_label,
+          sleep_score: journal.sleep_score,
         }, overrideDate);
 
         // Update store state
@@ -720,6 +722,7 @@ export const userJournalStore = defineStore("user_journal", {
       this.currentWritingContent = {};
       this.currentMoodScore = 5; // 1-10 scale default (middle value)
       this.currentMoodLabel = "Okay";
+      this.currentSleepScore = null;
       this.currentJournal = null;
     },
 

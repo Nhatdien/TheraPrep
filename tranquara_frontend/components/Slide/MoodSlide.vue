@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-center h-full px-4">
+  <div class="flex flex-col items-center justify-center min-h-full px-4">
     <h2 class="text-2xl font-bold mb-4 text-center text-highlighted">{{ displayQuestion }}</h2>
     <p class="text-sm text-muted mb-6 text-center">{{ $t('slide.moodInstruction') }}</p>
     <EmotionSliderV2 v-model="moodValue" />
@@ -13,17 +13,25 @@ import { userJournalStore } from "~/stores/stores/user_journal";
 
 const { t } = useI18n();
 
-const props = withDefaults(defineProps<{
-  /**
-   * Question text to display
-   */
-  question?: string;
-}>(), {
-  question: '',
+const props = defineProps({
+  content: {
+    type: Object,
+    required: true,
+  },
+  currentIndex: {
+    type: Number,
+    required: true,
+  },
+  index: {
+    type: Number,
+    required: true,
+  },
 });
 
-// Use prop if provided, otherwise fall back to translated default
-const displayQuestion = computed(() => props.question || t('slide.defaultMoodQuestion'));
+// Use question from content if provided, otherwise fall back to translated default
+const displayQuestion = computed(() =>
+  props.content?.question || props.content?.question_content || t('slide.defaultMoodQuestion')
+);
 
 const store = userJournalStore();
 

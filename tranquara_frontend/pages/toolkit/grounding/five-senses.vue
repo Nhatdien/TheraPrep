@@ -17,7 +17,7 @@
         v-for="(step, i) in steps"
         :key="step.key"
         class="w-2 h-2 rounded-full transition-all duration-300"
-        :class="i < currentStepIndex ? 'bg-green-400' : i === currentStepIndex ? stepAccentBg : 'bg-zinc-700'"
+        :class="i < currentStepIndex ? 'bg-green-400' : i === currentStepIndex ? stepAccentBg : 'bg-dimmed'"
       />
     </div>
 

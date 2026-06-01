@@ -22,6 +22,7 @@ export default defineNuxtConfig({
       keycloakURL: "",
       keycloakRealm: "",
       keycloakClientSecret: "",
+      adminUsers: "",
     },
   },
   compatibilityDate: "2024-04-03",

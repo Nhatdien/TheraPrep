@@ -17,7 +17,7 @@
         v-for="(_, i) in partKeys"
         :key="i"
         class="w-2 h-2 rounded-full transition-all duration-300"
-        :class="i < currentIndex ? 'bg-green-400' : i === currentIndex ? 'bg-amber-400' : 'bg-zinc-700'"
+        :class="i < currentIndex ? 'bg-green-400' : i === currentIndex ? 'bg-amber-400' : 'bg-dimmed'"
       />
     </div>
 

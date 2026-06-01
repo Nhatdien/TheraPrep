@@ -19,7 +19,7 @@
         viewport: 'h-full',
         dot: 'w-6 h-1 rounded-none'
       }">
-      <div class="h-[70vh] max-h-[700px] lg:h-[60vh]">
+      <div class="h-[70vh] max-h-[700px] lg:h-[60vh] overflow-y-auto">
         <component
           :is="renderSlide((item as CarouselSlideItem)?.content?.type)"
           :currentIndex
@@ -53,6 +53,11 @@ import FurtherReading from "@/components/Slide/FutherReading.vue";
 import JournalPrompt from "@/components/Slide/JournalPrompt.vue";
 import SleepCheck from "~/components/Slide/SleepCheck.vue";
 import MoodSlide from "~/components/Slide/MoodSlide.vue";
+import DatePickerSlide from "~/components/Slide/DatePickerSlide.vue";
+import StarRatingSlide from "~/components/Slide/StarRatingSlide.vue";
+import ChecklistInputSlide from "~/components/Slide/ChecklistInputSlide.vue";
+import Questionnaire from "~/components/Slide/Questionnaire.vue";
+import CompletionSlide from "~/components/Slide/CompletionSlide.vue";
 import { parseJournalHtml } from "~/utils/journal";
 import type { LocalJournal } from "~/types/user_journal";
 
@@ -116,6 +121,7 @@ const parseJournalContent = (contentHtml: string): Record<string, string> => {
 // This ensures child components get the correct initial values
 store.currentMoodScore = props.journal.mood_score ?? 5;
 store.currentMoodLabel = props.journal.mood_label || "Okay";
+store.currentSleepScore = props.journal.sleep_score ?? null;
 store.currentJournal = props.journal;
 
 // Pre-populate the writing content
@@ -130,6 +136,11 @@ const componentMapping: Record<string, any> = {
   sleep_check: SleepCheck,
   mood_check: MoodSlide,
   emotion_log: MoodSlide,
+  date_picker: DatePickerSlide,
+  star_rating: StarRatingSlide,
+  checklist_input: ChecklistInputSlide,
+  questionnaire: Questionnaire,
+  completion: CompletionSlide,
 }
 
 const renderSlide = (type: string) => {
@@ -190,6 +201,7 @@ const saveJournalChanges = async () => {
       content_html: newContent,
       mood_score: store.currentMoodScore,
       mood_label: store.currentMoodLabel,
+      sleep_score: store.currentSleepScore,
     });
     
     // Clear session

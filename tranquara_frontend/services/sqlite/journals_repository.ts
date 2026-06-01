@@ -62,8 +62,8 @@ export class JournalsRepository {
     const query = `
       INSERT INTO user_journals (
         id, server_id, user_id, collection_id, title, content, content_html,
-        mood_score, mood_label, created_at, updated_at, needs_sync, synced_at, is_deleted
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        mood_score, mood_label, sleep_score, created_at, updated_at, needs_sync, synced_at, is_deleted
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
 
     await db.run(query, [
@@ -76,6 +76,7 @@ export class JournalsRepository {
       newJournal.content_html || null,
       newJournal.mood_score || null,
       newJournal.mood_label || null,
+      newJournal.sleep_score ?? null,
       newJournal.created_at,
       newJournal.updated_at,
       newJournal.needs_sync,
@@ -187,7 +188,7 @@ export class JournalsRepository {
     const query = `
       UPDATE user_journals SET
         title = ?, content = ?, content_html = ?,
-        mood_score = ?, mood_label = ?,
+        mood_score = ?, mood_label = ?, sleep_score = ?,
         collection_id = ?, updated_at = ?, needs_sync = ?
       WHERE id = ?;
     `;
@@ -198,6 +199,7 @@ export class JournalsRepository {
       updated.content_html || null,
       updated.mood_score || null,
       updated.mood_label || null,
+      updated.sleep_score ?? null,
       updated.collection_id || null,
       updated.updated_at,
       updated.needs_sync,
@@ -300,7 +302,7 @@ export class JournalsRepository {
         const query = `
           UPDATE user_journals SET
             title = ?, content = ?, content_html = ?,
-            mood_score = ?, mood_label = ?, collection_id = ?,
+            mood_score = ?, mood_label = ?, sleep_score = ?, collection_id = ?,
             updated_at = ?, needs_sync = 0, synced_at = ?
           WHERE id = ?;
         `;
@@ -311,6 +313,7 @@ export class JournalsRepository {
           serverJournal.content_html || null,
           serverJournal.mood_score || null,
           serverJournal.mood_label || null,
+          serverJournal.sleep_score ?? null,
           serverJournal.collection_id || null,
           serverJournal.updated_at,
           new Date().toISOString(),
@@ -326,8 +329,8 @@ export class JournalsRepository {
       const query = `
         INSERT INTO user_journals (
           id, server_id, user_id, collection_id, title, content, content_html,
-          mood_score, mood_label, created_at, updated_at, needs_sync, synced_at, is_deleted
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0);
+          mood_score, mood_label, sleep_score, created_at, updated_at, needs_sync, synced_at, is_deleted
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0);
       `;
 
       await db.run(query, [
@@ -340,6 +343,7 @@ export class JournalsRepository {
         serverJournal.content_html || null,
         serverJournal.mood_score || null,
         serverJournal.mood_label || null,
+        serverJournal.sleep_score ?? null,
         serverJournal.created_at,
         serverJournal.updated_at,
         new Date().toISOString(),
@@ -512,7 +516,7 @@ export class JournalsRepository {
             const updateQuery = `
               UPDATE user_journals SET
                 title = ?, content = ?, content_html = ?,
-                mood_score = ?, mood_label = ?, collection_id = ?,
+                mood_score = ?, mood_label = ?, sleep_score = ?, collection_id = ?,
                 updated_at = ?, needs_sync = 0, synced_at = ?
               WHERE id = ?;
             `;
@@ -523,6 +527,7 @@ export class JournalsRepository {
               serverJournal.content_html || null,
               serverJournal.mood_score || null,
               serverJournal.mood_label || null,
+              serverJournal.sleep_score ?? null,
               serverJournal.collection_id || null,
               serverJournal.updated_at,
               new Date().toISOString(),
@@ -541,8 +546,8 @@ export class JournalsRepository {
           const insertQuery = `
             INSERT INTO user_journals (
               id, server_id, user_id, collection_id, title, content, content_html,
-              mood_score, mood_label, created_at, updated_at, needs_sync, synced_at, is_deleted
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0);
+              mood_score, mood_label, sleep_score, created_at, updated_at, needs_sync, synced_at, is_deleted
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 0);
           `;
 
           await db.run(insertQuery, [
@@ -555,6 +560,7 @@ export class JournalsRepository {
             serverJournal.content_html || null,
             serverJournal.mood_score || null,
             serverJournal.mood_label || null,
+            serverJournal.sleep_score ?? null,
             serverJournal.created_at,
             serverJournal.updated_at,
             new Date().toISOString(),
@@ -620,6 +626,7 @@ export class JournalsRepository {
       content_html: row.content_html,
       mood_score: row.mood_score,
       mood_label: row.mood_label,
+      sleep_score: row.sleep_score,
       created_at: row.created_at,
       updated_at: row.updated_at,
       needs_sync: row.needs_sync,

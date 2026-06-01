@@ -136,7 +136,7 @@ func (app *application) internalAuthMiddleware(next http.HandlerFunc) http.Handl
 	}
 }
 
-// internalGetActiveJournalUsersHandler returns user IDs with recent journal activity.
+// internalGetActiveJournalUsersHandler returns users with recent journal activity and their language preferences.
 // GET /v1/internal/active-journal-users?since=2026-03-04T00:00:00Z
 func (app *application) internalGetActiveJournalUsersHandler(w http.ResponseWriter, r *http.Request) {
 	sinceStr := r.URL.Query().Get("since")
@@ -151,19 +151,13 @@ func (app *application) internalGetActiveJournalUsersHandler(w http.ResponseWrit
 		return
 	}
 
-	userIDs, err := app.models.AIMemory.GetActiveJournalUsersSince(since)
+	users, err := app.models.AIMemory.GetActiveJournalUsersSince(since)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	// Convert to string array for JSON
-	ids := make([]string, len(userIDs))
-	for i, id := range userIDs {
-		ids[i] = id.String()
-	}
-
-	err = app.writeJson(w, http.StatusOK, envolope{"user_ids": ids}, nil)
+	err = app.writeJson(w, http.StatusOK, envolope{"users": users}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

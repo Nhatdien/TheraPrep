@@ -206,7 +206,9 @@ export const SESSION_COLLECTION_ID = 'session-tracker-virtual';
 export const SESSION_BEFORE_SLIDE_GROUP: SlideGroup = {
   id: 'session-before',
   title: 'Before Your Session',
+  title_vi: 'Trước buổi tư vấn',
   description: 'Prepare for your upcoming therapy session',
+  description_vi: 'Chuẩn bị cho buổi tư vấn sắp tới',
   position: 0,
   slides: [
     {
@@ -238,20 +240,22 @@ export const SESSION_BEFORE_SLIDE_GROUP: SlideGroup = {
 export const SESSION_AFTER_SLIDE_GROUP: SlideGroup = {
   id: 'session-after',
   title: 'After Your Session',
+  title_vi: 'Sau buổi tư vấn',
   description: 'Reflect on your therapy session',
+  description_vi: 'Nhìn lại buổi tư vấn của bạn',
   position: 1,
   slides: [
     {
       id: 'after-mood',
       type: 'emotion_log',
       question: 'How do you feel after the session?',
-      question_vi: 'Bạn cảm thấy thế nào sau buổi trị liệu?',
+      question_vi: 'Bạn cảm thấy thế nào sau buổi tư vấn?',
     },
     {
       id: 'after-takeaways',
       type: 'journal_prompt',
       question: 'Key takeaways from the session',
-      question_vi: 'Những điều rút ra từ buổi trị liệu',
+      question_vi: 'Những điều rút ra từ buổi tư vấn',
       content: 'What insights, advice, or realizations stood out to you?',
       content_vi: 'Những hiểu biết, lời khuyên, hoặc nhận ra nào nổi bật với bạn?',
     },
@@ -267,9 +271,9 @@ export const SESSION_AFTER_SLIDE_GROUP: SlideGroup = {
       id: 'after-rating',
       type: 'star_rating',
       question: 'Rate this session',
-      question_vi: 'Đánh giá buổi trị liệu này',
+      question_vi: 'Đánh giá buổi tư vấn này',
       content: 'How helpful was this session overall?',
-      content_vi: 'Buổi trị liệu này hữu ích như thế nào?',
+      content_vi: 'Buổi tư vấn này hữu ích như thế nào?',
     },
   ],
 };

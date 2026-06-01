@@ -24,6 +24,8 @@ type Models struct {
 	HomeworkItem          HomeworkItemModel
 	PrepPack              PrepPackModel
 	UserCustomTemplate    UserCustomTemplateModel
+	DataExport            DataExportModel
+	DataImport            DataImportModel
 }
 
 func NewModels(db *sql.DB) Models {
@@ -42,6 +44,8 @@ func NewModels(db *sql.DB) Models {
 		HomeworkItem:          HomeworkItemModel{DB: db},
 		PrepPack:              PrepPackModel{DB: db},
 		UserCustomTemplate:    UserCustomTemplateModel{DB: db},
+		DataExport:            DataExportModel{DB: db},
+		DataImport:            DataImportModel{DB: db},
 	}
 
 }

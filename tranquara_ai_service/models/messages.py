@@ -47,6 +47,7 @@ class JournalIndexPayload(BaseModel):
     user_id: str
     title: str
     content: str
+    content_html: Optional[str] = None  # Rendered HTML — preferred for AI readability
     mood_score: Optional[int] = None
     mood_label: Optional[str] = None
     created_at: Optional[str] = None
@@ -71,3 +72,4 @@ class AnalyzeJournalRequest(BaseModel):
     collection_title: Optional[str] = None
     direction: Optional[str] = None
     your_story: Optional[str] = None
+    app_language: Optional[str] = None

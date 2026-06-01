@@ -33,14 +33,14 @@
     <!-- Mood Label -->
     <div class="mood-label-container">
       <span class="mood-label" :style="{ color: moodColor }">{{ moodLabel }}</span>
-      <span class="mood-score">{{ currentValue }}/10</span>
+      <span class="mood-score text-muted">{{ currentValue }}/10</span>
     </div>
 
     <!-- Slider -->
     <div class="slider-container">
       <div class="slider-labels">
-        <span class="label-icon">😢</span>
-        <span class="label-icon">😊</span>
+        <Frown :size="20" class="label-icon text-muted" />
+        <Smile :size="20" class="label-icon text-muted" />
       </div>
       <div class="slider-track" :style="sliderTrackStyle">
         <input 
@@ -58,6 +58,8 @@
 </template>
 
 <script setup lang="ts">
+import { Frown, Smile } from 'lucide-vue-next';
+
 const model = defineModel<number>({ default: 5 });
 const currentValue = ref(model.value || 5);
 
@@ -272,7 +274,6 @@ const moodLabel = computed(() => t(`slide.moodLabels.${currentValue.value}`));
 
 .mood-score {
   font-size: 0.875rem;
-  color: #888;
 }
 
 /* Slider */
@@ -287,10 +288,6 @@ const moodLabel = computed(() => t(`slide.moodLabels.${currentValue.value}`));
   justify-content: space-between;
   margin-bottom: 0.75rem;
   padding: 0 0.25rem;
-}
-
-.label-icon {
-  font-size: 1.5rem;
 }
 
 /* Slider Track Wrapper */

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex flex-col items-center justify-center h-full px-2 overflow-hidden">
+  <div class="relative flex flex-col items-center justify-center min-h-full px-4">
     <!-- CSS particle confetti layer -->
     <div class="particles" aria-hidden="true">
       <span v-for="n in 18" :key="n" class="particle" :style="particleStyle(n)" />

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-center h-full px-4">
+  <div class="flex flex-col items-center justify-center min-h-full px-4">
     <h2 class="text-2xl font-bold mb-2 text-center text-highlighted">
       {{ displayQuestion }}
     </h2>
@@ -12,13 +12,13 @@
         v-for="star in 5"
         :key="star"
         @click="selectRating(star)"
-        class="text-4xl transition-transform duration-150"
+        class="transition-transform duration-150"
         :class="[
-          star <= rating ? 'text-yellow-400 scale-110' : 'text-neutral-600',
+          star <= rating ? 'text-primary scale-110' : 'text-toned',
           'hover:scale-125 active:scale-95'
         ]"
       >
-        ★
+        <Star :size="40" :fill="star <= rating ? 'currentColor' : 'none'" />
       </button>
     </div>
 
@@ -29,6 +29,7 @@
 </template>
 
 <script setup lang="ts">
+import { Star } from 'lucide-vue-next';
 import { userJournalStore } from '~/stores/stores/user_journal';
 
 const props = defineProps({

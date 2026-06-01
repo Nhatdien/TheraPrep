@@ -75,6 +75,7 @@ export class UserJournals extends Base {
                 content_html: journal.content_html,
                 mood_score: journal.mood_score,
                 mood_label: journal.mood_label,
+                sleep_score: journal.sleep_score,
                 created_at: journal.created_at,
                 updated_at: journal.updated_at,
                 skip_ai_indexing: this._shouldSkipAIIndexing(),
@@ -127,6 +128,7 @@ export class UserJournals extends Base {
                             content_html: journal.content_html || undefined,
                             mood_score: journal.mood_score || undefined,
                             mood_label: journal.mood_label || undefined,
+                            sleep_score: journal.sleep_score,
                             created_at: journal.created_at,
                         };
                         const response = await this.createJournal(createData);
@@ -145,6 +147,7 @@ export class UserJournals extends Base {
                     content_html: journal.content_html || undefined,
                     mood_score: journal.mood_score || undefined,
                     mood_label: journal.mood_label || undefined,
+                    sleep_score: journal.sleep_score,
                     created_at: journal.created_at,
                 };
                 const response = await this.createJournal(createData);

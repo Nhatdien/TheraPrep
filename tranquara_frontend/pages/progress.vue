@@ -15,118 +15,65 @@
     </UContainer>
 
     <UContainer class="py-6 space-y-6">
-      <!-- Summary Cards Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <UCard class="text-center">
-          <div>
-            <p class="text-3xl font-bold text-highlighted">{{ totalCompletedDays }}</p>
-            <p class="text-xs text-muted mt-1">{{ $t('progress.totalCompletedDays') }}</p>
-          </div>
-        </UCard>
-
-        <UCard class="text-center">
-          <div>
-            <p class="text-3xl font-bold text-highlighted">{{ totalWordsWritten }}</p>
-            <p class="text-xs text-muted mt-1">{{ $t('progress.wordsWritten') }}</p>
-          </div>
-        </UCard>
-
-        <UCard class="text-center">
-          <div>
-            <p class="text-3xl font-bold text-highlighted">{{ averageMoodLabel }}</p>
-            <p class="text-xs text-muted mt-1">{{ $t('progress.avgMood') }}</p>
-          </div>
-        </UCard>
-
-        <UCard class="text-center">
-          <div>
-            <p class="text-3xl font-bold text-highlighted">{{ streakStore.totalEntries }}</p>
-            <p class="text-xs text-muted mt-1">{{ $t('progress.journalEntries') }}</p>
-          </div>
-        </UCard>
-
-        <UCard v-if="averageSleepScore !== null" class="text-center">
-          <div>
-            <p class="text-3xl font-bold text-highlighted">{{ averageSleepScore }}%</p>
-            <p class="text-xs text-muted mt-1">{{ $t('progress.avgSleep') }}</p>
-          </div>
-        </UCard>
-      </div>
-
-      <!-- General Section -->
+      <!-- Stats Section -->
       <div class="space-y-3">
-        <h2 class="text-xs font-semibold text-muted uppercase tracking-widest text-center">
-          {{ $t('progress.general') }}
-        </h2>
-
+        <!-- Streak Hero Card -->
         <UCard>
-          <div class="space-y-4">
-            <!-- Current Streak -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <Flame class="w-5 h-5 text-primary" />
-                <span class="text-sm font-medium text-default">{{ $t('progress.currentStreak') }}</span>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-1">
+              <div class="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 shrink-0">
+                <Flame class="w-6 h-6 text-primary" />
               </div>
-              <span class="text-sm font-semibold text-highlighted">
-                {{ streakStore.currentStreak }} {{ $t('progress.day', streakStore.currentStreak) }}
-              </span>
+              <div>
+                <p class="text-3xl font-bold text-highlighted leading-none">{{ streakStore.currentStreak }}</p>
+                <p class="text-xs text-muted mt-1">{{ $t('progress.currentStreak') }}</p>
+              </div>
             </div>
-
-            <USeparator />
-
-            <!-- Total Completed Days -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <CalendarCheck class="w-5 h-5 text-primary" />
-                <span class="text-sm font-medium text-default">{{ $t('progress.totalCompletedDays') }}</span>
+            <div class="w-px h-10 bg-border shrink-0"></div>
+            <div class="flex items-center gap-3 flex-1">
+              <div class="flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-500/10 shrink-0">
+                <Trophy class="w-6 h-6 text-amber-500" />
               </div>
-              <span class="text-sm font-semibold text-highlighted">
-                {{ totalCompletedDays }} {{ $t('progress.day', totalCompletedDays) }}
-              </span>
+              <div>
+                <p class="text-3xl font-bold text-highlighted leading-none">{{ streakStore.longestStreak }}</p>
+                <p class="text-xs text-muted mt-1">{{ $t('progress.longestStreak') }}</p>
+              </div>
             </div>
-
-            <USeparator />
-
-            <!-- Longest Streak -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <Trophy class="w-5 h-5 text-primary" />
-                <span class="text-sm font-medium text-default">{{ $t('progress.longestStreak') }}</span>
-              </div>
-              <span class="text-sm font-semibold text-highlighted">
-                {{ streakStore.longestStreak }} {{ $t('progress.day', streakStore.longestStreak) }}
-              </span>
-            </div>
-
-            <USeparator />
-
-            <!-- Average Mood -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <SmilePlus class="w-5 h-5 text-primary" />
-                <span class="text-sm font-medium text-default">{{ $t('progress.averageMood') }}</span>
-              </div>
-              <span class="text-sm font-semibold text-highlighted">
-                {{ averageMoodLabel }}
-              </span>
-            </div>
-
-            <template v-if="averageSleepScore !== null">
-              <USeparator />
-
-              <!-- Average Sleep Quality -->
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <Moon class="w-5 h-5 text-primary" />
-                  <span class="text-sm font-medium text-default">{{ $t('progress.sleepQuality') }}</span>
-                </div>
-                <span class="text-sm font-semibold text-highlighted">
-                  {{ averageSleepScore }}%
-                </span>
-              </div>
-            </template>
           </div>
         </UCard>
+
+        <!-- Stat Grid -->
+        <div class="grid grid-cols-2 gap-3">
+          <UCard class="text-center">
+            <CalendarCheck class="w-5 h-5 text-primary mx-auto mb-2" />
+            <p class="text-2xl font-bold text-highlighted">{{ totalCompletedDays }}</p>
+            <p class="text-xs text-muted mt-1">{{ $t('progress.totalCompletedDays') }}</p>
+          </UCard>
+
+          <UCard class="text-center">
+            <BookOpen class="w-5 h-5 text-primary mx-auto mb-2" />
+            <p class="text-2xl font-bold text-highlighted">{{ streakStore.totalEntries }}</p>
+            <p class="text-xs text-muted mt-1">{{ $t('progress.journalEntries') }}</p>
+          </UCard>
+
+          <UCard class="text-center">
+            <PenLine class="w-5 h-5 text-primary mx-auto mb-2" />
+            <p class="text-2xl font-bold text-highlighted">{{ totalWordsWritten }}</p>
+            <p class="text-xs text-muted mt-1">{{ $t('progress.wordsWritten') }}</p>
+          </UCard>
+
+          <UCard class="text-center">
+            <SmilePlus class="w-5 h-5 text-primary mx-auto mb-2" />
+            <p class="text-2xl font-bold text-highlighted">{{ averageMoodLabel }}</p>
+            <p class="text-xs text-muted mt-1">{{ $t('progress.avgMood') }}</p>
+          </UCard>
+
+          <UCard v-if="averageSleepScore !== null" class="text-center col-span-2">
+            <Moon class="w-5 h-5 text-primary mx-auto mb-2" />
+            <p class="text-2xl font-bold text-highlighted">{{ averageSleepScore }}%</p>
+            <p class="text-xs text-muted mt-1">{{ $t('progress.avgSleep') }}</p>
+          </UCard>
+        </div>
       </div>
 
       <!-- Emotion Distribution Section -->
@@ -137,6 +84,17 @@
 
         <UCard>
           <ProgressEmotionDistributionChart :journals="activeJournals" />
+        </UCard>
+      </div>
+
+      <!-- Sleep Quality Trend Section -->
+      <div v-if="activeJournals.length > 0" class="space-y-3">
+        <h2 class="text-xs font-semibold text-muted uppercase tracking-widest text-center">
+          {{ $t('progress.sleepTrend') }}
+        </h2>
+
+        <UCard>
+          <ProgressSleepLineChart :journals="activeJournals" />
         </UCard>
       </div>
 
@@ -167,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { Flame, CalendarCheck, Trophy, SmilePlus, Moon } from "lucide-vue-next";
+import { Flame, CalendarCheck, Trophy, SmilePlus, Moon, BookOpen, PenLine } from "lucide-vue-next";
 import { useUserStreakStore } from "~/stores/stores/user_streak";
 import { userJournalStore } from "~/stores/stores/user_journal";
 import { computed, onMounted } from "vue";
@@ -246,39 +204,12 @@ const averageMoodLabel = computed(() => {
 });
 
 /**
- * Extract sleep score (0–100) from a journal's content HTML.
- * SleepCheck.vue stores the score as the text content of the journal-question answer.
- * We match entries where the question text mentions sleep and the answer is a numeric string.
- */
-function extractSleepScore(content: string): number | null {
-  if (!content) return null;
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(content, 'text/html');
-    for (const block of Array.from(doc.querySelectorAll('.journal-entry'))) {
-      const questionEl = block.querySelector('.journal-question');
-      const answerEl = block.querySelector('.journal-answer');
-      if (!questionEl || !answerEl) continue;
-      const key = (questionEl.textContent || '').toLowerCase();
-      const isSleepKey = key.includes('sleep') || key.includes('ngủ') || key.includes('giấc');
-      if (!isSleepKey) continue;
-      const raw = (answerEl.textContent || '').trim();
-      const numVal = Number(raw);
-      if (!isNaN(numVal) && numVal >= 0 && numVal <= 100) return numVal;
-    }
-  } catch {
-    // ignore DOM parse errors in non-browser env
-  }
-  return null;
-}
-
-/**
- * Average sleep quality score across all journals that recorded a sleep check.
+ * Average sleep quality score across all journals that have a sleep_score recorded.
  */
 const averageSleepScore = computed(() => {
   const scores = activeJournals.value
-    .map(j => extractSleepScore(j.content_html || j.content))
-    .filter((s): s is number => s !== null);
+    .map(j => j.sleep_score)
+    .filter((s): s is number => s !== null && s !== undefined);
   if (scores.length === 0) return null;
   return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
 });

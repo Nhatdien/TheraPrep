@@ -82,8 +82,15 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
 // Responsive circle size
 const breathingSize = ref(220);
+const updateBreathingSize = () => {
+  breathingSize.value = window.innerWidth >= 1024 ? 280 : Math.min(260, window.innerWidth - 80);
+};
 onMounted(() => {
-  breathingSize.value = window.innerWidth >= 1024 ? 280 : 220;
+  updateBreathingSize();
+  window.addEventListener('resize', updateBreathingSize);
+});
+onUnmounted(() => {
+  window.removeEventListener('resize', updateBreathingSize);
 });
 
 const config = BOX_BREATHING_CONFIG;

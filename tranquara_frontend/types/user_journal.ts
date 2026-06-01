@@ -84,6 +84,7 @@ export type Journal = {
   content_html?: string | null;    // Rendered HTML preview
   mood_score?: number | null;      // 1-10 scale
   mood_label?: string | null;      // "Storm", "Sunny", etc.
+  sleep_score?: number | null;     // 0-100 sleep quality
   created_at: string;
   updated_at: string;
 }
@@ -96,6 +97,7 @@ export type CreateJournalRequest = {
   content_html?: string;
   mood_score?: number;
   mood_label?: string;
+  sleep_score?: number | null;
 }
 
 // API Response types

@@ -128,19 +128,32 @@ export const useSlideGroup = (props?: {
     const collection = store.templates.find((template) => template.id === collectionId)
     if (!collection) return undefined;
 
+    const lang = locale.value;
     let groups: SlideGroup[] = [];
-    if (typeof collection.slide_groups === 'string') {
-      try {
-         groups = JSON.parse(collection.slide_groups);
-      } catch (e) {
-         groups = [];
+
+    // Use Vietnamese slide groups when available and locale is vi
+    if (lang === 'vi') {
+      const viGroups = (collection as any).slide_groups_vi;
+      if (viGroups) {
+        groups = typeof viGroups === 'string' ? JSON.parse(viGroups) : viGroups;
       }
-    } else {
-      groups = collection.slide_groups || [];
+    }
+
+    // Fallback to default slide_groups
+    if (!groups.length) {
+      if (typeof collection.slide_groups === 'string') {
+        try {
+           groups = JSON.parse(collection.slide_groups);
+        } catch (e) {
+           groups = [];
+        }
+      } else {
+        groups = collection.slide_groups || [];
+      }
     }
 
     const group = groups.find((group) => group.id === slideGroupId);
-    return group ? localizeSlideGroup(group, locale.value) : undefined;
+    return group ? localizeSlideGroup(group, lang) : undefined;
   }
 
   const openSlideGroup = (slideGroupId: string, collectionId: string) => {
@@ -152,6 +165,7 @@ export const useSlideGroup = (props?: {
 
   const closeSlideGroup = () => {
     userJournalStore().currentWritingContent = {} 
+    userJournalStore().currentSleepScore = null
     userJournalStore().currentJournal = null
     useTiptapEditorStore().editors = []
 
@@ -174,7 +188,8 @@ export const useSlideGroup = (props?: {
         content: journal.content,
         content_html: journal.content_html,
         mood_score: journal.mood_score || 0,
-        mood_label: journal.mood_label || "neutral"
+        mood_label: journal.mood_label || "neutral",
+        sleep_score: journal.sleep_score,
       });
 
       console.log("[saveJournal] Journal saved:", newJournal.id);

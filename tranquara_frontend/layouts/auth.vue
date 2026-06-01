@@ -7,7 +7,7 @@
         <span class="text-xl font-bold tracking-widest text-highlighted uppercase" style="letter-spacing:0.18em;">
           Theraprep
         </span>
-        <p class="text-sm text-muted">Your mental wellness companion</p>
+        <p class="text-sm text-muted">{{ $t('authLayout.tagline') }}</p>
       </div>
 
       <!-- Page Content (login/register forms) -->
@@ -15,17 +15,30 @@
         <slot />
       </div>
 
-      <!-- Terms & Privacy -->
+      <!-- Footer: Terms & Privacy -->
       <div class="text-center mt-6 text-xs text-muted">
-        By continuing, you agree to our
-        <NuxtLink to="/terms" class="underline hover:text-default">Terms</NuxtLink>
-        and
-        <NuxtLink to="/privacy" class="underline hover:text-default">Privacy Policy</NuxtLink>
+        {{ $t('authLayout.agreeContinue') }}
+        <NuxtLink to="/terms" class="underline hover:text-default">{{ $t('authLayout.terms') }}</NuxtLink>
+        {{ $t('authLayout.and') }}
+        <NuxtLink to="/privacy" class="underline hover:text-default">{{ $t('authLayout.privacyPolicy') }}</NuxtLink>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// Auth layout — provides branding for login/register pages
+import { useLanguage } from '~/composables/useLanguage';
+
+const { changeLanguage, availableLocales } = useLanguage();
+
+const localeOptions = computed(() =>
+  availableLocales.value.map((l) => ({
+    label: l.code.toUpperCase(),
+    value: l.code,
+  })),
+);
+
+async function onLocaleChange(value: string) {
+  await changeLanguage(value as 'en' | 'vi');
+}
 </script>

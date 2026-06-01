@@ -3,7 +3,9 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold lg:text-3xl">{{ $t('learn.library') }}</h1>
-      <UButton variant="ghost" size="lg" icon="i-lucide-user" class="rounded-full lg:hidden" />
+      <NuxtLink to="/profile" class="w-10 h-10 rounded-full bg-muted flex items-center justify-center lg:hidden">
+        <User class="w-5 h-5 text-toned" />
+      </NuxtLink>
     </div>
 
     <!-- Sync Status Banner -->
@@ -124,7 +126,8 @@ import {
   Sun,
   Feather,
   Users,
-  Smile
+  Smile,
+  User
 } from "lucide-vue-next";
 
 const journalStore = userJournalStore();
@@ -151,9 +154,52 @@ onMounted(async () => {
   }
 });
 
-// Featured collections (first 2 learn-type)
+// Smart featured collections:
+// 1. In-progress collections (most recently touched first)
+// 2. Unstarted collections in the same category as the last completed one
+// 3. Any other unstarted collections (filler)
+// 4. New user (no history) → first 2 collections from backend ordering
 const featuredCollections = computed(() => {
-  return learnCollections.value.slice(0, 2);
+  const collections = learnCollections.value;
+  if (collections.length === 0) return [];
+
+  // New user: no history → fall back to backend-ordered defaults
+  if (learnedStore.allCompleted.length === 0) {
+    return collections.slice(0, 2);
+  }
+
+  // Determine the category of the most recently interacted collection
+  const lastRecord = learnedStore.allCompleted
+    .slice()
+    .sort((a, b) => b.completed_at.localeCompare(a.completed_at))[0];
+  const lastCategory = collections.find(c => c.id === lastRecord.collection_id)?.category ?? null;
+
+  const inProgress: typeof collections = [];
+  const relatedUnstarted: typeof collections = [];
+  const otherUnstarted: typeof collections = [];
+
+  for (const col of collections) {
+    const progress = getCollectionProgress(col.id);
+    if (progress > 0 && progress < 100) {
+      inProgress.push(col);
+    } else if (progress === 0) {
+      if (lastCategory && col.category === lastCategory) {
+        relatedUnstarted.push(col);
+      } else {
+        otherUnstarted.push(col);
+      }
+    }
+    // progress === 100 → fully completed, skip featuring
+  }
+
+  // Sort in-progress by most recently touched (completedByCollection is sorted ASC, so last entry is most recent)
+  inProgress.sort((a, b) => {
+    const aLast = learnedStore.completedByCollection[a.id]?.at(-1)?.completed_at ?? '';
+    const bLast = learnedStore.completedByCollection[b.id]?.at(-1)?.completed_at ?? '';
+    return bLast.localeCompare(aLast);
+  });
+
+  return [...inProgress, ...relatedUnstarted, ...otherUnstarted].slice(0, 2);
 });
 
 // Learn-type collections (for Collections section) — exclude Toolkit collections

@@ -16,7 +16,7 @@
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2">
         <span class="text-xs text-dimmed font-medium">{{ step.step }}</span>
-        <h3 class="font-medium truncate">{{ $t(step.labelKey) }}</h3>
+        <h3 class="font-medium truncate" :title="$t(step.labelKey)">{{ $t(step.labelKey) }}</h3>
       </div>
       <p class="text-xs text-muted mt-0.5">
         {{ $t('toolkit.journey.chaptersProgress', { completed: completedCount, total: totalCount }) }}

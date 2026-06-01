@@ -20,7 +20,7 @@
     <!-- Free-form Edit Mode (for journals without collection_id) -->
     <div v-else-if="isEditing && journal" class="flex flex-col min-h-screen bg-background">
       <!-- Header -->
-      <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 md:px-6 xl:px-8">
+      <header class="flex items-center justify-between p-4 border-b border-default md:px-6 xl:px-8">
         <UButton variant="ghost" icon="i-lucide-arrow-left" @click="onEditClosed" />
         <h1 class="text-lg font-semibold md:text-xl">{{ $t('journal.editJournal') }}</h1>
         <UButton variant="ghost" icon="i-lucide-check" @click="saveAndClose" :disabled="!hasContent" />
@@ -34,7 +34,7 @@
               v-model="title"
               type="text"
               :placeholder="$t('journal.titlePlaceholder')"
-              class="w-full text-xl md:text-2xl font-semibold bg-transparent border-none outline-none placeholder-gray-400 dark:placeholder-gray-600"
+              class="w-full text-xl md:text-2xl font-semibold bg-transparent border-none outline-none placeholder-muted"
             />
           </div>
 
@@ -44,7 +44,7 @@
           </div>
 
           <!-- TipTap Editor -->
-          <div class="flex-1 px-4 pb-4 max-w-3xl mx-auto w-full md:px-6 xl:px-0 xl:max-w-none">
+          <div class="flex-1 px-4 pb-24 max-w-3xl mx-auto w-full md:px-6 xl:px-0 xl:max-w-none">
             <CommonMarkdownEditor
               ref="editorRef"
               v-model="content"
@@ -56,47 +56,39 @@
         <aside class="hidden xl:flex xl:flex-col xl:gap-4 xl:sticky xl:top-24 xl:self-start xl:rounded-2xl xl:border xl:border-default xl:bg-elevated xl:p-5">
           <h3 class="text-sm font-semibold text-highlighted">{{ $t('journal.howFeeling') }}</h3>
           <EmotionSliderV2 v-model="moodScore" />
-          <UButton
+          <JournalGoDeepDirections
             :loading="isGeneratingQuestion"
             :disabled="!hasContent || isGeneratingQuestion"
-            @click="handleGoDeeper"
-            icon="i-lucide-sparkles"
-            block
-          >
-            {{ $t('journal.goDeeper') }}
-          </UButton>
+            @select="handleGoDeeper"
+          />
           <p class="text-xs text-muted text-center">{{ autoSaveStatusText }}</p>
         </aside>
       </div>
 
       <!-- Bottom Toolbar -->
-      <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-gray-200 dark:border-gray-800 p-4 flex items-center justify-between xl:hidden">
-        <div class="flex items-center gap-2">
+      <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-default p-4 flex flex-wrap items-center justify-between gap-y-2 xl:hidden">
+        <div class="flex items-center gap-2 flex-wrap">
           <!-- Mood Selector -->
           <UButton 
             variant="ghost" 
             size="sm"
             @click="showMoodPicker = true"
+            class="shrink-0"
           >
-            <span class="text-lg">{{ selectedMoodEmoji }}</span>
-            <span class="ml-1 text-sm text-muted">{{ moodLabel }}</span>
+            <UIcon :name="selectedMoodIcon" class="text-lg" />
+            <span class="ml-1 text-sm text-muted truncate max-w-[120px] sm:max-w-[180px]">{{ moodLabel }}</span>
           </UButton>
           
           <!-- Go Deeper Button -->
-          <UButton
-            variant="ghost"
-            size="sm"
+          <JournalGoDeepDirections
             :loading="isGeneratingQuestion"
             :disabled="!hasContent || isGeneratingQuestion"
-            @click="handleGoDeeper"
-            icon="i-lucide-sparkles"
-          >
-            <span class="text-sm">{{ $t('journal.goDeeper') }}</span>
-          </UButton>
+            @select="handleGoDeeper"
+          />
         </div>
         
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-muted">{{ autoSaveStatusText }}</span>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="text-xs text-muted whitespace-nowrap">{{ autoSaveStatusText }}</span>
         </div>
       </div>
 
@@ -210,13 +202,11 @@ const hasContent = computed(() => {
   return stripped.length > 0;
 });
 
-const selectedMoodEmoji = computed(() => {
+const selectedMoodIcon = computed(() => {
   const v = moodScore.value;
-  if (v <= 2) return "😢";
-  if (v <= 4) return "😔";
-  if (v <= 6) return "😐";
-  if (v <= 8) return "🙂";
-  return "😃";
+  if (v <= 4) return 'i-lucide-frown';
+  if (v <= 6) return 'i-lucide-meh';
+  return 'i-lucide-smile';
 });
 
 const computedMoodLabel = computed(() => t(`journal.moodLabels.${moodScore.value}`) || t('journal.moodLabels.5'));
@@ -275,7 +265,7 @@ const confirmMood = () => {
   showMoodPicker.value = false;
 };
 
-const handleGoDeeper = async () => {
+const handleGoDeeper = async (direction: string) => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
   
@@ -292,7 +282,9 @@ const handleGoDeeper = async () => {
       content: plainText,
       mood_score: moodScore.value,
       slide_prompt: undefined,
+      direction: direction as 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth',
       your_story: yourStory.value || undefined,
+      app_language: locale.value,
     });
     
     if (editorRef.value?.editor) {
@@ -300,7 +292,7 @@ const handleGoDeeper = async () => {
         .chain()
         .focus('end')
         .insertContent('<p></p>')
-        .insertContent('<p class="ai-suggestion" style="color: #888; font-style: italic;">' + response.question + '</p>')
+        .insertContent('<p class="ai-suggestion text-muted italic">' + response.question + '</p>')
         .insertContent('<p></p>')
         .run();
     }

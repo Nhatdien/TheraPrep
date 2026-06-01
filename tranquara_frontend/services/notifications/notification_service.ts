@@ -26,10 +26,12 @@ class NotificationService {
   private async ensureChannel(): Promise<void> {
     if (Capacitor.getPlatform() !== 'android') return;
     try {
+      const { $i18n } = useNuxtApp();
+      const t = ($i18n as any).t;
       await LocalNotifications.createChannel({
         id: 'reminders',
-        name: 'Daily Reminders',
-        description: 'Morning and evening check-in reminders',
+        name: t('settings.notifications.channelName'),
+        description: t('settings.notifications.channelDesc'),
         importance: 4, // IMPORTANCE_HIGH
         visibility: 1, // VISIBILITY_PUBLIC
         vibration: true,
@@ -98,7 +100,7 @@ class NotificationService {
       body = type === 'morning' ? t('settings.notifications.morningCheckinDesc') : t('settings.notifications.eveningReflectionDesc');
     } catch {
       // Fallback if i18n is not available
-      title = type === 'morning' ? '🌅 Morning Check-In' : '🌙 Evening Reflection';
+      title = type === 'morning' ? 'Morning Check-In' : 'Evening Reflection';
       body = type === 'morning'
         ? 'Start your day with a quick mindfulness check-in.'
         : 'Take a moment to reflect on your day.';
@@ -111,15 +113,6 @@ class NotificationService {
     await this.cancelReminder(type);
 
     try {
-      // Build a schedule date for the next occurrence of the given time
-      const now = new Date();
-      const scheduleAt = new Date();
-      scheduleAt.setHours(hour, minute, 0, 0);
-      // If the time today has already passed, schedule for tomorrow
-      if (scheduleAt <= now) {
-        scheduleAt.setDate(scheduleAt.getDate() + 1);
-      }
-
       await LocalNotifications.schedule({
         notifications: [
           {
@@ -127,8 +120,7 @@ class NotificationService {
             title,
             body,
             schedule: {
-              at: scheduleAt,
-              every: 'day',
+              on: { hour, minute },
               allowWhileIdle: true,
             },
             smallIcon: 'ic_stat_notification',

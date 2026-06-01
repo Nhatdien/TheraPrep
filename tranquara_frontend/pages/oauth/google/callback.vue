@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/stores/auth_store';
+import { storage } from '~/utils/storage';
 
 definePageMeta({
   layout: 'auth',
@@ -40,8 +41,10 @@ onMounted(async () => {
   }
 
   try {
-    const redirectUri = `${window.location.origin}/oauth/google/callback`;
+    const storedRedirectUri = await storage.get<string>('oauth_redirect_uri');
+    const redirectUri = storedRedirectUri || `${window.location.origin}/oauth/google/callback`;
     await authStore.loginWithGoogleOAuthCode(code, redirectUri);
+    await storage.remove('oauth_redirect_uri');
     await navigateTo('/', { replace: true });
   } catch (error: any) {
     const params = new URLSearchParams({
