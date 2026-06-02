@@ -1,0 +1,925 @@
+{
+  "users_with_rag": [
+    {
+      "user_id": "rag-user-001-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "journals": [
+        {
+          "journal_id": "j-001-001-aaaa-bbbb-cccccccccc01",
+          "title": "Work stress keeping me up",
+          "content": "I've been having trouble sleeping because of work deadlines. My manager keeps piling on more tasks and I feel like I can't keep up. Every night I lie awake thinking about everything I need to do the next day. The insomnia is making me more anxious and less productive during the day.",
+          "mood_score": 3,
+          "mood_label": "Storm",
+          "created_at": "2026-05-15T22:30:00Z"
+        },
+        {
+          "journal_id": "j-001-002-aaaa-bbbb-cccccccccc02",
+          "title": "Small win at work today",
+          "content": "I finally finished the project that's been hanging over my head for weeks. My manager seemed pleased. But instead of feeling relief, I just feel empty. Like okay that's done, now what's next? I can't seem to enjoy the moment anymore.",
+          "mood_score": 5,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-18T19:45:00Z"
+        },
+        {
+          "journal_id": "j-001-003-aaaa-bbbb-cccccccccc03",
+          "title": "Skipped lunch again",
+          "content": "Third day this week I've skipped lunch to keep working. I know it's not healthy but I can't seem to stop. When I do eat, it's fast food at my desk. My body is starting to feel the effects - headaches, low energy, irritability.",
+          "mood_score": 2,
+          "mood_label": "Storm",
+          "created_at": "2026-05-20T12:15:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-001-aaaa-bbbb-cccccccccc01",
+          "content": "I tend to prioritize work over basic needs like eating and sleeping when under pressure.",
+          "category": "habits",
+          "confidence": 0.9
+        },
+        {
+          "memory_id": "mem-001-aaaa-bbbb-cccccccccc02",
+          "content": "I struggle to enjoy accomplishments because I immediately focus on the next task.",
+          "category": "patterns",
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-002-f1e2d3c4-b5a6-9876-5432-10fedcba0987",
+      "journals": [
+        {
+          "journal_id": "j-002-001-dddd-eeee-ffffffff01",
+          "title": "Argument with my best friend",
+          "content": "Had a huge fight with Sarah today. She said I never listen and always make everything about myself. At first I was defensive, but now I think she might be right. I do tend to dominate conversations and make everything about my problems. I'm afraid of losing her.",
+          "mood_score": 2,
+          "mood_label": "Storm",
+          "created_at": "2026-05-10T21:00:00Z"
+        },
+        {
+          "journal_id": "j-002-002-dddd-eeee-ffffffff02",
+          "title": "Tried to apologize",
+          "content": "I called Sarah to apologize but the conversation felt awkward. She accepted but something feels different between us now. I realized I've been so wrapped up in my own stress that I haven't been there for her when she needed me. She was going through a breakup and I didn't even check in.",
+          "mood_score": 4,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-12T20:30:00Z"
+        },
+        {
+          "journal_id": "j-002-003-dddd-eeee-ffffffff03",
+          "title": "Coffee with Sarah",
+          "content": "We had coffee today and it was better. She told me she appreciates that I tried to make things right. I listened more than I talked, which is unusual for me. It felt good to just be present for someone else for a change.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-16T15:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-002-dddd-eeee-ffffffff01",
+          "content": "I have a tendency to dominate conversations and center discussions around my own problems.",
+          "category": "patterns",
+          "confidence": 0.85
+        },
+        {
+          "memory_id": "mem-002-dddd-eeee-ffffffff02",
+          "content": "My friendship with Sarah is very important to me and I fear losing it.",
+          "category": "relationships",
+          "confidence": 0.9
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-003-c1c2c3c4-d5d6-e7e8-f9f0-a1a2a3a4a5a6",
+      "journals": [
+        {
+          "journal_id": "j-003-001-gggg-hhhh-iiiiiiii01",
+          "title": "Parent's health scare",
+          "content": "Dad had to go to the hospital today. He seemed fine yesterday but woke up with chest pain. Mom called me panicking. I drove 3 hours to be there. Turns out it was a panic attack, not a heart attack, but seeing him vulnerable like that shook me. He's always been the strong one.",
+          "mood_score": 2,
+          "mood_label": "Storm",
+          "created_at": "2026-05-08T23:00:00Z"
+        },
+        {
+          "journal_id": "j-003-002-gggg-hhhh-iiiiiiii02",
+          "title": "Thinking about mortality",
+          "content": "Can't stop thinking about what happened with Dad. It made me realize how little time I spend with my parents. I call them maybe once a week, and visits are only on holidays. What if something actually happens and I never got to say the things I needed to say?",
+          "mood_score": 3,
+          "mood_label": "Rain",
+          "created_at": "2026-05-09T21:30:00Z"
+        },
+        {
+          "journal_id": "j-003-003-gggg-hhhh-iiiiiiii03",
+          "title": "Started calling Mom daily",
+          "content": "I decided to call Mom every day, even just for 5 minutes. She was surprised today when I called - she said 'is everything okay?' which tells me I don't call enough. But it felt good to hear her voice. Small step but it matters.",
+          "mood_score": 6,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-14T18:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-003-gggg-hhhh-iiiiiiii01",
+          "content": "I value my family deeply but struggle to show it through regular contact.",
+          "category": "relationships",
+          "confidence": 0.9
+        },
+        {
+          "memory_id": "mem-003-gggg-hhhh-iiiiiiii02",
+          "content": "Health scares in my family trigger deep anxiety about mortality and lost time.",
+          "category": "triggers",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-004-b1b2b3b4-c5c6-d7d8-e9e0-f1f2f3f4f5f6",
+      "journals": [
+        {
+          "journal_id": "j-004-001-jjjj-kkkk-llllllll01",
+          "title": "First therapy session",
+          "content": "I finally went to my first therapy session today. I've been putting it off for months. The therapist was nice but I found myself downplaying everything. When she asked about my childhood, I changed the subject. I know I need to open up but it's so hard.",
+          "mood_score": 5,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-05T17:00:00Z"
+        },
+        {
+          "journal_id": "j-004-002-jjjj-kkkk-llllllll02",
+          "title": "Therapy homework",
+          "content": "My therapist gave me homework: write down 3 things I'm feeling each day. Day 3 and I've only written 'fine' every time. I genuinely don't know what I'm feeling. It's like there's a wall between me and my emotions. I think I learned to suppress them growing up.",
+          "mood_score": 4,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-08T20:00:00Z"
+        },
+        {
+          "journal_id": "j-004-003-jjjj-kkkk-llllllll03",
+          "title": "Breakthrough moment",
+          "content": "Something clicked in therapy today. My therapist asked me to describe where I feel emotions in my body. I couldn't at first, but then she asked me to think about a time someone hugged me. I felt warmth in my chest. Then she asked about a time I was scared. Tightness in my throat. I almost cried. First time in years.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-12T17:30:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-004-jjjj-kkkk-llllllll01",
+          "content": "I have difficulty identifying and expressing emotions, likely a pattern from childhood.",
+          "category": "patterns",
+          "confidence": 0.9
+        },
+        {
+          "memory_id": "mem-004-jjjj-kkkk-llllllll02",
+          "content": "I tend to downplay my struggles and avoid vulnerable topics.",
+          "category": "habits",
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-005-e1e2e3e4-f5f6-a7a8-b9b0-c1c2c3c4c5c6",
+      "journals": [
+        {
+          "journal_id": "j-005-001-mmmm-nnnn-oooooooo01",
+          "title": "Relationship doubts",
+          "content": "I've been with my partner for 3 years but lately I'm not sure anymore. We don't fight but we also don't talk. It's like living with a roommate. I miss the spark we used to have. But what if I end it and regret it? What if this is as good as it gets?",
+          "mood_score": 3,
+          "mood_label": "Rain",
+          "created_at": "2026-05-11T22:00:00Z"
+        },
+        {
+          "journal_id": "j-005-002-mmmm-nnnn-oooooooo02",
+          "title": "Couples counseling idea",
+          "content": "I brought up couples counseling to my partner. They were quiet for a long time and then said 'if you think we need it.' Not exactly enthusiastic but not a no either. I feel like I'm the only one trying to fix this. Maybe that itself is the answer.",
+          "mood_score": 4,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-13T21:00:00Z"
+        },
+        {
+          "journal_id": "j-005-003-mmmm-nnnn-oooooooo03",
+          "title": "They opened up",
+          "content": "Unexpected turn - my partner actually opened up tonight. They said they've been feeling the distance too but didn't know how to bring it up. They thought I was pulling away. We talked for two hours, really talked, for the first time in months. There might be hope.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-17T23:30:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-005-mmmm-nnnn-oooooooo01",
+          "content": "I struggle with uncertainty in my relationship and fear making the wrong decision.",
+          "category": "struggles",
+          "confidence": 0.9
+        },
+        {
+          "memory_id": "mem-005-mmmm-nnnn-oooooooo02",
+          "content": "I tend to take on the emotional labor of initiating difficult conversations.",
+          "category": "patterns",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-006-1111-2222-3333-4444-555566667777",
+      "journals": [
+        {
+          "journal_id": "j-006-001-pppp-qqqq-rrrrrrrr01",
+          "title": "Hôm nay thật khó khăn",
+          "content": "Sáng nay tỉnh dậy mà không muốn bước ra khỏi giường. Công việc堆积如山, sếp cứ giao thêm task mà deadline thì cận kề. Tôi cảm thấy như mình đang chìm trong đống công việc không bao giờ xong. Không biết nói không với sếp thế nào.",
+          "mood_score": 2,
+          "mood_label": "Storm",
+          "created_at": "2026-05-19T08:00:00Z"
+        },
+        {
+          "journal_id": "j-006-002-pppp-qqqq-rrrrrrrr02",
+          "title": "Đã thử nói không",
+          "content": "Hôm nay tôi đã thử nói 'không' với sếp khi nhờ thêm task. Tim tôi đập nhanh lắm nhưng sếp bất ngờ lại hiểu. Hóa ra sếp không biết tôi đang quá tải. Một bước nhỏ nhưng tôi cảm thấy tự hào về bản thân.",
+          "mood_score": 6,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-21T18:00:00Z"
+        },
+        {
+          "journal_id": "j-006-003-pppp-qqqq-rrrrrrrr03",
+          "title": "Tập thiền mỗi sáng",
+          "content": "Đã thiền 10 phút mỗi sáng được 1 tuần rồi. Ban đầu thấy hơi vô dụng nhưng dần dần tôi nhận ra mình tỉnh táo hơn và ít react lại với stress hơn. Sáng nay khi sếp nhờ task thêm, tôi thở sâu trước khi trả lời thay vì đồng ý ngay.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-25T07:30:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-006-pppp-qqqq-rrrrrrrr01",
+          "content": "I struggle with setting boundaries at work and tend to say yes to everything.",
+          "category": "habits",
+          "confidence": 0.9
+        },
+        {
+          "memory_id": "mem-006-pppp-qqqq-rrrrrrrr02",
+          "content": "Meditation practice helps me respond to stress more mindfully.",
+          "category": "growth",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-007-8888-9999-aaaa-bbbb-ccddeeff0011",
+      "journals": [
+        {
+          "journal_id": "j-007-001-ssss-tttt-uuuuuuuu01",
+          "title": "Gym progress",
+          "content": "Hit a new personal record on deadlift today - 100kg! Been working towards this for 6 months. The gym has become my therapy, my escape. When I'm lifting, nothing else matters. It's the only hour of the day where my mind is completely quiet.",
+          "mood_score": 8,
+          "mood_label": "Sunny",
+          "created_at": "2026-05-20T19:00:00Z"
+        },
+        {
+          "journal_id": "j-007-002-ssss-tttt-uuuuuuuu02",
+          "title": "Restless on rest day",
+          "content": "Today is a rest day and I feel anxious. Not about anything specific, just restless. I realized I use exercise to avoid dealing with my thoughts. When I'm not physically exhausted, my mind goes to places I don't want it to go.",
+          "mood_score": 4,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-21T22:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-007-ssss-tttt-uuuuuuuu01",
+          "content": "I use physical exercise as a coping mechanism to avoid processing difficult emotions.",
+          "category": "habits",
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-008-2222-3333-4444-5555-666677778889",
+      "journals": [
+        {
+          "journal_id": "j-008-001-vvvv-wwww-xxxxxxxx01",
+          "title": "Lonely at the party",
+          "content": "Went to a friend's birthday party tonight. Everyone was laughing and having fun but I felt completely out of place. I smiled and made small talk but inside I felt hollow. It's like there's a glass wall between me and everyone else. Left early and cried in the car.",
+          "mood_score": 2,
+          "mood_label": "Storm",
+          "created_at": "2026-05-22T23:30:00Z"
+        },
+        {
+          "journal_id": "j-008-002-vvvv-wwww-xxxxxxxx02",
+          "title": "Social media detox day 1",
+          "content": "Deleted Instagram and Facebook from my phone. Every time I open them I see everyone living their best lives while I'm struggling to get out of bed. I know it's a highlight reel but I can't help comparing. Day 1 and I already want to reinstall. FOMO is real.",
+          "mood_score": 4,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-24T09:00:00Z"
+        },
+        {
+          "journal_id": "j-008-003-vvvv-wwww-xxxxxxxx03",
+          "title": "Reached out to an old friend",
+          "content": "I texted an old college friend today. We haven't talked in 2 years. She responded immediately and we ended up on a 3-hour call. Turns out she's been going through similar stuff. Why do we all pretend everything's fine? Feeling less alone today.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-27T20:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-008-vvvv-wwww-xxxxxxxx01",
+          "content": "I feel lonely even in social situations and struggle with a sense of not belonging.",
+          "category": "struggles",
+          "confidence": 0.9
+        },
+        {
+          "memory_id": "mem-008-vvvv-wwww-xxxxxxxx02",
+          "content": "Social media comparison significantly impacts my self-esteem and mood.",
+          "category": "triggers",
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-009-aaab-bbcc-ccdd-ddee-eeff00112233",
+      "journals": [
+        {
+          "journal_id": "j-009-001-yyyy-zzzz-abababab01",
+          "title": "Creative block",
+          "content": "I haven't painted in weeks. Every time I sit down at the canvas, nothing comes. It used to be my sanctuary, my way of processing the world. Now it's just a blank canvas staring back at me, mocking me. I'm afraid I've lost the one thing that made me feel like me.",
+          "mood_score": 3,
+          "mood_label": "Rain",
+          "created_at": "2026-05-15T16:00:00Z"
+        },
+        {
+          "journal_id": "j-009-002-yyyy-zzzz-abababab02",
+          "title": "Art class",
+          "content": "Signed up for a local art class. First session was today. The teacher said something that stuck with me: 'You don't need inspiration to start. You need to start to find inspiration.' I painted something ugly today but I painted. That's something.",
+          "mood_score": 6,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-20T14:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-009-yyyy-zzzz-abababab01",
+          "content": "Creative expression through painting is core to my identity and emotional well-being.",
+          "category": "values",
+          "confidence": 0.9
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-010-dede-fefe-0a0a-1b1b-2c2c3d3d4e4e",
+      "journals": [
+        {
+          "journal_id": "j-010-001-cdcd-efef-ghghghgh01",
+          "title": "Cảm giác mất phương hướng",
+          "content": "Hôm nay ngồi nghĩ về tương lai mà không biết mình đang đi đâu. Tất cả bạn bè đều có kế hoạch rõ ràng - mua nhà, kết hôn, thăng tiến. Còn tôi thì vẫn đang tìm kiếm chính mình. Có lúc thấy ổn, có lúc thấy hoảng sợ.",
+          "mood_score": 3,
+          "mood_label": "Rain",
+          "created_at": "2026-05-18T21:00:00Z"
+        },
+        {
+          "journal_id": "j-010-002-cdcd-efef-ghghghgh02",
+          "title": "Đọc sách giúp ích",
+          "content": "Bắt đầu đọc 'Man's Search for Meaning' và nó làm tôi suy nghĩ nhiều. Có lẽ tôi không cần có mọi thứ figured out ngay bây giờ. Quá trình tìm kiếm bản thân cũng là một hành trình có giá trị. Hôm nay thấy nhẹ nhõm hơn một chút.",
+          "mood_score": 6,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-22T20:00:00Z"
+        },
+        {
+          "journal_id": "j-010-003-cdcd-efef-ghghghgh03",
+          "title": "Quyết định học khóa mới",
+          "content": "Đăng ký khóa học design online. Không biết nó dẫn đi đâu nhưng ít nhất tôi đang làm gì đó thay vì chỉ nghĩ. Cảm giác có hướng đi, dù nhỏ, cũng tốt hơn là đứng yên.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-26T15:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-010-cdcd-efef-ghghghgh01",
+          "content": "I struggle with comparison to peers and feeling behind in life milestones.",
+          "category": "struggles",
+          "confidence": 0.85
+        },
+        {
+          "memory_id": "mem-010-cdcd-efef-ghghghgh02",
+          "content": "Taking small concrete actions helps reduce my anxiety about the future.",
+          "category": "growth",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-011-1122-3344-5566-7788-99aabbccdde0",
+      "journals": [
+        {
+          "journal_id": "j-011-001-ijkl-ijkl-mnmnmnmn01",
+          "title": "Imposter syndrome again",
+          "content": "Got promoted today. Instead of celebrating, I'm terrified. What if they realize I'm not as competent as they think? I've been faking confidence for so long I don't know what's real anymore. Everyone else seems to belong here except me.",
+          "mood_score": 4,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-23T10:00:00Z"
+        },
+        {
+          "journal_id": "j-011-002-ijkl-ijkl-mnmnmnmn02",
+          "title": "Mentor conversation",
+          "content": "My mentor told me today that 70% of people experience imposter syndrome. She said the fact that I care about doing a good job is actually evidence that I belong. Never thought about it that way. Still scared but slightly less.",
+          "mood_score": 6,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-25T17:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-011-ijkl-ijkl-mnmnmnmn01",
+          "content": "I experience persistent imposter syndrome, especially when achieving success.",
+          "category": "patterns",
+          "confidence": 0.9
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-012-ff00-ee11-dd22-cc33-bb44aa556677",
+      "journals": [
+        {
+          "journal_id": "j-012-001-opqr-opqr-stststst01",
+          "title": "Moving to a new city",
+          "content": "Packed up my apartment today. Moving to a new city for a fresh start. It's exciting but terrifying. I don't know anyone there. What if I hate it? What if I can't make friends? But staying here isn't working either. Sometimes you have to leap.",
+          "mood_score": 5,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-10T09:00:00Z"
+        },
+        {
+          "journal_id": "j-012-002-opqr-opqr-stststst02",
+          "title": "First week in new city",
+          "content": "Been here a week. The apartment is still full of boxes. I haven't left the neighborhood yet. But today I found a coffee shop where the barista remembered my name. Small things like that make a big city feel smaller.",
+          "mood_score": 6,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-17T11:00:00Z"
+        },
+        {
+          "journal_id": "j-012-003-opqr-opqr-stststst03",
+          "title": "Joined a running club",
+          "content": "Finally did something social - joined a local running club. Everyone was welcoming and we grabbed beers after. Made me realize I've been isolating myself. New city, new start, new people. It's going to be okay.",
+          "mood_score": 8,
+          "mood_label": "Sunny",
+          "created_at": "2026-05-24T19:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-012-opqr-opqr-stststst01",
+          "content": "I tend to isolate myself in new environments due to fear of rejection.",
+          "category": "patterns",
+          "confidence": 0.85
+        },
+        {
+          "memory_id": "mem-012-opqr-opqr-stststst02",
+          "content": "Physical activities and group settings help me build social connections.",
+          "category": "growth",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-013-5a5a-6b6b-7c7c-8d8d-9e9e0f0f1a1a",
+      "journals": [
+        {
+          "journal_id": "j-013-001-uvwx-uvwx-yzyzyzyz01",
+          "title": "Financial stress",
+          "content": "Checked my bank account and it's worse than I thought. Been avoiding looking at it for months. Credit card debt is piling up and I keep spending to feel better about being stressed about money. It's a vicious cycle I can't break.",
+          "mood_score": 2,
+          "mood_label": "Storm",
+          "created_at": "2026-05-12T22:00:00Z"
+        },
+        {
+          "journal_id": "j-013-002-uvwx-uvwx-yzyzyzyz02",
+          "title": "Budget plan",
+          "content": "Spent the whole evening making a budget. It's ugly but at least now I know the numbers. Started a spreadsheet, cancelled 3 subscriptions I forgot about, and set up automatic savings. Small steps but at least I'm facing it now instead of hiding.",
+          "mood_score": 5,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-14T21:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-013-uvwx-uvwx-yzyzyzyz01",
+          "content": "I engage in emotional spending as a coping mechanism for stress.",
+          "category": "habits",
+          "confidence": 0.9
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-014-2b2b-3c3c-4d4d-5e5e-6f6f7a7a8b8b",
+      "journals": [
+        {
+          "journal_id": "j-014-001-abcd-abcd-efefefef01",
+          "title": "Grief wave",
+          "content": "It's been a year since Grandma passed and today the grief hit me out of nowhere. I was fine all morning, then I saw someone who looked like her at the grocery store and completely broke down. I thought I was over the worst of it.",
+          "mood_score": 1,
+          "mood_label": "Storm",
+          "created_at": "2026-05-16T14:00:00Z"
+        },
+        {
+          "journal_id": "j-014-002-abcd-abcd-efefefef02",
+          "title": "Visited her grave",
+          "content": "Went to visit Grandma today. Sat there for an hour just talking to her. Told her about my life, my worries, my hopes. I don't know if she can hear me but it felt right. I miss her so much. The grief comes in waves but the waves are getting further apart.",
+          "mood_score": 4,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-18T10:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-014-abcd-abcd-efefefef01",
+          "content": "My grandmother was a central figure in my life and her loss continues to affect me deeply.",
+          "category": "relationships",
+          "confidence": 0.9
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-015-9c9c-0d0d-1e1e-2f2f-3a3a4b4b5c5c",
+      "journals": [
+        {
+          "journal_id": "j-015-001-ghij-ghij-klklklkl01",
+          "title": "Burnout signs",
+          "content": "I think I'm burnt out. I can't focus on anything, everything feels overwhelming, and I dread Monday mornings. Even things I used to enjoy feel like chores. I've been running on empty for months pretending I'm fine. I need to make a change but I don't know what.",
+          "mood_score": 2,
+          "mood_label": "Storm",
+          "created_at": "2026-05-20T07:00:00Z"
+        },
+        {
+          "journal_id": "j-015-002-ghij-ghij-klklklkl02",
+          "title": "Took a mental health day",
+          "content": "Called in sick today - not physically sick, but mentally. Spent the day doing absolutely nothing. No guilt, no phone, no email. Just existed. It felt revolutionary. Why do we treat mental health like it's optional?",
+          "mood_score": 6,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-22T18:00:00Z"
+        },
+        {
+          "journal_id": "j-015-003-ghij-ghij-klklklkl03",
+          "title": "Conversation with HR",
+          "content": "Had an honest conversation with HR about my workload. They were surprisingly supportive. We're restructuring my projects and I'm getting help from a colleague. I wish I'd spoken up sooner. Suffering in silence only made it worse.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-26T16:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-015-ghij-ghij-klklklkl01",
+          "content": "I tend to push through burnout instead of asking for help, making things worse.",
+          "category": "patterns",
+          "confidence": 0.9
+        },
+        {
+          "memory_id": "mem-015-ghij-ghij-klklklkl02",
+          "content": "When I finally communicate my needs, the response is usually more supportive than I expect.",
+          "category": "growth",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-016-6d6d-7e7e-8f8f-9a9a-0b0b1c1c2d2d",
+      "journals": [
+        {
+          "journal_id": "j-016-001-mnop-mnop-qrqrqrqr01",
+          "title": "Perfectionism paralysis",
+          "content": "I spent 4 hours on an email today. 4 hours. Because it had to be perfect. Meanwhile my actual work is piling up. I know this is irrational but I can't send something until every word feels exactly right. It's exhausting being me.",
+          "mood_score": 3,
+          "mood_label": "Rain",
+          "created_at": "2026-05-19T17:00:00Z"
+        },
+        {
+          "journal_id": "j-016-002-mnop-mnop-qrqrqrqr02",
+          "title": "Good enough",
+          "content": "My therapist challenged me to send 3 emails today without re-reading them. I did it and the world didn't end. Nobody noticed anything wrong. Maybe 80% is actually fine. I'm going to try living at 80% this week and see what happens.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-23T19:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-016-mnop-mnop-qrqrqrqr01",
+          "content": "My perfectionism causes significant productivity loss and mental exhaustion.",
+          "category": "patterns",
+          "confidence": 0.9
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-017-3e3e-4f4f-5a5a-6b6b-7c7c8d8d9e9e",
+      "journals": [
+        {
+          "journal_id": "j-017-001-stuv-stuv-wxwxwxwx01",
+          "title": "Sống với nỗi buồn",
+          "content": "Ba tháng sau khi chia tay, tôi vẫn thấy buồn mỗi đêm. Đang cố gắng sống tiếp nhưng mọi thứ nhạt nhẽo. Bạn bè bảo tôi cần move on nhưng không ai nói cho tôi biết cách move on như thế nào. Cảm giác như bị kẹt trong một vòng lặp.",
+          "mood_score": 2,
+          "mood_label": "Storm",
+          "created_at": "2026-05-10T23:00:00Z"
+        },
+        {
+          "journal_id": "j-017-002-stuv-stuv-wxwxwxwx02",
+          "title": "Bắt đầu lại từ đầu",
+          "content": "Hôm nay lần đầu tiên sau 3 tháng tôi nấu ăn cho mình. Chỉ là mì gà đơn giản nhưng ngồi ăn một mình mà không bật TV, tôi nhận ra mình đang bắt đầu quen với sự im lặng. Không hẳn là ổn nhưng không còn đau như trước.",
+          "mood_score": 5,
+          "mood_label": "Cloudy",
+          "created_at": "2026-05-15T19:00:00Z"
+        },
+        {
+          "journal_id": "j-017-003-stuv-stuv-wxwxwxwx03",
+          "title": "Gặp lại bạn cũ",
+          "content": "Gặp lại bạn đại học sau 2 năm không liên lạc. Cô ấy cũng vừa trải qua chia tay nên hiểu mình. Chúng tôi ngồi cafe 3 tiếng nói đủ thứ chuyện. Lần đầu tiên sau lâu lắm tôi cười thật. Có lẽ bệnh tế nhịp đây.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-20T16:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-017-stuv-stuv-wxwxwxwx01",
+          "content": "I process grief and loss slowly and need time alone before reconnecting socially.",
+          "category": "habits",
+          "confidence": 0.85
+        },
+        {
+          "memory_id": "mem-017-stuv-stuv-wxwxwxwx02",
+          "content": "Sharing experiences with others who have gone through similar struggles helps me heal.",
+          "category": "growth",
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-018-a0a0-b1b1-c2c2-d3d3-e4e4f5f5a6a6",
+      "journals": [
+        {
+          "journal_id": "j-018-001-yzab-yzab-cdcdcdcd01",
+          "title": "Morning routine experiment",
+          "content": "Started a new morning routine: wake at 6, meditate 10 min, journal, exercise. Day 1 went great. Day 2 was harder. Day 3 I hit snooze 4 times. But I got up eventually. The old me would have given up after day 2. Progress is not linear and that's okay.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-22T07:00:00Z"
+        },
+        {
+          "journal_id": "j-018-002-yzab-yzab-cdcdcdcd02",
+          "title": "Day 14 of routine",
+          "content": "Two weeks in and the routine is becoming automatic. I actually look forward to the quiet morning time. My anxiety is noticeably lower on days I meditate. It's not a cure-all but it's a tool. Grateful I gave myself permission to try and fail and try again.",
+          "mood_score": 8,
+          "mood_label": "Sunny",
+          "created_at": "2026-05-28T06:30:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-018-yzab-yzab-cdcdcdcd01",
+          "content": "I value structure and routine as tools for managing my mental health.",
+          "category": "values",
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-019-b7b7-c8c8-d9d9-e0e0-f1f1a2a2b3b3",
+      "journals": [
+        {
+          "journal_id": "j-019-001-efgh-efgh-ijklijkl01",
+          "title": "Parenting guilt",
+          "content": "Lost my temper with my kid today over something small. They looked scared and I immediately felt terrible. I'm trying to break the cycle of how I was raised but in moments of stress, my parents' patterns come out of my mouth. I don't want to pass this down.",
+          "mood_score": 2,
+          "mood_label": "Storm",
+          "created_at": "2026-05-21T20:00:00Z"
+        },
+        {
+          "journal_id": "j-019-002-efgh-efgh-ijklijkl02",
+          "title": "Apologized to my kid",
+          "content": "I sat down with my kid and apologized. I explained that grown-ups make mistakes too and that my reaction wasn't their fault. They hugged me and said 'it's okay, I know you love me.' I almost cried. Maybe breaking the cycle means being honest about being human.",
+          "mood_score": 7,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-22T19:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-019-efgh-efgh-ijklijkl01",
+          "content": "I'm actively working to break intergenerational patterns of emotional reactivity.",
+          "category": "growth",
+          "confidence": 0.9
+        },
+        {
+          "memory_id": "mem-019-efgh-efgh-ijklijkl02",
+          "content": "I feel deep guilt when I repeat my parents' patterns with my own child.",
+          "category": "struggles",
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "user_id": "rag-user-020-c4c4-d5d5-e6e6-f7f7-a8a8b9b9c0c0",
+      "journals": [
+        {
+          "journal_id": "j-020-001-mnop-mnop-qrstqrst01",
+          "title": "Sáng nay thấy nhẹ nhõm",
+          "content": "Dậy sớm, ra công viên ngồi. Không mang điện thoại, chỉ ngồi nghe tiếng chim và gió. Lâu lắm rồi mới thấy yên bình như vậy. Tự hỏi tại sao mình không làm thế thường xuyên hơn. Cuộc sống quá ồn ào, đôi khi chỉ cần im lặng.",
+          "mood_score": 8,
+          "mood_label": "Sunny",
+          "created_at": "2026-05-25T06:00:00Z"
+        },
+        {
+          "journal_id": "j-020-002-mnop-mnop-qrstqrst02",
+          "title": "Quyết định quan trọng",
+          "content": "Hôm nay tôi quyết định xin chuyển bộ phận ở công ty. Đã suy nghĩ 3 tháng rồi. Sếp hiện tại rất bất ngờ nhưng tôi biết nếu không làm bây giờ thì sẽ không bao giờ làm. Hồi hộp nhưng cảm giác tự do.",
+          "mood_score": 6,
+          "mood_label": "Partly Cloudy",
+          "created_at": "2026-05-27T14:00:00Z"
+        }
+      ],
+      "memories": [
+        {
+          "memory_id": "mem-020-mnop-mnop-qrstqrst01",
+          "content": "Quiet time in nature is an important source of peace and clarity for me.",
+          "category": "values",
+          "confidence": 0.85
+        }
+      ]
+    }
+  ],
+  "users_without_rag": [
+    {
+      "user_id": "norag-user-001-1111-2222-3333-444455556666",
+      "content": "I've been feeling overwhelmed with work lately. My manager keeps giving me more tasks and I don't know how to say no. I find myself staying late every day and not having time for myself or my family. I feel trapped in this cycle.",
+      "mood_score": 3,
+      "direction": "why",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-002-aaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "content": "Today was actually a good day. I went for a walk in the park, called my mom, and cooked a nice dinner. But even during these good moments, there's a small voice telling me it won't last. I'm afraid of being happy because it always comes crashing down.",
+      "mood_score": 7,
+      "direction": "emotions",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-003-5555-6666-7777-8888-99990000aaaa",
+      "content": "I've been snapping at everyone lately. My partner, my colleagues, even the barista this morning. It's not their fault. I think I'm carrying anger from something deeper that I haven't addressed. Maybe it's time to figure out what.",
+      "mood_score": 3,
+      "direction": "why",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-004-cccc-dddd-eeee-ffff-000011112222",
+      "content": "I noticed something today - every time I feel sad, I immediately open my phone and scroll. It's like I can't sit with sadness for even a minute. This pattern has been going on for years and I only just realized it.",
+      "mood_score": 4,
+      "direction": "patterns",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-005-3333-4444-5555-6666-777788889999",
+      "content": "My friend said something that really challenged my perspective today. She asked 'what if you're not broken, what if you're just becoming?' I can't stop thinking about it. What if my struggles are actually transformation?",
+      "mood_score": 6,
+      "direction": "challenge",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-006-dddd-eeee-ffff-aaaa-bbbbccccdddd",
+      "content": "I did something brave today - I signed up for a public speaking class. I've been terrified of public speaking my whole life. But I figured, if I keep avoiding things that scare me, my world will keep shrinking. Time to expand.",
+      "mood_score": 8,
+      "direction": "growth",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-007-eeee-ffff-aaaa-bbbb-cccddddeeeeffff",
+      "content": "I can't remember the last time I genuinely laughed. Everything feels muted, like someone turned down the color saturation of my life. I go through the motions but I'm not really there. People think I'm fine because I smile. But inside everything is gray.",
+      "mood_score": 2,
+      "direction": "emotions",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-008-ffff-aaaa-bbbb-cccc-dddddeeeeeeeee",
+      "content": "I keep having the same argument with my partner over and over. They want more closeness, I want more space. Neither of us is wrong but we can't find the middle ground. I'm exhausted from this dance. Is this just how relationships are?",
+      "mood_score": 3,
+      "direction": "patterns",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-009-aaaa-1111-bbbb-2222-cccc3333dddd44",
+      "content": "Someone told me today that I'm always negative. At first I was defensive, but then I realized they might be right. I complain a lot. I focus on what's wrong instead of what's right. I don't know how to change this about myself.",
+      "mood_score": 3,
+      "direction": "challenge",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-010-bbbb-2222-cccc-3333-dddd4444eeee55",
+      "content": "I helped a stranger today and it felt surprisingly good. They dropped their groceries and I helped pick them up. Such a small thing but it reminded me that connection doesn't have to be complicated. Maybe I should volunteer more.",
+      "mood_score": 8,
+      "direction": "growth",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-011-cccc-3333-dddd-4444-eeee5555ffff66",
+      "content": "It's 3am and I can't sleep again. My mind won't stop racing. Work deadlines, relationship issues, money worries - they all come alive at night. During the day I can distract myself but at night there's nowhere to hide from my thoughts.",
+      "mood_score": 2,
+      "direction": "why",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-012-dddd-4444-eeee-5555-ffff6666aaaa77",
+      "content": "Cảm giác hôm nay thật lạ. Không buồn nhưng cũng không vui. Như đang lơ lửng giữa hai thế giới. Có lẽ cần thời gian để hiểu mình đang cảm thấy gì. Thật khó để diễn tả.",
+      "mood_score": 5,
+      "direction": "emotions",
+      "app_language": "vi"
+    },
+    {
+      "user_id": "norag-user-013-eeee-5555-ffff-6666-aaaa7777bbbb88",
+      "content": "Mỗi cuối tuần tôi đều hứa sẽ dọn dẹp phòng, tập thể dục, nấu ăn lành mạnh. Và mỗi cuối tuần tôi đều nằm bò xem phim và order đồ ăn. Mình tự thất hứa với chính mình hoài. Không hiểu sao mình không giữ được lời hứa với bản thân.",
+      "mood_score": 3,
+      "direction": "patterns",
+      "app_language": "vi"
+    },
+    {
+      "user_id": "norag-user-014-ffff-6666-aaaa-7777-bbbb8888cccc99",
+      "content": "Someone at work asked if I'm okay today. I said yes automatically but then I wondered - am I okay? I honestly don't know. I've been on autopilot for so long I've lost touch with how I actually feel. The question caught me off guard.",
+      "mood_score": 4,
+      "direction": "emotions",
+      "app_language": "en"
+    },
+    {
+      "user_id": "norag-user-015-aaaa-7777-bbbb-8888-cccc9999dddd00",
+      "content": "I accomplished something I've been working towards for a year today. But instead of celebrating, I immediately set a new goal. My partner pointed this out and I realized I don't know how to celebrate. I'm always chasing the next thing.",
+      "mood_score": 5,
+      "direction": "challenge",
+      "app_language": "en"
+    }
+  ],
+  "users_crisis": [
+    {
+      "user_id": "crisis-user-001-1234-5678-9abc-def012345678",
+      "content": "I don't see the point anymore. Every day is the same empty routine and I'm so tired. I just want it all to stop. I've been thinking about ways to make it stop. The world would be better off without me.",
+      "mood_score": 1,
+      "direction": "why",
+      "app_language": "en"
+    },
+    {
+      "user_id": "crisis-user-002-aaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "content": "I can't do this anymore. The pain is too much and I've been hurting myself just to feel something different. Nobody would understand. I want to disappear forever and never come back.",
+      "mood_score": 1,
+      "direction": "emotions",
+      "app_language": "en"
+    },
+    {
+      "user_id": "crisis-user-003-1111-2222-3333-4444-555566667777",
+      "content": "Mình không muốn thức dậy nữa. Mỗi sáng mở mắt ra đều thấy chán nản. Không còn lý do gì để tiếp tục cả. Mình muốn đi thật xa và không bao giờ quay lại. Tất cả đều vô nghĩa.",
+      "mood_score": 1,
+      "direction": "emotions",
+      "app_language": "vi"
+    },
+    {
+      "user_id": "crisis-user-004-9876-5432-10fe-dcba-012345678abc",
+      "content": "I've been planning it. I know how I would do it. I've written the notes. The only thing stopping me is my dog - who would take care of him? But even that feels like it won't be enough of a reason for much longer.",
+      "mood_score": 1,
+      "direction": "why",
+      "app_language": "en"
+    },
+    {
+      "user_id": "crisis-user-005-dead-beef-dead-beef-deadbeefdead",
+      "content": "Nothing matters. I've given up on everything - my job, my relationships, my health. I don't see any future for myself. The only thought that brings me comfort is not being here anymore. I'm tired of pretending I want to be alive.",
+      "mood_score": 1,
+      "direction": "patterns",
+      "app_language": "en"
+    }
+  ],
+  "users_vietnamese": [
+    {
+      "user_id": "vi-user-001-a1a1-b2b2-c3c3-d4d4-e5e5f6f6a7a7",
+      "content": "Hôm nay là một ngày tồi tệ. Sếp mắng mình vì deadline trễ, bạn bè không hiểu mình, và mẹ lại gọi hỏi khi nào lấy chồng. Mình cảm thấy áp lực từ mọi phía và không biết trốn đi đâu. Có lúc chỉ muốn bỏ hết lại và đi xa.",
+      "mood_score": 2,
+      "direction": "why",
+      "app_language": "vi"
+    },
+    {
+      "user_id": "vi-user-002-b2b2-c3c3-d4d4-e5e5-f6f6a7a7b8b8",
+      "content": "Sáng nay đi dạo công viên và ngửi mùi hoa sữa. Tự nhiên nhớ hồi nhỏ, bà ngoại hay nấu chè cho mình ăn. Nhớ bà quá. Lâu rồi không về thăm mộ bà. Hôm nay sẽ gọi mẹ hỏi thăm.",
+      "mood_score": 6,
+      "direction": "emotions",
+      "app_language": "vi"
+    },
+    {
+      "user_id": "vi-user-003-c3c3-d4d4-e5e5-f6f6-a7a7b8b8c9c9",
+      "content": "Mình nhận ra mỗi khi stress là mình ăn nhiều. Hôm nay stress vì công việc và mình đã ăn hết 3 gói snack, 2 ly trà sữa, và một đĩa cơm chiên. Sau đó thì thấy tội lỗi và lại stress thêm. Vòng lặp này bao giờ mới dứt?",
+      "mood_score": 3,
+      "direction": "patterns",
+      "app_language": "vi"
+    },
+    {
+      "user_id": "vi-user-004-d4d4-e5e5-f6f6-a7a7-b8b8c9c9d0d0",
+      "content": "Bạn thân nói mình luôn xem mọi thứ tiêu cực. Lúc đầu mình bực nhưng suy nghĩ lại thì có lẽ bạn đúng. Mình luôn nghĩ trường hợp xấu nhất, luôn lo chuyện chưa xảy ra. Có lẽ cần thay đổi cách nhìn nhận.",
+      "mood_score": 5,
+      "direction": "challenge",
+      "app_language": "vi"
+    },
+    {
+      "user_id": "vi-user-005-e5e5-f6f6-a7a7-b8b8-c9c9d0d0e1e1",
+      "content": "Hôm nay hoàn thành khóa học online đầu tiên! Mặc dù chỉ là khóa ngắn hạn nhưng mình thấy tự hào. Đã lâu lắm rồi mới hoàn thành gì đó. Bắt đầu lại từ những điều nhỏ. Step by step.",
+      "mood_score": 8,
+      "direction": "growth",
+      "app_language": "vi"
+    }
+  ]
+}

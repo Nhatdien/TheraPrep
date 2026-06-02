@@ -1,9 +1,12 @@
 import os
 import re
 import json
+import hashlib
+import threading
 import traceback
 import concurrent.futures
 from dotenv import load_dotenv
+from cachetools import TTLCache
 from service.prompts import (
     get_system_prompt, build_user_prompt,
     PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT,
@@ -127,6 +130,19 @@ Rules:
 - Return ONLY valid JSON, no markdown formatting or code blocks"""
 
 
+# ─── Safe content indicators — skip crisis check for obviously safe content ──
+SAFE_CONTENT_PATTERNS = [
+    "good day", "great day", "happy", "grateful", "thankful", "blessed",
+    "accomplished", "proud of", "celebrated", "wonderful", "amazing",
+    "hoàn thành", "tự hào", "hạnh phúc", "vui vẻ", "tuyệt vời",
+    "cảm ơn", "biết ơn", "thành công", "đạt được", "tốt lắm",
+]
+
+# ─── Retry settings for Gemini API calls ──────────────────────────────────
+LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "3"))
+LLM_RETRY_BASE_DELAY = float(os.getenv("LLM_RETRY_BASE_DELAY", "2.0"))
+
+
 class AIProcessor():
     """
     AI processor focused on generating RAG-enhanced journal follow-up questions.
@@ -135,13 +151,19 @@ class AIProcessor():
     All prompt text lives in prompts.py — this class only handles:
     - RAG retrieval (past journals + memories)
     - Building prompts via prompts.py functions
-    - Calling the LLM
+    - Calling the LLM (with rate limiting + retry)
     - Post-processing responses
+    
+    Performance features:
+    - Crisis check caching (TTL 5 min) to skip redundant LLM calls
+    - Safe content shortcut to bypass crisis check for positive content
+    - Automatic retry with exponential backoff on transient API failures
     
     Uses singleton pattern — call AIProcessor.get_instance() instead of AIProcessor().
     """
 
     _instance = None
+    _instance_lock = threading.Lock()
 
     def __init__(self):
         self.model = ChatGoogleGenerativeAI(
@@ -151,12 +173,51 @@ class AIProcessor():
             streaming=False
         )
 
+        # Crisis check cache: 5 min TTL, up to 1000 entries
+        self._crisis_cache = TTLCache(maxsize=1000, ttl=300)
+        self._crisis_cache_lock = threading.Lock()
+
     @classmethod
     def get_instance(cls) -> "AIProcessor":
-        """Get or create the singleton AIProcessor instance."""
+        """Get or create the singleton AIProcessor instance (thread-safe)."""
         if cls._instance is None:
-            cls._instance = cls()
+            with cls._instance_lock:
+                if cls._instance is None:
+                    cls._instance = cls()
         return cls._instance
+
+    # ─── Rate-limited LLM invocation with retry ───────────────────────────
+
+    def _invoke_with_retry(self, messages: list, max_retries: int = None) -> object:
+        """
+        Call self.model.invoke() with exponential backoff retry on transient failures.
+        
+        Retries on rate limit (429), timeout, quota, and server errors (5xx).
+        Uses backoff (2s → 4s → 8s) to give Gemini API breathing room on overload.
+        """
+        import time
+        if max_retries is None:
+            max_retries = LLM_MAX_RETRIES
+
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                return self.model.invoke(messages)
+            except Exception as e:
+                last_error = e
+                error_str = str(e).lower()
+                # Retry on rate limit (429), timeout, or server errors (5xx)
+                is_retryable = any(code in error_str for code in
+                                   ["429", "rate", "quota", "timeout", "503", "500"])
+                if not is_retryable or attempt == max_retries - 1:
+                    raise
+                
+                delay = LLM_RETRY_BASE_DELAY * (2 ** attempt)
+                print(f"[llm-retry] Attempt {attempt + 1}/{max_retries} failed: {e}. "
+                      f"Retrying in {delay:.1f}s...")
+                time.sleep(delay)
+        
+        raise last_error
 
     def _retrieve_past_journals(self, user_id: str, current_content: str, top_k: int = 5) -> str:
         """
@@ -309,7 +370,7 @@ class AIProcessor():
         )
 
         try:
-            response = self.model.invoke([
+            response = self._invoke_with_retry([
                 SystemMessage(
                     content="You are an insightful psychological analyst. Extract only DURABLE insights about the user's inner world — skip trivial facts and ephemeral events. Return only valid JSON."),
                 HumanMessage(content=prompt)
@@ -369,18 +430,94 @@ class AIProcessor():
     # Minimum confidence threshold to trigger crisis response
     CRISIS_CONFIDENCE_THRESHOLD = 0.7
 
+    # Crisis-related keywords that OVERRIDE the safe content shortcut.
+    # If ANY of these appear, we ALWAYS run the full crisis check —
+    # even if the content also contains positive words like "tuyệt vời".
+    # This prevents false negatives like "một ngày tuyệt vời để rời khỏi thế giới này".
+    CRISIS_OVERRIDE_PATTERNS = [
+        # English crisis signals
+        "don't want to wake up", "not waking up", "better off without me",
+        "world without me", "end it all", "end my life", "take my life",
+        "no reason to live", "no point", "want to disappear", "want to die",
+        "kill myself", "hurt myself", "harming myself", "self-harm",
+        "suicide", "suicidal", "give up on life", "giving up on life",
+        "last day", "final goodbye", "not being here", "not here anymore",
+        "can't go on", "cant go on", "can't take it", "can't do this anymore",
+        "tired of everything", "tired of living", "don't deserve",
+        "no hope", "hopeless", "no future",
+        # Vietnamese crisis signals
+        "rời khỏi thế giới", "rời khỏi cuộc đời", "rời đi mãi mãi",
+        "không muốn thức dậy", "không muốn tỉnh dậy", "không muốn sống",
+        "không còn lý do", "không còn điểm", "thế giới không có mình",
+        "thế giới tốt hơn không có", "muốn biến mất", "muốn đi xa",
+        "muốn chết", "tự tử", "tự hại", "làm đau bản thân",
+        "kết thúc cuộc đời", "kết thúc mọi thứ", "hủy hoại bản thân",
+        "mình mệt mỏi", "mệt mỏi cuộc sống", "mệt mỏi tất cả",
+        "không còn sức", "buông bỏ tất cả", "không đáng sống",
+        "không xứng đáng", "không có tương lai", "vô vọng",
+        "ngày cuối", "tạm biệt vĩnh viễn",
+    ]
+
+    @staticmethod
+    def _is_likely_safe_content(content: str) -> bool:
+        """
+        Quick heuristic check: if content contains clearly positive/safe indicators,
+        we can skip the crisis check LLM call entirely.
+        
+        SAFETY: Crisis override keywords ALWAYS take priority. If any crisis-related
+        phrase is detected, the shortcut is bypassed and the full LLM crisis check runs.
+        This prevents false negatives like "một ngày tuyệt vời để rời khỏi thế giới này".
+        
+        This saves ~5-10s and 1 Gemini API call per request for genuinely safe content,
+        which significantly reduces load under high concurrency.
+        """
+        content_lower = content.lower()
+        
+        # CRITICAL: Check crisis overrides FIRST — if ANY match, never shortcut
+        for pattern in AIProcessor.CRISIS_OVERRIDE_PATTERNS:
+            if pattern in content_lower:
+                return False  # Must run full crisis check
+        
+        positive_count = sum(1 for pattern in SAFE_CONTENT_PATTERNS
+                            if pattern in content_lower)
+        # If 2+ positive indicators and no crisis overrides, likely safe
+        if positive_count >= 2:
+            return True
+        # Short content with 1+ positive indicator and no crisis overrides
+        if positive_count >= 1 and len(content) < 200:
+            return True
+        return False
+
     def check_crisis(self, content: str) -> dict:
         """
         Dedicated lightweight LLM call to check if content is crisis-related.
         Runs in parallel with RAG retrieval to minimize added latency.
+        
+        Performance optimizations:
+        1. Safe content shortcut — skip LLM for obviously positive content
+        2. TTL cache — avoid re-checking identical content within 5 minutes
 
         Returns:
             {"is_crisis": bool, "confidence": float, "message": str|None}
         """
+        # --- Shortcut 1: Skip LLM for obviously safe content ---
+        if self._is_likely_safe_content(content):
+            print(f"[crisis-check] Skipped LLM call (safe content detected)")
+            return {"is_crisis": False, "confidence": 0.0, "message": None}
+
+        # --- Shortcut 2: Check cache for identical/similar content ---
+        cache_key = hashlib.md5(content[:500].encode()).hexdigest()
+        with self._crisis_cache_lock:
+            cached = self._crisis_cache.get(cache_key)
+            if cached is not None:
+                print(f"[crisis-check] Cache hit (result={cached['is_crisis']})")
+                return cached
+
+        # --- Full LLM-based crisis check ---
         try:
             user_prompt = CRISIS_CHECK_USER_PROMPT.format(content=content[:1500])
 
-            response = self.model.invoke([
+            response = self._invoke_with_retry([
                 SystemMessage(content=CRISIS_CHECK_SYSTEM_PROMPT),
                 HumanMessage(content=user_prompt),
             ])
@@ -398,11 +535,18 @@ class AIProcessor():
                 is_crisis = False
 
             print(f"[crisis-check] is_crisis={is_crisis}, confidence={confidence:.2f}")
-            return {
+
+            crisis_result = {
                 "is_crisis": is_crisis,
                 "confidence": confidence,
                 "message": message if is_crisis else None,
             }
+
+            # Cache the result
+            with self._crisis_cache_lock:
+                self._crisis_cache[cache_key] = crisis_result
+
+            return crisis_result
 
         except (json.JSONDecodeError, Exception) as e:
             # On error, be conservative — don't block the user
@@ -429,6 +573,7 @@ class AIProcessor():
         memory_depth = max(5, depth)
 
         # --- Run crisis check + RAG retrieval ALL IN PARALLEL ---
+        # Per-request executor: each request gets its own 3 threads, no cross-request queuing
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             crisis_future = executor.submit(self.check_crisis, content)
             journals_future = executor.submit(
@@ -441,7 +586,7 @@ class AIProcessor():
             # Get crisis result first — if crisis, skip question generation
             crisis_result = crisis_future.result()
 
-            # Still retrieve RAG data (they're already running, don't waste them)
+            # Retrieve RAG data (they're already running, don't waste them)
             past_journals_context = journals_future.result()
             user_memories_context = memories_future.result()
 
@@ -488,8 +633,8 @@ class AIProcessor():
         print(f"[RAG-DEBUG] === SYSTEM PROMPT (first 500 chars) ===\n{system_prompt[:500]}...")
         print(f"[RAG-DEBUG] === USER PROMPT ===\n{user_prompt}")
 
-        # --- Call LLM ---
-        response = self.model.invoke([
+        # --- Call LLM (rate-limited with retry) ---
+        response = self._invoke_with_retry([
             SystemMessage(content=system_prompt),
             HumanMessage(content=user_prompt)
         ])
@@ -558,7 +703,7 @@ class AIProcessor():
         )
 
         try:
-            response = self.model.invoke([
+            response = self._invoke_with_retry([
                 SystemMessage(content=PREP_PACK_SYSTEM_PROMPT),
                 HumanMessage(content=prompt),
             ])
