@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="mb-5">
-      <h2 class="text-2xl sm:text-3xl font-semibold leading-tight text-highlighted text-center">{{ content?.question || content?.question_content || $t('slide.journalDefaultQuestion') }}</h2>
-      <p v-if="content?.content || content?.question_description" class="text-muted text-sm sm:text-base leading-7 mt-3 text-center">
+    <div class="mb-4">
+      <h2 class="text-lg sm:text-xl font-bold leading-snug text-highlighted">{{ content?.question || content?.question_content || $t('slide.journalDefaultQuestion') }}</h2>
+      <p v-if="content?.content || content?.question_description" class="text-muted text-sm leading-relaxed mt-2 pl-3 border-l-2 border-muted/30">
         {{ content?.content || content?.question_description }}
       </p>
     </div>
@@ -11,43 +11,48 @@
       @on-update="onEditorUpdate"
       v-model="currentNote" />
 
-    <!-- Floating Toolbar FABs -->
-    <JournalFloatingToolbar
-      v-if="currentIndex === index"
-      :mood-score="userJournalStore().currentMoodScore"
-      :loading="isGeneratingQuestion"
-      :disabled="!hasContent || isGeneratingQuestion"
-      @ai-click="handleGoDeeper()"
-      @direction-click="showDirectionPicker = true"
-      @format-click="isFormatDrawerOpen = true"
-      @mood-click="showMoodPicker = true"
-    />
+    <!-- Teleport FABs + modals outside overflow-hidden carousel container -->
+    <Teleport to="body">
+      <!-- Floating Toolbar FABs -->
+      <JournalFloatingToolbar
+        v-if="currentIndex === index"
+        :mood-score="userJournalStore().currentMoodScore"
+        :loading="isGeneratingQuestion"
+        :disabled="!hasContent || isGeneratingQuestion"
+        :show-next="true"
+        @ai-click="handleGoDeeper()"
+        @direction-click="showDirectionPicker = true"
+        @format-click="isFormatDrawerOpen = true"
+        @mood-click="showMoodPicker = true"
+        @next-click="props.onNext?.()"
+      />
 
-    <!-- Direction Picker -->
-    <JournalGoDeepDirections
-      v-model="showDirectionPicker"
-      headless
-      :loading="isGeneratingQuestion"
-      :disabled="!hasContent || isGeneratingQuestion"
-      @select="handleGoDeeper"
-    />
+      <!-- Direction Picker -->
+      <JournalGoDeepDirections
+        v-model="showDirectionPicker"
+        headless
+        :loading="isGeneratingQuestion"
+        :disabled="!hasContent || isGeneratingQuestion"
+        @select="handleGoDeeper"
+      />
 
-    <!-- Format Drawer -->
-    <JournalFormatDrawer v-model="isFormatDrawerOpen" :editor="editor?.editor" />
+      <!-- Format Drawer -->
+      <JournalFormatDrawer v-model="isFormatDrawerOpen" :editor="editor?.editor" />
 
-    <!-- Mood Picker Modal -->
-    <UModal v-model:open="showMoodPicker">
-      <template #content>
-        <div class="p-6 w-full max-w-md mx-auto">
-          <h3 class="text-lg font-semibold mb-4 text-center">{{ $t('journal.howFeeling') }}</h3>
-          <EmotionSliderV2 v-model="slideMoodScore" />
-          <UButton block class="mt-4" @click="confirmMood">{{ $t('common.confirm') }}</UButton>
-        </div>
-      </template>
-    </UModal>
+      <!-- Mood Picker Modal -->
+      <UModal v-model:open="showMoodPicker">
+        <template #content>
+          <div class="p-6 w-full max-w-md mx-auto">
+            <h3 class="text-lg font-semibold mb-4 text-center">{{ $t('journal.howFeeling') }}</h3>
+            <EmotionSliderV2 v-model="slideMoodScore" />
+            <UButton block class="mt-4" @click="confirmMood">{{ $t('common.confirm') }}</UButton>
+          </div>
+        </template>
+      </UModal>
 
-    <!-- Crisis Detection Modal -->
-    <CrisisModal v-model="isCrisisModalOpen" />
+      <!-- Crisis Detection Modal -->
+      <CrisisModal v-model="isCrisisModalOpen" />
+    </Teleport>
   </div>
 </template>
 
@@ -92,6 +97,10 @@ const props = defineProps({
   },
   collectionTitle: {
     type: String,
+    default: null,
+  },
+  onNext: {
+    type: Function,
     default: null,
   },
 });

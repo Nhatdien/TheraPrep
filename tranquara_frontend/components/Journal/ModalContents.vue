@@ -1,17 +1,16 @@
 <template>
-  <section class="px-4 pb-24 pt-5 max-w-2xl mx-auto min-h-screen">
-    <div
-      class="w-full rounded-2xl border border-default/60 bg-default/70 backdrop-blur px-4 py-3 mb-5">
-      <div class="flex items-start justify-between gap-3">
+  <section class="flex flex-col min-h-screen bg-background">
+    <!-- Header: Back + Progress + Close -->
+    <div class="px-4 pt-4 pb-2 max-w-2xl mx-auto w-full">
+      <div class="flex items-center justify-between gap-3 mb-3">
         <UButton variant="ghost" size="sm" @click="prevNode">
           <ChevronLeft class="w-4 h-4" />
         </UButton>
-        <div class="text-center min-w-0">
+        <div class="text-center min-w-0 flex-1">
           <p class="text-xs uppercase tracking-wide text-toned">
             {{ currentSlideMeta }}
           </p>
-          <h1
-            class="text-base sm:text-lg font-semibold text-highlighted truncate">
+          <h1 class="text-sm font-semibold text-highlighted truncate">
             {{ activeSlideGroup?.title || $t('slide.guidedFlow') }}
           </h1>
         </div>
@@ -20,15 +19,15 @@
         </UButton>
       </div>
       <SegmentedProgress
-        class="mt-3"
         :current="currentIndex + 1"
         :total="totalSlides" />
     </div>
 
+    <!-- Slide Content (full-screen, no card) -->
     <UCarousel
       :watch-drag="true"
       ref="carousel"
-      class="mt-2"
+      class="flex-1"
       v-slot="{ item }"
       :items="carouselItems"
       @select="(index: number) => (currentIndex = index)"
@@ -38,15 +37,15 @@
       }">
         <div
           :key="currentIndex"
-          class="h-[70vh] max-h-[760px] lg:h-[64vh] rounded-2xl border border-default/60 bg-default shadow-sm flex flex-col overflow-hidden">
+          class="flex flex-col min-h-full">
           <!-- Per-slide illustration (shown when slide has illustration field) -->
           <div
             v-if="(item as any)?.illustration"
-            class="flex items-center justify-center bg-illus-dark shrink-0 h-36">
-            <component :is="(item as any)?.illustration" class="w-28 h-28" />
+            class="flex items-center justify-center shrink-0 py-6">
+            <component :is="(item as any)?.illustration" class="w-24 h-24" />
           </div>
           <!-- Slide content -->
-          <div class="flex-1 overflow-y-auto p-5 sm:p-7">
+          <div class="flex-1 overflow-y-auto px-5 pb-24">
             <component
               :is="renderSlide((item as any)?.content?.type)"
               :currentIndex
@@ -54,19 +53,16 @@
               :content="(item as any)?.content"
               :slideGroupContext="activeSlideGroup"
               :collectionTitle="currentCollecton?.title"
+              :onNext="nextNode"
               :initialContent="userJournalStore().currentWritingContent[(item as any)?.content?.question || (item as any)?.content?.question_content] || ''"></component>
           </div>
         </div>
-      <!-- <CommonMarkdownEditor v-model="item.currentNote"></CommonMarkdownEditor> -->
     </UCarousel>
 
-    <!-- Button group, will include:
-       - a button to make forward (user can still slide backward)
-       - a button to edit text format
-       - a button to open the chatbox with the chatbot to help with the journaling process -->
+    <!-- Desktop button group -->
     <div class="w-full px-4 mt-2 hidden md:block">
       <div
-        class="flex justify-between items-center rounded-2xl py-3">
+        class="flex justify-between items-center rounded-2xl py-3 max-w-2xl mx-auto">
         <UButton variant="ghost" :disabled="!canGoPrev" @click="prevNode"
           >{{ $t('common.back') }}</UButton
         >
@@ -77,7 +73,9 @@
       </div>
     </div>
 
+    <!-- Floating next button (only for non-journal slides on mobile) -->
     <button
+      v-if="!isCurrentSlideJournal"
       type="button"
       class="floating-next-btn flex md:hidden"
       :aria-label="isLastSlide ? $t('slide.finish') : $t('slide.continue')"
@@ -166,6 +164,11 @@ const currentSlideMeta = computed(
 );
 const isLastSlide = computed(() => currentIndex.value >= totalSlides.value - 1);
 const canGoPrev = computed(() => currentIndex.value > 0);
+
+const isCurrentSlideJournal = computed(() => {
+  const item = carouselItems.value[currentIndex.value];
+  return item?.content?.type === 'journal_prompt';
+});
 
 const nextNode = async () => {
   if (!carousel.value?.emblaApi?.canScrollNext()) {
