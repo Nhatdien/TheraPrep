@@ -10,35 +10,41 @@
       ref="editor"
       @on-update="onEditorUpdate"
       v-model="currentNote" />
-    
-    <!-- Bottom toolbar: Format + Go Deeper -->
-    <div class="mt-3 flex items-center justify-between">
-      <!-- Format Button -->
-      <UButton
-        variant="ghost"
-        size="sm"
-        @click="isFormatDrawerOpen = true"
-        class="font-semibold tracking-tight">
-        Aa
-      </UButton>
 
-      <!-- Go Deeper with Direction Selection -->
-      <JournalGoDeepDirections
-        v-if="hasContent && !isGeneratingQuestion"
-        :loading="isGeneratingQuestion"
-        :disabled="!hasContent || isGeneratingQuestion"
-        @select="handleGoDeeper"
-      />
+    <!-- Floating Toolbar FABs -->
+    <JournalFloatingToolbar
+      v-if="currentIndex === index"
+      :mood-score="userJournalStore().currentMoodScore"
+      :loading="isGeneratingQuestion"
+      :disabled="!hasContent || isGeneratingQuestion"
+      @ai-click="handleGoDeeper()"
+      @direction-click="showDirectionPicker = true"
+      @format-click="isFormatDrawerOpen = true"
+      @mood-click="showMoodPicker = true"
+    />
 
-      <!-- Persistent AI loading indicator -->
-      <div v-if="isGeneratingQuestion" class="flex items-center gap-2 text-sm text-muted">
-        <span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <span>{{ $t('goDeeper.thinking') }}</span>
-      </div>
-    </div>
+    <!-- Direction Picker -->
+    <JournalGoDeepDirections
+      v-model="showDirectionPicker"
+      headless
+      :loading="isGeneratingQuestion"
+      :disabled="!hasContent || isGeneratingQuestion"
+      @select="handleGoDeeper"
+    />
 
     <!-- Format Drawer -->
     <JournalFormatDrawer v-model="isFormatDrawerOpen" :editor="editor?.editor" />
+
+    <!-- Mood Picker Modal -->
+    <UModal v-model:open="showMoodPicker">
+      <template #content>
+        <div class="p-6 w-full max-w-md mx-auto">
+          <h3 class="text-lg font-semibold mb-4 text-center">{{ $t('journal.howFeeling') }}</h3>
+          <EmotionSliderV2 v-model="slideMoodScore" />
+          <UButton block class="mt-4" @click="confirmMood">{{ $t('common.confirm') }}</UButton>
+        </div>
+      </template>
+    </UModal>
 
     <!-- Crisis Detection Modal -->
     <CrisisModal v-model="isCrisisModalOpen" />
@@ -50,6 +56,7 @@ import TranquaraSDK from "~/stores/tranquara_sdk";
 import { useAuthStore } from "~/stores/stores/auth_store";
 import { useAIGuard } from "~/composables/useAIGuard";
 import { useCrisisDetection } from "~/composables/useCrisisDetection";
+import EmotionSliderV2 from "~/components/Common/EmotionSliderV2.vue";
 
 const currentNote = ref("");
 const isGeneratingQuestion = ref(false);
@@ -59,6 +66,9 @@ const { isCrisisModalOpen, detectCrisis, showCrisisModal } = useCrisisDetection(
 
 const editor = ref()
 const isFormatDrawerOpen = ref(false);
+const showDirectionPicker = ref(false);
+const showMoodPicker = ref(false);
+const slideMoodScore = ref(userJournalStore().currentMoodScore || 5);
 const props = defineProps({
   content: {
     type: Object,
@@ -101,7 +111,12 @@ const onEditorUpdate = () => {
   );
 };
 
-const handleGoDeeper = async (direction: string) => {
+const confirmMood = () => {
+  userJournalStore().currentMoodScore = slideMoodScore.value;
+  showMoodPicker.value = false;
+};
+
+const handleGoDeeper = async (direction?: string) => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
   

@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-block">
+  <div class="inline-block" v-if="!headless">
     <!-- Mobile: Bottom Sheet Drawer -->
     <USlideover
       v-if="isMobile"
@@ -62,6 +62,41 @@
       </UButton>
     </UDropdownMenu>
   </div>
+
+  <!-- Headless mode: only the slideover, no trigger button -->
+  <USlideover
+    v-else
+    v-model:open="isOpen"
+    :title="$t('goDeeper.title')"
+    :description="$t('goDeeper.subtitle')"
+    :overlay="true"
+  >
+    <!-- Empty default slot (no trigger button) -->
+    <span />
+
+    <template #body>
+      <div class="flex flex-col gap-3 p-4">
+        <button
+          v-for="dir in directions"
+          :key="dir.value"
+          class="flex items-center gap-4 px-4 py-4 rounded-xl border border-default bg-elevated text-left w-full transition-all duration-200 ease-out hover:border-primary hover:bg-primary/5 hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
+          @click="selectDirection(dir.value)"
+        >
+          <div class="flex-shrink-0 text-primary">
+            <IconWhy v-if="dir.value === 'why'" :size="28" :active="true" />
+            <IconEmotions v-else-if="dir.value === 'emotions'" :size="28" :active="true" />
+            <IconPatterns v-else-if="dir.value === 'patterns'" :size="28" :active="true" />
+            <IconChallenge v-else-if="dir.value === 'challenge'" :size="28" :active="true" />
+            <IconGrowth v-else-if="dir.value === 'growth'" :size="28" :active="true" />
+          </div>
+          <div class="flex-1 flex flex-col gap-1 min-w-0">
+            <div class="text-base font-semibold text-default">{{ $t(`goDeeper.directions.${dir.value}.label`) }}</div>
+            <div class="text-sm text-muted leading-snug">{{ $t(`goDeeper.directions.${dir.value}.description`) }}</div>
+          </div>
+        </button>
+      </div>
+    </template>
+  </USlideover>
 </template>
 
 <script setup lang="ts">
@@ -77,6 +112,7 @@ const props = defineProps<{
   loading?: boolean;
   disabled?: boolean;
   modelValue?: boolean;
+  headless?: boolean;
 }>();
 
 // Define emits

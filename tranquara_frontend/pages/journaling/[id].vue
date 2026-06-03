@@ -29,22 +29,23 @@
       <div class="flex-1 xl:grid xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-8 xl:px-8 xl:pt-6">
         <div>
           <!-- Title Input -->
-          <div class="px-4 pt-4 max-w-3xl mx-auto w-full md:px-6 md:pt-6 xl:px-0 xl:pt-0 xl:max-w-none">
+          <div class="px-6 pt-4 max-w-prose mx-auto w-full md:pt-6 xl:px-0 xl:pt-0 xl:max-w-none">
             <input
               v-model="title"
               type="text"
               :placeholder="$t('journal.titlePlaceholder')"
-              class="w-full text-xl md:text-2xl font-semibold bg-transparent border-none outline-none placeholder-muted"
+              class="w-full text-2xl font-semibold bg-transparent border-none outline-none placeholder-muted"
             />
           </div>
 
-          <!-- Date Display -->
-          <div class="px-4 py-2 max-w-3xl mx-auto w-full md:px-6 xl:px-0 xl:max-w-none">
+          <!-- Date + Auto-save Status -->
+          <div class="px-6 py-2 max-w-prose mx-auto w-full xl:px-0 xl:max-w-none flex items-center justify-between">
             <span class="text-sm text-muted">{{ formattedDate }}</span>
+            <span class="text-xs text-muted xl:hidden">{{ autoSaveStatusText }}</span>
           </div>
 
           <!-- TipTap Editor -->
-          <div class="flex-1 px-4 pb-24 max-w-3xl mx-auto w-full md:px-6 xl:px-0 xl:max-w-none">
+          <div class="flex-1 px-6 pb-28 max-w-prose mx-auto w-full xl:px-0 xl:max-w-none journal-content">
             <CommonMarkdownEditor
               ref="editorRef"
               v-model="content"
@@ -65,41 +66,26 @@
         </aside>
       </div>
 
-      <!-- Bottom Toolbar -->
-      <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-default p-4 flex flex-wrap items-center justify-between gap-y-2 xl:hidden">
-        <div class="flex items-center gap-2 flex-wrap">
-          <!-- Mood Selector -->
-          <UButton 
-            variant="ghost" 
-            size="sm"
-            @click="showMoodPicker = true"
-            class="shrink-0"
-          >
-            <UIcon :name="selectedMoodIcon" class="text-lg" />
-            <span class="ml-1 text-sm text-muted truncate max-w-[120px] sm:max-w-[180px]">{{ moodLabel }}</span>
-          </UButton>
+      <!-- Floating Toolbar FABs (mobile/tablet) -->
+      <JournalFloatingToolbar
+        class="xl:hidden"
+        :mood-score="moodScore"
+        :loading="isGeneratingQuestion"
+        :disabled="!hasContent || isGeneratingQuestion"
+        @ai-click="handleGoDeeper()"
+        @direction-click="showDirectionPicker = true"
+        @format-click="isFormatDrawerOpen = true"
+        @mood-click="showMoodPicker = true"
+      />
 
-          <!-- Format Button -->
-          <UButton
-            variant="ghost"
-            size="sm"
-            @click="isFormatDrawerOpen = true"
-            class="shrink-0 font-semibold tracking-tight">
-            Aa
-          </UButton>
-          
-          <!-- Go Deeper Button -->
-          <JournalGoDeepDirections
-            :loading="isGeneratingQuestion"
-            :disabled="!hasContent || isGeneratingQuestion"
-            @select="handleGoDeeper"
-          />
-        </div>
-        
-        <div class="flex items-center gap-2 shrink-0">
-          <span class="text-xs text-muted whitespace-nowrap">{{ autoSaveStatusText }}</span>
-        </div>
-      </div>
+      <!-- Direction Picker -->
+      <JournalGoDeepDirections
+        v-model="showDirectionPicker"
+        headless
+        :loading="isGeneratingQuestion"
+        :disabled="!hasContent || isGeneratingQuestion"
+        @select="handleGoDeeper"
+      />
 
       <!-- Format Drawer -->
       <JournalFormatDrawer v-model="isFormatDrawerOpen" :editor="editorRef?.editor" />
@@ -174,6 +160,7 @@ const editorRef = ref<any>(null);
 const autoSaveStatus = ref("ready");
 const isGeneratingQuestion = ref(false);
 const isFormatDrawerOpen = ref(false);
+const showDirectionPicker = ref(false);
 
 // Map autoSaveStatus keys to i18n
 const autoSaveStatusText = computed(() => {
@@ -297,7 +284,7 @@ const insertQuestionToEditor = (question: string) => {
   }
 };
 
-const handleGoDeeper = async (direction: string) => {
+const handleGoDeeper = async (direction?: string) => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
   
@@ -381,3 +368,10 @@ onUnmounted(() => {
   if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
 });
 </script>
+
+<style scoped>
+.journal-content :deep(.tiptap) {
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+</style>

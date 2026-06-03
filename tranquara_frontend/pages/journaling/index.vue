@@ -16,63 +16,47 @@
     </header>
 
     <!-- Title Input -->
-    <div class="px-4 pt-4 max-w-2xl mx-auto w-full">
+    <div class="px-6 pt-4 max-w-prose mx-auto w-full">
       <input
         v-model="title"
         type="text"
         :placeholder="$t('journal.titlePlaceholder')"
-         class="w-full text-xl font-semibold bg-transparent border-none outline-none placeholder-muted" />
+        class="w-full text-2xl font-semibold bg-transparent border-none outline-none placeholder-muted" />
     </div>
 
-    <!-- Date Display -->
-    <div class="px-4 py-2 max-w-2xl mx-auto w-full">
+    <!-- Date + Auto-save Status -->
+    <div class="px-6 py-2 max-w-prose mx-auto w-full flex items-center justify-between">
       <span class="text-sm text-muted">{{ formattedDate }}</span>
+      <span class="text-xs text-muted">{{ autoSaveStatusText }}</span>
     </div>
 
     <!-- TipTap Editor -->
-    <div class="flex-1 px-4 pb-24 max-w-2xl mx-auto w-full">
+    <div class="flex-1 px-6 pb-28 max-w-prose mx-auto w-full journal-content">
       <CommonMarkdownEditor
         ref="editorRef"
         v-model="content"
         @on-update="onContentUpdate" />
     </div>
 
-    <!-- Bottom Toolbar -->
-    <div
-      class="fixed bottom-0 left-0 right-0 lg:left-64 bg-background border-t border-default p-4 flex flex-wrap items-center justify-between gap-y-2">
-      <div class="flex items-center gap-2 flex-wrap">
-        <!-- Mood Selector -->
-        <UButton variant="ghost" size="sm" @click="showMoodPicker = true" class="shrink-0">
-          <UIcon :name="selectedMoodIcon" class="text-lg" />
-          <span class="ml-1 text-sm text-muted truncate max-w-[120px] sm:max-w-[180px]">{{ moodLabel }}</span>
-        </UButton>
+    <!-- Floating Toolbar FABs -->
+    <JournalFloatingToolbar
+      :mood-score="moodScore"
+      :loading="isGeneratingQuestion"
+      :disabled="!hasContent || isGeneratingQuestion"
+      @ai-click="handleGoDeeper()"
+      @direction-click="showDirectionPicker = true"
+      @format-click="isFormatDrawerOpen = true"
+      @mood-click="showMoodPicker = true"
+    />
 
-        <!-- Format Button -->
-        <UButton
-          variant="ghost"
-          size="sm"
-          @click="isFormatDrawerOpen = true"
-          class="shrink-0 font-semibold tracking-tight">
-          Aa
-        </UButton>
-
-        <!-- Go Deeper Button -->
-        <UButton
-          variant="ghost"
-          size="sm"
-          :loading="isGeneratingQuestion"
-          :disabled="!hasContent || isGeneratingQuestion"
-          @click="handleGoDeeper"
-          icon="i-lucide-sparkles"
-          class="shrink-0">
-          <span class="text-sm">{{ $t("journal.goDeeper") }}</span>
-        </UButton>
-      </div>
-
-      <div class="flex items-center gap-2 shrink-0">
-        <span class="text-xs text-muted whitespace-nowrap">{{ autoSaveStatusText }}</span>
-      </div>
-    </div>
+    <!-- Direction Picker -->
+    <JournalGoDeepDirections
+      v-model="showDirectionPicker"
+      headless
+      :loading="isGeneratingQuestion"
+      :disabled="!hasContent || isGeneratingQuestion"
+      @select="handleGoDeeperWithDirection"
+    />
 
     <!-- Format Drawer -->
     <JournalFormatDrawer v-model="isFormatDrawerOpen" :editor="editorRef?.editor" />
@@ -96,6 +80,13 @@
     <CrisisModal v-model="isCrisisModalOpen" />
   </div>
 </template>
+
+<style scoped>
+.journal-content :deep(.tiptap) {
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+</style>
 
 <script setup lang="ts">
 import { userJournalStore } from "~/stores/stores/user_journal";
@@ -128,6 +119,7 @@ const autoSaveStatus = ref("ready");
 const lastSavedAt = ref<Date | null>(null);
 const isGeneratingQuestion = ref(false);
 const isFormatDrawerOpen = ref(false);
+const showDirectionPicker = ref(false);
 
 // Map autoSaveStatus keys to i18n
 const autoSaveStatusText = computed(() => {
@@ -187,7 +179,11 @@ const confirmMood = () => {
   showMoodPicker.value = false;
 };
 
-const handleGoDeeper = async () => {
+const handleGoDeeperWithDirection = (direction: string) => {
+  handleGoDeeper(direction);
+};
+
+const handleGoDeeper = async (direction?: string) => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
 
@@ -210,6 +206,7 @@ const handleGoDeeper = async () => {
       content: plainText,
       mood_score: moodScore.value,
       slide_prompt: undefined,
+      direction: direction as any,
       your_story: yourStory.value || undefined,
       app_language: locale.value,
     });
