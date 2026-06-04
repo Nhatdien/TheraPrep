@@ -26,49 +26,33 @@
         <UButton variant="ghost" icon="i-lucide-check" @click="saveAndClose" :disabled="!hasContent" />
       </header>
 
-      <div class="flex-1 xl:grid xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-8 xl:px-8 xl:pt-6">
-        <div>
-          <!-- Title Input -->
-          <div class="px-6 pt-4 max-w-prose mx-auto w-full md:pt-6 xl:px-0 xl:pt-0 xl:max-w-none">
-            <input
-              v-model="title"
-              type="text"
-              :placeholder="$t('journal.titlePlaceholder')"
-              class="w-full text-2xl font-semibold bg-transparent border-none outline-none placeholder-muted"
-            />
-          </div>
-
-          <!-- Date + Auto-save Status -->
-          <div class="px-6 py-2 max-w-prose mx-auto w-full xl:px-0 xl:max-w-none flex items-center justify-between">
-            <span class="text-sm text-muted">{{ formattedDate }}</span>
-            <span class="text-xs text-muted xl:hidden">{{ autoSaveStatusText }}</span>
-          </div>
-
-          <!-- TipTap Editor -->
-          <div class="flex-1 px-6 pb-28 max-w-prose mx-auto w-full xl:px-0 xl:max-w-none journal-content">
-            <CommonMarkdownEditor
-              ref="editorRef"
-              v-model="content"
-              @on-update="onContentUpdate"
-            />
-          </div>
-        </div>
-
-        <aside class="hidden xl:flex xl:flex-col xl:gap-4 xl:sticky xl:top-24 xl:self-start xl:rounded-2xl xl:border xl:border-default xl:bg-elevated xl:p-5">
-          <h3 class="text-sm font-semibold text-highlighted">{{ $t('journal.howFeeling') }}</h3>
-          <EmotionSliderV2 v-model="moodScore" />
-          <JournalGoDeepDirections
-            :loading="isGeneratingQuestion"
-            :disabled="!hasContent || isGeneratingQuestion"
-            @select="handleGoDeeper"
-          />
-          <p class="text-xs text-muted text-center">{{ autoSaveStatusText }}</p>
-        </aside>
+      <!-- Title Input -->
+      <div class="px-6 pt-4 max-w-prose mx-auto w-full md:pt-6">
+        <input
+          v-model="title"
+          type="text"
+          :placeholder="$t('journal.titlePlaceholder')"
+          class="w-full text-2xl font-semibold bg-transparent border-none outline-none placeholder-muted"
+        />
       </div>
 
-      <!-- Floating Toolbar FABs (mobile/tablet) -->
+      <!-- Date + Auto-save Status -->
+      <div class="px-6 py-2 max-w-prose mx-auto w-full flex items-center justify-between">
+        <span class="text-sm text-muted">{{ formattedDate }}</span>
+        <span class="text-xs text-muted">{{ autoSaveStatusText }}</span>
+      </div>
+
+      <!-- TipTap Editor -->
+      <div class="flex-1 px-6 pb-28 max-w-prose mx-auto w-full journal-content">
+        <CommonMarkdownEditor
+          ref="editorRef"
+          v-model="content"
+          @on-update="onContentUpdate"
+        />
+      </div>
+
+      <!-- Floating Toolbar -->
       <JournalFloatingToolbar
-        class="xl:hidden"
         :mood-score="moodScore"
         :loading="isGeneratingQuestion"
         :disabled="!hasContent || isGeneratingQuestion"

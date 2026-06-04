@@ -1,16 +1,13 @@
 <template>
   <div class="floating-toolbar">
-    <!-- Left group: AI + Format -->
+    <!-- Left group: Mood + Format -->
     <div class="fab-group">
       <button
-        class="fab fab-primary"
-        :disabled="disabled"
-        :class="{ 'fab-loading': loading }"
-        @click="$emit('ai-click')"
-        :aria-label="$t('goDeeper.button')"
+        class="fab fab-ghost"
+        @click="$emit('mood-click')"
+        :aria-label="$t('journal.howFeeling')"
       >
-        <span v-if="loading" class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-        <UIcon v-else name="i-lucide-sparkles" class="text-lg" />
+        <UIcon :name="moodIcon" class="text-lg" />
       </button>
 
       <button
@@ -22,7 +19,7 @@
       </button>
     </div>
 
-    <!-- Right group: Direction + Mood + Next -->
+    <!-- Right group: Direction + Go Deeper + Next -->
     <div class="fab-group-right">
       <button
         class="fab fab-dark"
@@ -34,11 +31,17 @@
       </button>
 
       <button
-        class="fab fab-dark"
-        @click="$emit('mood-click')"
-        :aria-label="$t('journal.howFeeling')"
+        class="fab-pill fab-primary"
+        :disabled="disabled"
+        :class="{ 'fab-loading': loading }"
+        @click="$emit('ai-click')"
+        :aria-label="$t('goDeeper.button')"
       >
-        <UIcon :name="moodIcon" class="text-lg" />
+        <span v-if="loading" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        <template v-else>
+          <UIcon name="i-lucide-sparkles" class="text-base" />
+          <span class="text-sm font-semibold whitespace-nowrap">{{ $t('goDeeper.button') }}</span>
+        </template>
       </button>
 
       <button
@@ -108,8 +111,8 @@ const moodIcon = computed(() => {
   padding: 0.25rem;
 }
 
-.fab {
-  width: 2.75rem;
+.fab,
+.fab-pill {
   height: 2.75rem;
   border-radius: 9999px;
   display: flex;
@@ -121,11 +124,23 @@ const moodIcon = computed(() => {
   outline: none;
 }
 
-.fab:active {
+.fab {
+  width: 2.75rem;
+}
+
+.fab-pill {
+  width: auto;
+  padding: 0 1rem;
+  gap: 0.375rem;
+}
+
+.fab:active,
+.fab-pill:active {
   transform: scale(0.92);
 }
 
-.fab:disabled {
+.fab:disabled,
+.fab-pill:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -137,6 +152,10 @@ const moodIcon = computed(() => {
 
 .fab-primary:hover:not(:disabled) {
   filter: brightness(1.1);
+}
+
+.fab-pill.fab-primary {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .fab-ghost {
@@ -162,5 +181,50 @@ const moodIcon = computed(() => {
 
 .fab-loading {
   pointer-events: none;
+}
+
+/* ── Desktop: centered unified bar ── */
+@media (min-width: 768px) {
+  .floating-toolbar {
+    max-width: 640px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    justify-content: center;
+    gap: 0;
+    background: color-mix(in srgb, rgb(var(--ui-bg)) 85%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgb(var(--ui-border));
+    border-radius: 9999px;
+    padding: 0.25rem;
+    pointer-events: auto;
+  }
+
+  .fab-group {
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  .fab-group-right {
+    border-left: 1px solid rgb(var(--ui-border));
+    padding-left: 0.375rem;
+    gap: 0.375rem;
+  }
+
+  .fab-dark {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+  }
+
+  .fab-dark:hover:not(:disabled) {
+    background: rgb(var(--ui-border));
+  }
 }
 </style>

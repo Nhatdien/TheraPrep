@@ -59,19 +59,6 @@
         </div>
     </UCarousel>
 
-    <!-- Desktop button group -->
-    <div class="w-full px-4 mt-2 hidden md:block">
-      <div
-        class="flex justify-between items-center rounded-2xl py-3 max-w-2xl mx-auto">
-        <UButton variant="ghost" :disabled="!canGoPrev" @click="prevNode"
-          >{{ $t('common.back') }}</UButton
-        >
-        <UButton :variant="isLastSlide ? 'solid' : 'soft'" @click="nextNode">
-          <span>{{ isLastSlide ? $t('slide.finish') : $t('slide.continue') }}</span>
-          <ChevronRight class="ml-1 w-4 h-4" />
-        </UButton>
-      </div>
-    </div>
 
     <!-- Floating next button (only for non-journal slides on mobile) -->
     <button
