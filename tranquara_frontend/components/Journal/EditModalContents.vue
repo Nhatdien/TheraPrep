@@ -30,18 +30,6 @@
           :collectionTitle="currentCollecton?.title"></component>
       </div>
     </UCarousel>
-
-    <!-- Button group -->
-    <div class="flex fixed justify-between bottom-8 left-1/2 -translate-x-1/2 w-full max-w-lg px-4">
-      <div></div>
-      <div class="flex items-center gap-2">
-        <UButton :variant="'outline'" @click="saveJournalChanges" :loading="isSaving">
-          <Check class="w-4 h-4 mr-1" />
-          {{ $t('common.save') }}
-        </UButton>
-        <UButton :variant="'soft'" @click="nextNode"><ChevronRight /></UButton>
-      </div>
-    </div>
   </section>
 </template>
 
@@ -81,8 +69,10 @@ const isSaving = ref(false);
 const store = userJournalStore();
 
 // Get the slide group for this journal's collection
+// Pass journalTitle to auto-detect slide group (morning vs evening) when not explicitly provided
 const { activeSlideGroup, currentCollecton } = useSlideGroup({ 
-  collectionId: props.templateId 
+  collectionId: props.templateId,
+  journalTitle: props.journal.title
 });
 
 // Parse existing journal content to extract answers for each slide
@@ -92,7 +82,11 @@ const parseJournalContent = (contentHtml: string): Record<string, string> => {
   if (!contentHtml) return parsed;
   
   // Use the parseJournalHtml utility to properly parse the HTML structure
+  console.log(contentHtml);
+  
   const parsed_from_util = parseJournalHtml(contentHtml);
+  
+  console.log('parsed', parsed_from_util);
   
   // Filter out metadata entries (those with keys that don't match any slide questions)
   const slides = activeSlideGroup.value?.slides || [];
@@ -124,9 +118,9 @@ store.currentMoodLabel = props.journal.mood_label || "Okay";
 store.currentSleepScore = props.journal.sleep_score ?? null;
 store.currentJournal = props.journal;
 
-// Pre-populate the writing content
-const prefillData = parseJournalContent(props.journal.content_html || props.journal.content);
-store.currentWritingContent = prefillData;
+// Don't call parseJournalContent here - it depends on activeSlideGroup which may not be loaded yet
+// Instead, we'll update store.currentWritingContent after templates are loaded in onMounted
+const journalContent = ref(props.journal.content_html || props.journal.content);
 
 const componentMapping: Record<string, any> = {
   doc: Document,
@@ -148,7 +142,11 @@ const renderSlide = (type: string) => {
 }
 
 // Build carousel items with prefilled content
+// Include templatesLoaded to ensure reactivity updates when templates are loaded
 const carouselItems = computed((): CarouselSlideItem[] => {
+  // Access templatesLoaded to create dependency
+  void templatesLoaded.value;
+  
   const slides = activeSlideGroup.value?.slides || (activeSlideGroup.value as any)?.content || [];
   const prefillData = parseJournalContent(props.journal.content_html || props.journal.content);
   
@@ -162,8 +160,26 @@ const carouselItems = computed((): CarouselSlideItem[] => {
   });
 });
 
+// Reactive trigger to force carousel items to update when templates load
+const templatesLoaded = ref(false);
+
+const initTemplates = async () => {
+  // Ensure database and templates are initialized before rendering slides
+  // This is needed because EditModalContents can be opened directly from journal list
+  // without going through the template selection flow
+  if (!store.isInitialized) {
+    console.log("[EditModalContents] Initializing database and loading templates...");
+    await store.initializeDatabase();
+  }
+  // Force reactivity update after templates are loaded
+  templatesLoaded.value = true;
+};
+
 // Initialize editor store slots
-onMounted(() => {
+onMounted(async () => {
+  // Wait for templates to be loaded before rendering carousel items
+  await initTemplates();
+  
   // Init editor store
   carouselItems.value.forEach(() => {
     // @ts-ignore

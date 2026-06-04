@@ -43,18 +43,51 @@ function localizeSlideGroup(group: SlideGroup, locale: string): SlideGroup {
   };
 }
 
+/**
+ * Detect slide group ID from journal title by exact title matching.
+ * Returns the appropriate slide_group_id based on matching slide group title.
+ */
+function detectSlideGroupFromTitle(title: string, groups: SlideGroup[]): string | undefined {
+  if (!title || !groups.length) return undefined;
+  
+  const normalizedTitle = title.toLowerCase().trim();
+  
+  // Find group with matching title (supports both Vietnamese and English)
+  const matchedGroup = groups.find(g => {
+    const groupTitle = (g.title || '').toLowerCase().trim();
+    return groupTitle === normalizedTitle;
+  });
+  
+  return matchedGroup?.id;
+}
+
 export const useSlideGroup = (props?: { 
   collectionId?: string, 
   slideGroupId?: string,
   staticSlideGroup?: SlideGroup,
   staticCollectionTitle?: string,
+  journalTitle?: string, // Optional: journal title to auto-detect slide group
 }) => {
   const route = useRoute()
   const store = userJournalStore();
   const { locale } = useI18n();
 
-  const collectionId = computed(() => props?.collectionId || route.params.id as string);
-  const slideGroupId = computed(() => props?.slideGroupId || route.params.slideGroupId as string);
+  const collectionId = computed(() => {
+    // When props.collectionId is explicitly provided (e.g., from EditModalContents),
+    // always use it. Only fall back to route params when no collectionId prop is passed.
+    if (props?.collectionId) {
+      return props.collectionId;
+    }
+    return route.params.id as string;
+  });
+  
+  const slideGroupId = computed(() => {
+    // When props.slideGroupId is explicitly provided, use it
+    if (props?.slideGroupId) {
+      return props.slideGroupId;
+    }
+    return route.params.slideGroupId as string;
+  });
 
   const currentCollecton = computed(() => {
     // Static mode: return a synthetic collection
@@ -114,10 +147,21 @@ export const useSlideGroup = (props?: {
 
     // If specific slide group ID is provided, find it
     let group: SlideGroup | undefined;
-    if (slideGroupId.value) {
-      group = groups.find((group) => group.id === slideGroupId.value);
-    } else {
-      // Default to first group if no ID (common for modals)
+    const targetSlideGroupId = slideGroupId.value;
+    
+    if (targetSlideGroupId) {
+      group = groups.find((group) => group.id === targetSlideGroupId);
+    } else if (props?.journalTitle) {
+      // Auto-detect slide group from journal title
+      const detectedId = detectSlideGroupFromTitle(props.journalTitle, groups);
+      if (detectedId) {
+        group = groups.find((group) => group.id === detectedId);
+        console.log(`[useSlideGroup] Auto-detected slide group "${detectedId}" from journal title: "${props.journalTitle}"`);
+      }
+    }
+    
+    // Fallback to first group if still not found
+    if (!group) {
       group = groups[0];
     }
     
