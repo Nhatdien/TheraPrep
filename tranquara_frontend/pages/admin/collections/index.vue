@@ -32,31 +32,31 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-          <tr v-for="t in adminStore.filteredTemplates" :key="t.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/30">
+          <tr v-for="template in adminStore.filteredTemplates" :key="template.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/30">
             <td class="px-4 py-3">
-              <p class="font-medium">{{ t.title }}</p>
-              <p v-if="t.description" class="text-xs text-gray-500 truncate max-w-xs">{{ t.description }}</p>
+              <p class="font-medium">{{ template.title }}</p>
+              <p v-if="template.description" class="text-xs text-gray-500 truncate max-w-xs">{{ template.description }}</p>
             </td>
             <td class="px-4 py-3">
-              <UBadge :color="t.type === 'learn' ? 'info' : 'warning'" variant="subtle" size="md" class="min-w-[70px] justify-center">
-                {{ t.type }}
+              <UBadge :color="template.type === 'learn' ? 'info' : 'warning'" variant="subtle" size="md" class="min-w-[70px] justify-center">
+                {{ template.type }}
               </UBadge>
             </td>
             <td class="px-4 py-3">
               <UBadge color="neutral" variant="subtle" size="md">
-                {{ formatCategory(t.category) }}
+                {{ formatCategory(template.category) }}
               </UBadge>
             </td>
             <td class="px-4 py-3 text-center">
-              <UBadge :color="t.is_active ? 'success' : 'neutral'" variant="subtle" size="md">
-                {{ t.is_active ? $t('admin.collections.table.active') : $t('admin.collections.table.inactive') }}
+              <UBadge :color="template.is_active ? 'success' : 'neutral'" variant="subtle" size="md">
+                {{ template.is_active ? $t('admin.collections.table.active') : $t('admin.collections.table.inactive') }}
               </UBadge>
             </td>
             <td class="px-4 py-3 text-center text-gray-500">
-              {{ countSlides(t) }}
+              {{ countSlides(template) }}
             </td>
             <td class="px-4 py-3 text-right">
-              <UDropdownMenu :items="getRowActions(t)">
+              <UDropdownMenu :items="getRowActions(template)">
                 <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" size="sm" />
               </UDropdownMenu>
             </td>
@@ -126,32 +126,32 @@ const categoryOptions = computed(() => [
   ...adminStore.categories.map(c => ({ label: formatCategory(c), value: c })),
 ]);
 
-function countSlides(t: AdminJournalTemplate): number {
-  return t.slide_groups?.reduce((acc, g) => acc + (g.slides?.length || 0), 0) || 0;
+function countSlides(template: AdminJournalTemplate): number {
+  return template.slide_groups?.reduce((acc, g) => acc + (g.slides?.length || 0), 0) || 0;
 }
 
 function formatCategory(cat: string): string {
   return cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
-function getRowActions(t: AdminJournalTemplate) {
+function getRowActions(template: AdminJournalTemplate) {
   return [
     [
-      { label: t('admin.collections.rowActions.edit'), icon: 'i-heroicons-pencil-square', onSelect: () => router.push(`/admin/collections/${t.id}`) },
-      { label: t('admin.collections.rowActions.preview'), icon: 'i-heroicons-eye', onSelect: () => router.push(`/admin/collections/preview/${t.id}`) },
-      { label: t('admin.collections.rowActions.duplicate'), icon: 'i-heroicons-document-duplicate', onSelect: () => handleDuplicate(t.id) },
-      { label: t.is_active ? t('admin.collections.rowActions.deactivate') : t('admin.collections.rowActions.activate'), icon: 'i-heroicons-arrow-path', onSelect: () => handleToggle(t.id) },
+      { label: t('admin.collections.rowActions.edit'), icon: 'i-heroicons-pencil-square', onSelect: () => router.push(`/admin/collections/${template.id}`) },
+      { label: t('admin.collections.rowActions.preview'), icon: 'i-heroicons-eye', onSelect: () => router.push(`/admin/collections/preview/${template.id}`) },
+      { label: t('admin.collections.rowActions.duplicate'), icon: 'i-heroicons-document-duplicate', onSelect: () => handleDuplicate(template.id) },
+      { label: template.is_active ? t('admin.collections.rowActions.deactivate') : t('admin.collections.rowActions.activate'), icon: 'i-heroicons-arrow-path', onSelect: () => handleToggle(template.id) },
     ],
     [
-      { label: t('admin.collections.rowActions.delete'), icon: 'i-heroicons-trash', color: 'error' as const, onSelect: () => { deleteTarget.value = t; deleteModalOpen.value = true; } },
+      { label: t('admin.collections.rowActions.delete'), icon: 'i-heroicons-trash', color: 'error' as const, onSelect: () => { deleteTarget.value = template; deleteModalOpen.value = true; } },
     ],
   ];
 }
 
 async function handleDuplicate(id: string) {
   try {
-    const template = await adminStore.duplicateTemplate(id);
-    toast.add({ title: t('admin.collections.toast.duplicated', { title: template.title }), color: 'success' });
+    const tmpl = await adminStore.duplicateTemplate(id);
+    toast.add({ title: t('admin.collections.toast.duplicated', { title: tmpl.title }), color: 'success' });
   } catch {
     toast.add({ title: t('admin.collections.toast.duplicateFailed'), color: 'error' });
   }
@@ -159,8 +159,8 @@ async function handleDuplicate(id: string) {
 
 async function handleToggle(id: string) {
   try {
-    const template = await adminStore.toggleActive(id);
-    toast.add({ title: t('admin.collections.toast.toggled', { status: template.is_active ? t('admin.collections.table.active') : t('admin.collections.table.inactive') }), color: 'success' });
+    const tmpl = await adminStore.toggleActive(id);
+    toast.add({ title: t('admin.collections.toast.toggled', { status: tmpl.is_active ? t('admin.collections.table.active') : t('admin.collections.table.inactive') }), color: 'success' });
   } catch {
     toast.add({ title: t('admin.collections.toast.toggleFailed'), color: 'error' });
   }

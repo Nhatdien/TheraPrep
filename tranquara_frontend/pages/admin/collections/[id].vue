@@ -312,6 +312,7 @@ const route = useRoute();
 const router = useRouter();
 const adminStore = useAdminStore();
 const toast = useToast();
+const { t } = useI18n();
 
 const id = computed(() => route.params.id as string);
 const isNew = computed(() => id.value === 'new');
