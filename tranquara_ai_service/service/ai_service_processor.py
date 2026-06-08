@@ -1,22 +1,22 @@
 import os
 import re
-import json
+import asyncio
 import hashlib
 import threading
 import traceback
-import concurrent.futures
 from dotenv import load_dotenv
 from cachetools import TTLCache
 from service.prompts import (
-    get_system_prompt, build_user_prompt,
-    PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT,
-    CRISIS_CHECK_SYSTEM_PROMPT, CRISIS_CHECK_USER_PROMPT
+    get_system_prompt, build_user_prompt_content,
+    CRISIS_CHECK_TEMPLATE, MEMORY_EXTRACTION_TEMPLATE, PREP_PACK_TEMPLATE,
 )
+from models.llm_output import CrisisCheckResult, MemoryExtractionResult, PrepPackResult
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.globals import set_llm_cache
+from langchain_core.caches import InMemoryCache
 from database.vector_database import (
     search_user_journals, search_user_memories,
-    check_memory_duplicate, index_memory, get_top_k_for_direction
+    check_memory_duplicate, get_top_k_for_direction
 )
 
 load_dotenv()
@@ -24,111 +24,6 @@ load_dotenv()
 # ─── Config ──────────────────────────────────────────────────────────────────
 
 DEFAULT_LLM_MODEL = "gemini-2.5-flash"
-
-
-def _extract_json_from_response(raw: str) -> str:
-    """
-    Robustly extract JSON from LLM response text.
-    Handles markdown code blocks (```json...```), leading/trailing text, etc.
-    Works with responses from both OpenAI and Gemini models.
-    """
-    text = raw.strip()
-
-    # 1. Strip markdown code blocks: ```json ... ``` or ``` ... ```
-    text = re.sub(r'^```(?:json|JSON)?\s*\n?', '', text)
-    text = re.sub(r'\n?```\s*$', '', text)
-    text = text.strip()
-
-    # 2. If the text starts with [ or {, try to parse directly
-    if text.startswith('[') or text.startswith('{'):
-        return text
-
-    # 3. Look for JSON array or object embedded in text
-    # Try to find the outermost [ ... ] or { ... }
-    for opener, closer in [('[', ']'), ('{', '}')]:
-        start = text.find(opener)
-        if start != -1:
-            # Find the matching closing bracket
-            depth = 0
-            for i in range(start, len(text)):
-                if text[i] == opener:
-                    depth += 1
-                elif text[i] == closer:
-                    depth -= 1
-                if depth == 0:
-                    return text[start:i + 1]
-
-    # 4. Fallback: return as-is and let json.loads handle the error
-    return text
-
-
-# ─── Memory Extraction Prompt ──────────────────────────────────────────────
-
-MEMORY_EXTRACTION_PROMPT = """You are analyzing journal entries to extract DURABLE PSYCHOLOGICAL INSIGHTS about the user.
-
-Your goal: extract insights that reveal WHO the user is — NOT what happened to them on a particular day.
-
-═══ DURABILITY TEST (apply to EVERY candidate insight) ═══
-Before extracting any insight, ask yourself:
-"Would this still be useful to know 6 months from now?"
-If the answer is NO → do NOT extract it.
-
-═══ WHAT TO EXTRACT (durable insights) ═══
-Each statement should be:
-- Written in first person (e.g., "I value...", "I tend to...", "I struggle with...")
-- One sentence maximum
-- A genuine PSYCHOLOGICAL insight about the user's inner world, NOT a factual summary of events
-- Categorized as one of: values, habits, relationships, goals, struggles, preferences, patterns, growth
-
-✅ GOOD examples (extract these):
-- "I value honesty over comfort in my relationships" (values)
-- "I tend to procrastinate when I feel overwhelmed by expectations" (patterns)
-- "My sleep suffers when I'm anxious about deadlines" (patterns — a DURABLE pattern, not a one-time event)
-- "I cope with stress by isolating myself from friends" (habits)
-- "I find it hard to set boundaries with my family" (relationships)
-- "I prefer having a structured routine over spontaneous plans" (preferences)
-- "I'm learning to accept imperfection in my work" (growth)
-- "I feel anxious when I don't have a clear plan" (struggles)
-
-❌ DO NOT extract these (ephemeral/trivial):
-- "I slept 5 hours last night" → one-time event, NOT an insight
-- "My phone broke today" → random event, says nothing about the user
-- "I had a meeting with my boss" → daily occurrence, no psychological depth
-- "I ate pho for lunch" / "I have a cat named Luna" → trivia
-- "I felt sad yesterday" → temporary state, NOT a pattern (unless it clearly reveals one)
-- "I'm tired today" / "I have a headache" → ephemeral state
-
-═══ THE KEY DISTINCTION ═══
-A fact becomes an insight ONLY when it reveals a repeating pattern, a core value, or a psychological tendency:
-- FACT (skip): "I slept 5 hours last night"
-- INSIGHT (extract): "My sleep suffers when I'm anxious about deadlines"
-- FACT (skip): "I argued with my friend today"
-- INSIGHT (extract): "I avoid confrontation even when I know I'm right"
-
-LANGUAGE REQUIREMENT (CRITICAL):
-{language_instruction}
-
-EXISTING MEMORIES (do NOT duplicate these):
-{existing_memories}
-
-JOURNAL ENTRIES TO ANALYZE:
-{journal_entries}
-
-Return a JSON array of new insights only:
-[
-  {{"content": "I value my family.", "category": "values", "confidence": 0.9}},
-  {{"content": "My sleep quality drops when I'm stressed about deadlines.", "category": "patterns", "confidence": 0.75}}
-]
-
-Rules:
-- Only extract genuinely new insights not already covered by existing memories
-- Apply the DURABILITY TEST to every candidate — if it won't matter in 6 months, skip it
-- Confidence should reflect how clearly the journal supports this insight (0.5-1.0)
-- Prefer fewer high-quality insights over many shallow ones — 1-2 excellent insights beats 5 mediocre ones
-- Maximum 5 new insights per batch
-- If no new durable insights can be extracted, return an empty array []
-- Return ONLY valid JSON, no markdown formatting or code blocks"""
-
 
 # ─── Safe content indicators — skip crisis check for obviously safe content ──
 SAFE_CONTENT_PATTERNS = [
@@ -138,27 +33,27 @@ SAFE_CONTENT_PATTERNS = [
     "cảm ơn", "biết ơn", "thành công", "đạt được", "tốt lắm",
 ]
 
-# ─── Retry settings for Gemini API calls ──────────────────────────────────
-LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "3"))
-LLM_RETRY_BASE_DELAY = float(os.getenv("LLM_RETRY_BASE_DELAY", "2.0"))
-
 
 class AIProcessor():
     """
-    AI processor focused on generating RAG-enhanced journal follow-up questions.
-    Uses Qdrant to retrieve user's past journals for richer, personalized guidance.
-    
+    AI processor for RAG-enhanced journal follow-up questions and therapy prep packs.
+    Uses Qdrant to retrieve user's past journals and memories for richer, personalized guidance.
+
     All prompt text lives in prompts.py — this class only handles:
     - RAG retrieval (past journals + memories)
     - Building prompts via prompts.py functions
-    - Calling the LLM (with rate limiting + retry)
+    - Invoking LCEL chains (prompt | llm with structured output + retry)
     - Post-processing responses
-    
+
     Performance features:
-    - Crisis check caching (TTL 5 min) to skip redundant LLM calls
+    - LangChain InMemoryCache: identical LLM prompts return cached responses (~0ms on 2nd+ hit)
+    - asyncio.gather() for concurrent crisis check + RAG retrieval (zero thread overhead)
+    - Separate semaphores: crisis (fast, lighter model) vs journal (heavier generation)
+    - Lighter CRISIS_LLM_MODEL (default: gemini-2.0-flash) for fast deterministic classification
+    - TTL cache on crisis check to skip redundant LLM calls
     - Safe content shortcut to bypass crisis check for positive content
-    - Automatic retry with exponential backoff on transient API failures
-    
+    - with_retry() for automatic exponential backoff on transient API failures
+
     Uses singleton pattern — call AIProcessor.get_instance() instead of AIProcessor().
     """
 
@@ -166,14 +61,61 @@ class AIProcessor():
     _instance_lock = threading.Lock()
 
     def __init__(self):
+        _model_name = os.environ.get('LLM_MODEL', DEFAULT_LLM_MODEL)
+        # Crisis uses a lighter, faster model — simple binary classification doesn't need
+        # the full reasoning power of gemini-2.5-flash (~5-8s). gemini-2.0-flash takes ~1-2s.
+        _crisis_model_name = os.environ.get('CRISIS_LLM_MODEL', 'gemini-2.0-flash')
+        _api_key = os.environ['GOOGLE_API_KEY']
+
+        # Enable LangChain global LLM cache. Identical prompts (same content + same model params)
+        # return cached responses in ~0ms instead of a full API round-trip. This is especially
+        # effective for crisis checks (temperature=0 → fully deterministic → perfect cache key)
+        # and for k6 / load tests where the same TEST_USER content repeats across iterations.
+        set_llm_cache(InMemoryCache())
+
+        # Creative model for journal questions (temperature=0.7 — varied, empathetic output)
         self.model = ChatGoogleGenerativeAI(
-            google_api_key=os.environ['GOOGLE_API_KEY'],
-            model=os.environ.get('LLM_MODEL', DEFAULT_LLM_MODEL),
+            google_api_key=_api_key,
+            model=_model_name,
             temperature=0.7,
             streaming=False
         )
 
-        # Crisis check cache: 5 min TTL, up to 1000 entries
+        # Deterministic model for crisis detection:
+        # - temperature=0: same content always produces same is_crisis result (no inconsistency)
+        # - lighter model: crisis is classification, not generation — faster + cheaper
+        self._model_crisis = ChatGoogleGenerativeAI(
+            google_api_key=_api_key,
+            model=_crisis_model_name,
+            temperature=0,
+            streaming=False
+        )
+
+        _retry_kwargs = dict(stop_after_attempt=3, wait_exponential_jitter=True)
+
+        self._llm_with_retry = self.model.with_retry(**_retry_kwargs)
+
+        self.crisis_chain = (
+            CRISIS_CHECK_TEMPLATE
+            | self._model_crisis.with_structured_output(CrisisCheckResult).with_retry(**_retry_kwargs)
+        )
+        self.memory_chain = (
+            MEMORY_EXTRACTION_TEMPLATE
+            | self.model.with_structured_output(MemoryExtractionResult).with_retry(**_retry_kwargs)
+        )
+        self.prep_pack_chain = (
+            PREP_PACK_TEMPLATE
+            | self.model.with_structured_output(PrepPackResult).with_retry(**_retry_kwargs)
+        )
+
+        # Separate semaphores so fast crisis checks don't compete with slow journal generation.
+        # Crisis: lighter model + short prompt → more concurrent slots safe (default: 8).
+        # Journal: heavier generation → fewer concurrent slots to stay under rate limits (default: 5).
+        # Both are tunable via env vars.
+        self._crisis_semaphore = asyncio.Semaphore(int(os.getenv("LLM_CRISIS_MAX_CONCURRENT", "8")))
+        self._journal_semaphore = asyncio.Semaphore(int(os.getenv("LLM_JOURNAL_MAX_CONCURRENT", "5")))
+
+        # Crisis result cache: 5 min TTL, up to 1000 entries
         self._crisis_cache = TTLCache(maxsize=1000, ttl=300)
         self._crisis_cache_lock = threading.Lock()
 
@@ -185,39 +127,6 @@ class AIProcessor():
                 if cls._instance is None:
                     cls._instance = cls()
         return cls._instance
-
-    # ─── Rate-limited LLM invocation with retry ───────────────────────────
-
-    def _invoke_with_retry(self, messages: list, max_retries: int = None) -> object:
-        """
-        Call self.model.invoke() with exponential backoff retry on transient failures.
-        
-        Retries on rate limit (429), timeout, quota, and server errors (5xx).
-        Uses backoff (2s → 4s → 8s) to give Gemini API breathing room on overload.
-        """
-        import time
-        if max_retries is None:
-            max_retries = LLM_MAX_RETRIES
-
-        last_error = None
-        for attempt in range(max_retries):
-            try:
-                return self.model.invoke(messages)
-            except Exception as e:
-                last_error = e
-                error_str = str(e).lower()
-                # Retry on rate limit (429), timeout, or server errors (5xx)
-                is_retryable = any(code in error_str for code in
-                                   ["429", "rate", "quota", "timeout", "503", "500"])
-                if not is_retryable or attempt == max_retries - 1:
-                    raise
-                
-                delay = LLM_RETRY_BASE_DELAY * (2 ** attempt)
-                print(f"[llm-retry] Attempt {attempt + 1}/{max_retries} failed: {e}. "
-                      f"Retrying in {delay:.1f}s...")
-                time.sleep(delay)
-        
-        raise last_error
 
     def _retrieve_past_journals(self, user_id: str, current_content: str, top_k: int = 5) -> str:
         """
@@ -284,6 +193,14 @@ class AIProcessor():
         except Exception as e:
             print(f"[RAG] Error retrieving user memories: {e}")
             return ""
+
+    async def _aretrieve_past_journals(self, user_id: str, current_content: str, top_k: int = 5) -> str:
+        """Async wrapper: runs sync Qdrant journal search in a thread (langchain-qdrant has no async client)."""
+        return await asyncio.to_thread(self._retrieve_past_journals, user_id, current_content, top_k)
+
+    async def _aretrieve_user_memories(self, user_id: str, current_content: str, top_k: int = 10) -> str:
+        """Async wrapper: runs sync Qdrant memory search in a thread (langchain-qdrant has no async client)."""
+        return await asyncio.to_thread(self._retrieve_user_memories, user_id, current_content, top_k)
 
     @staticmethod
     def _sanitize_journal_content(text: str) -> str:
@@ -362,26 +279,16 @@ class AIProcessor():
         else:
             lang_instruction = "Extract ALL memories in English."
 
-        # Build prompt
-        prompt = MEMORY_EXTRACTION_PROMPT.format(
-            existing_memories=existing_text,
-            journal_entries=journals_text,
-            language_instruction=lang_instruction,
-        )
-
         try:
-            response = self._invoke_with_retry([
-                SystemMessage(
-                    content="You are an insightful psychological analyst. Extract only DURABLE insights about the user's inner world — skip trivial facts and ephemeral events. Return only valid JSON."),
-                HumanMessage(content=prompt)
-            ])
+            result: MemoryExtractionResult = self.memory_chain.invoke({
+                "existing_memories": existing_text,
+                "journal_entries": journals_text,
+                "language_instruction": lang_instruction,
+            })
+            candidates = result.memories  # list[MemoryCandidate]
 
-            raw = _extract_json_from_response(response.content)
-
-            candidates = json.loads(raw)
-
-            if not isinstance(candidates, list):
-                print(f"[memories] LLM returned non-list: {type(candidates)}")
+            if not candidates:
+                print(f"[memories] User {user_id}: no new insights extracted")
                 return []
 
             # Validate and deduplicate
@@ -390,24 +297,22 @@ class AIProcessor():
             new_memories = []
 
             for candidate in candidates[:5]:  # Max 5 per batch
-                content = candidate.get("content", "").strip()
-                category = candidate.get("category", "preferences")
-                confidence = candidate.get("confidence", 0.5)
+                mem_content = candidate.content.strip()
+                category = candidate.category
+                confidence = candidate.confidence
 
-                if not content or len(content) < 5:
+                if not mem_content or len(mem_content) < 5:
                     continue
                 if category not in valid_categories:
                     category = "preferences"
-                if not isinstance(confidence, (int, float)):
-                    confidence = 0.5
                 confidence = max(0.0, min(1.0, float(confidence)))
 
                 # Semantic dedup against Qdrant vectors
-                if check_memory_duplicate(user_id, content):
+                if check_memory_duplicate(user_id, mem_content):
                     continue
 
                 new_memories.append({
-                    "content": content,
+                    "content": mem_content,
                     "category": category,
                     "confidence": confidence,
                 })
@@ -416,10 +321,6 @@ class AIProcessor():
                   f"from {len(journal_entries)} journals ({len(candidates) - len(new_memories)} duplicates skipped)")
             return new_memories
 
-        except json.JSONDecodeError as e:
-            print(f"[memories] JSON parse error for user {user_id}: {e}")
-            print(f"[memories] Raw LLM response (first 500 chars): {raw[:500]}")
-            return []
         except Exception as e:
             print(f"[memories] Error extracting memories for user {user_id}: {e}")
             traceback.print_exc()
@@ -488,14 +389,10 @@ class AIProcessor():
             return True
         return False
 
-    def check_crisis(self, content: str) -> dict:
+    async def acheck_crisis(self, content: str) -> dict:
         """
-        Dedicated lightweight LLM call to check if content is crisis-related.
-        Runs in parallel with RAG retrieval to minimize added latency.
-        
-        Performance optimizations:
-        1. Safe content shortcut — skip LLM for obviously positive content
-        2. TTL cache — avoid re-checking identical content within 5 minutes
+        Async crisis detection. Runs concurrently with RAG retrieval inside
+        agenerate_journal_question() via asyncio.gather().
 
         Returns:
             {"is_crisis": bool, "confidence": float, "message": str|None}
@@ -505,7 +402,7 @@ class AIProcessor():
             print(f"[crisis-check] Skipped LLM call (safe content detected)")
             return {"is_crisis": False, "confidence": 0.0, "message": None}
 
-        # --- Shortcut 2: Check cache for identical/similar content ---
+        # --- Shortcut 2: Check cache ---
         cache_key = hashlib.md5(content[:500].encode()).hexdigest()
         with self._crisis_cache_lock:
             cached = self._crisis_cache.get(cache_key)
@@ -513,23 +410,15 @@ class AIProcessor():
                 print(f"[crisis-check] Cache hit (result={cached['is_crisis']})")
                 return cached
 
-        # --- Full LLM-based crisis check ---
+        # --- Full LLM-based crisis check via crisis_chain (async) ---
         try:
-            user_prompt = CRISIS_CHECK_USER_PROMPT.format(content=content[:1500])
+            async with self._crisis_semaphore:
+                llm_result: CrisisCheckResult = await self.crisis_chain.ainvoke({"content": content[:1500]})
 
-            response = self._invoke_with_retry([
-                SystemMessage(content=CRISIS_CHECK_SYSTEM_PROMPT),
-                HumanMessage(content=user_prompt),
-            ])
+            is_crisis = llm_result.is_crisis
+            confidence = llm_result.confidence
+            message = llm_result.message
 
-            raw = _extract_json_from_response(response.content)
-            result = json.loads(raw)
-
-            is_crisis = result.get("is_crisis", False)
-            confidence = float(result.get("confidence", 0.0))
-            message = result.get("message")
-
-            # Apply confidence threshold
             if is_crisis and confidence < self.CRISIS_CONFIDENCE_THRESHOLD:
                 print(f"[crisis-check] Below threshold ({confidence:.2f} < {self.CRISIS_CONFIDENCE_THRESHOLD}), treating as safe")
                 is_crisis = False
@@ -542,80 +431,62 @@ class AIProcessor():
                 "message": message if is_crisis else None,
             }
 
-            # Cache the result
             with self._crisis_cache_lock:
                 self._crisis_cache[cache_key] = crisis_result
 
             return crisis_result
 
-        except (json.JSONDecodeError, Exception) as e:
-            # On error, be conservative — don't block the user
+        except Exception as e:
             print(f"[crisis-check] Error (defaulting to safe): {e}")
             return {"is_crisis": False, "confidence": 0.0, "message": None}
 
-    def generate_journal_question(self, user_id: str, content: str, mood_score: int,
-                                  slide_prompt: str = None, slide_group_context: dict = None,
-                                  current_slide_id: str = None, collection_title: str = None,
-                                  direction: str = None, your_story: str = None,
-                                  app_language: str = None) -> dict:
+    async def agenerate_journal_question(self, user_id: str, content: str, mood_score: int,
+                                         slide_prompt: str = None, slide_group_context: dict = None,
+                                         current_slide_id: str = None, collection_title: str = None,
+                                         direction: str = None, your_story: str = None,
+                                         app_language: str = None) -> dict:
         """
-        Generate a single follow-up question based on journal content.
-        Enhanced with RAG retrieval and parallel AI-based crisis detection.
+        Generate a follow-up journal question with RAG context and crisis detection.
+
+        Execution timeline (optimistic parallel):
+          t=0:    crisis_task starts + RAG retrieval starts (all parallel)
+          t~0.5:  RAG done → build prompt → journal_task starts IMMEDIATELY
+          t~1-2:  crisis_task done (gemini-2.0-flash, overlaps with journal generation)
+          t~5-8:  journal_task done → check crisis result → return
+
+        Crisis check no longer blocks journal generation. For the ~95%+ of non-crisis
+        content, total latency = journal_generation_time only (~5-8s with gemini-2.5-flash,
+        ~2-4s with gemini-2.0-flash). Use LLM_MODEL=gemini-2.0-flash for <5s responses.
 
         Returns:
-            {
-                "question": str | None,          # The follow-up question (null if crisis)
-                "crisis_detected": bool,          # Whether crisis was detected
-                "crisis_message": str | None      # Warm message if crisis detected
-            }
+            {"question": str|None, "crisis_detected": bool, "crisis_message": str|None}
         """
         depth = get_top_k_for_direction(direction)
         memory_depth = max(5, depth)
 
-        # --- Run crisis check + RAG retrieval ALL IN PARALLEL ---
-        # Per-request executor: each request gets its own 3 threads, no cross-request queuing
-        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-            crisis_future = executor.submit(self.check_crisis, content)
-            journals_future = executor.submit(
-                self._retrieve_past_journals, user_id, content, depth
-            )
-            memories_future = executor.submit(
-                self._retrieve_user_memories, user_id, content, memory_depth
-            )
+        # Phase 1: Start crisis check as a background task immediately (don't await yet).
+        # It will run concurrently with RAG retrieval AND journal generation.
+        crisis_task = asyncio.create_task(self.acheck_crisis(content))
 
-            # Get crisis result first — if crisis, skip question generation
-            crisis_result = crisis_future.result()
+        # Phase 1: RAG retrieval — runs in parallel with crisis check.
+        past_journals_context, user_memories_context = await asyncio.gather(
+            self._aretrieve_past_journals(user_id, content, depth),
+            self._aretrieve_user_memories(user_id, content, memory_depth),
+        )
 
-            # Retrieve RAG data (they're already running, don't waste them)
-            past_journals_context = journals_future.result()
-            user_memories_context = memories_future.result()
-
-        # --- If crisis detected, return crisis response immediately ---
-        if crisis_result["is_crisis"]:
-            print(f"[crisis] Crisis detected (confidence={crisis_result['confidence']:.2f}), skipping question generation")
-            return {
-                "question": None,
-                "crisis_detected": True,
-                "crisis_message": crisis_result["message"],
-            }
-
-        # --- Safe: proceed with question generation ---
-        system_prompt = get_system_prompt(direction)
-
-        # --- Debug: Log retrieved RAG context ---
         print(f"[RAG-DEBUG] User {user_id} | Direction: {direction} | top_k: {depth}")
         if past_journals_context:
             print(f"[RAG-DEBUG] Past journals retrieved:\n{past_journals_context}")
         else:
-            print(f"[RAG-DEBUG] No past journals retrieved for this query.")
-
+            print("[RAG-DEBUG] No past journals retrieved.")
         if user_memories_context:
-            print(f"[RAG-DEBUG] User memories retrieved:\n{user_memories_context}")
+            print(f"[RAG-DEBUG] Memories retrieved:\n{user_memories_context}")
         else:
-            print(f"[RAG-DEBUG] No user memories retrieved for this query.")
+            print("[RAG-DEBUG] No memories retrieved.")
 
-        # --- Build user prompt (all prompt text lives in prompts.py) ---
-        user_prompt = build_user_prompt(
+        # Phase 2: Build prompt (sync, ~0ms) and fire journal generation IMMEDIATELY.
+        # Crisis check is still running — journal overlaps with it completely.
+        user_prompt_content = build_user_prompt_content(
             content=content,
             mood_score=mood_score,
             slide_prompt=slide_prompt,
@@ -628,21 +499,31 @@ class AIProcessor():
             user_memories_context=user_memories_context,
             app_language=app_language,
         )
+        print(f"[RAG-DEBUG] === USER PROMPT ===\n{user_prompt_content}")
 
-        # --- Debug: Log the final prompt sent to LLM ---
-        print(f"[RAG-DEBUG] === SYSTEM PROMPT (first 500 chars) ===\n{system_prompt[:500]}...")
-        print(f"[RAG-DEBUG] === USER PROMPT ===\n{user_prompt}")
+        journal_chain = get_system_prompt(direction) | self._llm_with_retry
 
-        # --- Call LLM (rate-limited with retry) ---
-        response = self._invoke_with_retry([
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_prompt)
-        ])
+        async def _run_journal():
+            async with self._journal_semaphore:
+                return await journal_chain.ainvoke({"user_prompt": user_prompt_content})
+
+        journal_task = asyncio.create_task(_run_journal())
+
+        # Phase 3: Await both — crisis check should finish well before journal does.
+        # If crisis is detected, the journal result is discarded (safety takes priority).
+        crisis_result, response = await asyncio.gather(crisis_task, journal_task)
+
+        if crisis_result["is_crisis"]:
+            print(f"[crisis] Detected (confidence={crisis_result['confidence']:.2f}), discarding journal response")
+            return {
+                "question": None,
+                "crisis_detected": True,
+                "crisis_message": crisis_result["message"],
+            }
 
         question = response.content.strip()
         print(f"[RAG-DEBUG] === GENERATED QUESTION ===\n{question}")
 
-        # Remove quotes if LLM added them
         if question.startswith('"') and question.endswith('"'):
             question = question[1:-1]
         if question.startswith("'") and question.endswith("'"):
@@ -696,36 +577,14 @@ class AIProcessor():
             f"- {m}" for m in memories
         ) if memories else "(no known patterns yet)"
 
-        prompt = PREP_PACK_PROMPT.format(
-            journal_entries=entries_text,
-            memories=memories_text,
-            language_instruction=language_instruction,
-        )
-
         try:
-            response = self._invoke_with_retry([
-                SystemMessage(content=PREP_PACK_SYSTEM_PROMPT),
-                HumanMessage(content=prompt),
-            ])
+            result: PrepPackResult = self.prep_pack_chain.invoke({
+                "journal_entries": entries_text,
+                "memories": memories_text,
+                "language_instruction": language_instruction,
+            })
+            return result.model_dump()
 
-            raw = _extract_json_from_response(response.content)
-
-            result = json.loads(raw)
-
-            # Validate required top-level keys
-            required_keys = {"mood_overview", "key_themes", "emotional_highlights",
-                             "patterns", "discussion_points", "growth_moments"}
-            missing = required_keys - set(result.keys())
-            if missing:
-                print(
-                    f"[prep-pack] Warning: missing keys in AI response: {missing}")
-
-            return result
-
-        except json.JSONDecodeError as e:
-            print(f"[prep-pack] JSON parse error: {e}")
-            print(f"[prep-pack] Raw response: {raw[:500]}")
-            raise ValueError(f"AI returned invalid JSON: {e}")
         except Exception as e:
             print(f"[prep-pack] Error generating prep pack: {e}")
             raise

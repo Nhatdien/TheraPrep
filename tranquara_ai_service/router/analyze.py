@@ -16,9 +16,9 @@ async def analyze_journal(request: AnalyzeJournalRequest):
     try:
         ai_processor = AIProcessor.get_instance()
 
-        # Run the blocking LLM call in a thread to avoid blocking the async event loop
-        result = await asyncio.to_thread(
-            ai_processor.generate_journal_question,
+        # Call the async method directly — FastAPI's event loop handles concurrency,
+        # no asyncio.to_thread() needed (eliminates per-request thread overhead)
+        result = await ai_processor.agenerate_journal_question(
             user_id=request.user_id,
             content=request.content,
             mood_score=request.mood_score,

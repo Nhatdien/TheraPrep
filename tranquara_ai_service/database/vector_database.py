@@ -155,6 +155,52 @@ def _get_memory_vector_store() -> QdrantVectorStore:
     return _memory_vector_store
 
 
+def get_journal_retriever(user_id: str, top_k: int = 5):
+    """
+    Return a VectorStoreRetriever for the journal collection pre-configured to
+    filter by user_id. Use with retriever.invoke(query) in LCEL chains.
+
+    Args:
+        user_id: The user's UUID string
+        top_k: Number of results to return
+
+    Returns:
+        Configured VectorStoreRetriever instance
+    """
+    return _get_journal_vector_store().as_retriever(
+        search_type="similarity",
+        search_kwargs={
+            "k": top_k,
+            "filter": Filter(
+                must=[FieldCondition(key="metadata.user_id", match=MatchValue(value=user_id))]
+            ),
+        },
+    )
+
+
+def get_memory_retriever(user_id: str, top_k: int = 10):
+    """
+    Return a VectorStoreRetriever for the memory collection pre-configured to
+    filter by user_id. Use with retriever.invoke(query) in LCEL chains.
+
+    Args:
+        user_id: The user's UUID string
+        top_k: Number of results to return
+
+    Returns:
+        Configured VectorStoreRetriever instance
+    """
+    return _get_memory_vector_store().as_retriever(
+        search_type="similarity",
+        search_kwargs={
+            "k": top_k,
+            "filter": Filter(
+                must=[FieldCondition(key="metadata.user_id", match=MatchValue(value=user_id))]
+            ),
+        },
+    )
+
+
 def search_user_journals(user_id: str, query: str, top_k: int = 5) -> list:
     """
     Search for past journals by a specific user that are semantically similar to the query.

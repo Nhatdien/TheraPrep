@@ -1,4 +1,4 @@
-﻿"""
+"""
 AI System Prompts for Journaling Feature
 
 This file contains ALL AI prompt templates used for generating journal questions.
@@ -9,9 +9,13 @@ Structure:
 - LANGUAGE_INSTRUCTION: Language detection + Vietnamese quality rules
 - DIRECTION_PROMPTS: Direction-specific prompt enhancements
 - User prompt sections: Templates for building the user-facing prompt
-- build_user_prompt(): Assembles the complete user prompt from dynamic data
-- get_system_prompt(): Assembles the complete system prompt
+- build_user_prompt_content(): Assembles the complete user prompt string from dynamic data
+- get_system_prompt(): Returns a ChatPromptTemplate with the assembled system prompt
+- CRISIS_CHECK_TEMPLATE: ChatPromptTemplate for crisis detection
+- MEMORY_EXTRACTION_TEMPLATE: ChatPromptTemplate for durable insight extraction
+- PREP_PACK_TEMPLATE: ChatPromptTemplate for therapy prep pack generation
 """
+from langchain_core.prompts import ChatPromptTemplate
 
 # ═══════════════════════════════════════════════════════════════════════════
 # SYSTEM PROMPT — Core Identity
@@ -360,7 +364,7 @@ Only flag as crisis when there is a genuine sense of giving up, wanting to end,
 or disappearing permanently.
 
 Respond ONLY with valid JSON, no other text:
-{"is_crisis": true/false, "confidence": 0.0-1.0, "message": "warm supportive message in the SAME language as the text, or null if not crisis"}"""
+{{"is_crisis": true/false, "confidence": 0.0-1.0, "message": "warm supportive message in the SAME language as the text, or null if not crisis"}}"""
 
 CRISIS_CHECK_USER_PROMPT = """Analyze this journal text for crisis signs:
 
@@ -374,24 +378,37 @@ Remember: respond ONLY with valid JSON."""
 # PROMPT BUILDER FUNCTIONS
 # ═══════════════════════════════════════════════════════════════════════════
 
-def get_system_prompt(direction: str = None) -> str:
+# Cache for get_system_prompt() — keyed by direction (None + 5 values = 6 entries max).
+# Avoids rebuilding the ~8KB ChatPromptTemplate on every request.
+_SYSTEM_PROMPT_CACHE: dict[str | None, ChatPromptTemplate] = {}
+
+
+def get_system_prompt(direction: str = None) -> ChatPromptTemplate:
     """
-    Get the complete system prompt with optional direction enhancement.
-    Includes language detection instruction for multi-language support.
+    Get a ChatPromptTemplate with the complete system prompt and a {user_prompt} variable
+    for the human turn. Result is cached per direction key.
 
     Args:
         direction: Optional direction ('why', 'emotions', 'patterns', 'challenge', 'growth')
 
     Returns:
-        Complete system prompt string
+        ChatPromptTemplate with system message + human message placeholder {user_prompt}
     """
-    prompt = BASE_SYSTEM_PROMPT + "\n\n" + LANGUAGE_INSTRUCTION
+    if direction in _SYSTEM_PROMPT_CACHE:
+        return _SYSTEM_PROMPT_CACHE[direction]
+
+    system_content = BASE_SYSTEM_PROMPT + "\n\n" + LANGUAGE_INSTRUCTION
     if direction and direction in DIRECTION_PROMPTS:
-        prompt += "\n\n" + DIRECTION_PROMPTS[direction]
-    return prompt
+        system_content += "\n\n" + DIRECTION_PROMPTS[direction]
+    template = ChatPromptTemplate.from_messages([
+        ("system", system_content),
+        ("human", "{user_prompt}"),
+    ])
+    _SYSTEM_PROMPT_CACHE[direction] = template
+    return template
 
 
-def build_user_prompt(
+def build_user_prompt_content(
     content: str,
     mood_score: int,
     slide_prompt: str = None,
@@ -405,8 +422,10 @@ def build_user_prompt(
     app_language: str = None,
 ) -> str:
     """
-    Build the complete user prompt from dynamic data.
-    All prompt text lives here — the processor only passes data.
+    Assemble the human-turn content string for the journal question prompt.
+    All prompt text lives here — the processor only passes data. The returned
+    string is injected as the {user_prompt} variable in the ChatPromptTemplate
+    returned by get_system_prompt().
 
     Args:
         content: User's current journal text
@@ -421,7 +440,7 @@ def build_user_prompt(
         user_memories_context: Formatted AI memories string from RAG
 
     Returns:
-        Complete user prompt string ready for LLM
+        Complete user prompt string to pass as {user_prompt} to the ChatPromptTemplate
     """
     # --- Build slide group context ---
     context_info = []
@@ -544,6 +563,84 @@ CRISIS DETECTION (CRITICAL):
 - Do NOT treat crisis content as just another "emotional highlight" or "pattern"
   → It should be flagged distinctly, not sensationalized"""
 
+# ═════════════════════════════════════════════════════════════════════════
+# MEMORY EXTRACTION PROMPT (moved here from ai_service_processor.py)
+# ═════════════════════════════════════════════════════════════════════════
+
+MEMORY_EXTRACTION_SYSTEM_PROMPT = """You are an insightful psychological analyst.
+Extract only DURABLE insights about the user's inner world — skip trivial facts and
+ephemeral events. Return only valid JSON."""
+
+MEMORY_EXTRACTION_PROMPT = """You are analyzing journal entries to extract DURABLE PSYCHOLOGICAL INSIGHTS about the user.
+
+Your goal: extract insights that reveal WHO the user is — NOT what happened to them on a particular day.
+
+═══ DURABILITY TEST (apply to EVERY candidate insight) ═══
+Before extracting any insight, ask yourself:
+"Would this still be useful to know 6 months from now?"
+If the answer is NO → do NOT extract it.
+
+═══ WHAT TO EXTRACT (durable insights) ═══
+Each statement should be:
+- Written in first person (e.g., "I value...", "I tend to...", "I struggle with...")
+- One sentence maximum
+- A genuine PSYCHOLOGICAL insight about the user's inner world, NOT a factual summary of events
+- Categorized as one of: values, habits, relationships, goals, struggles, preferences, patterns, growth
+
+✅ GOOD examples (extract these):
+- "I value honesty over comfort in my relationships" (values)
+- "I tend to procrastinate when I feel overwhelmed by expectations" (patterns)
+- "My sleep suffers when I'm anxious about deadlines" (patterns — a DURABLE pattern, not a one-time event)
+- "I cope with stress by isolating myself from friends" (habits)
+- "I find it hard to set boundaries with my family" (relationships)
+- "I prefer having a structured routine over spontaneous plans" (preferences)
+- "I'm learning to accept imperfection in my work" (growth)
+- "I feel anxious when I don't have a clear plan" (struggles)
+
+❌ DO NOT extract these (ephemeral/trivial):
+- "I slept 5 hours last night" → one-time event, NOT an insight
+- "My phone broke today" → random event, says nothing about the user
+- "I had a meeting with my boss" → daily occurrence, no psychological depth
+- "I ate pho for lunch" / "I have a cat named Luna" → trivia
+- "I felt sad yesterday" → temporary state, NOT a pattern (unless it clearly reveals one)
+- "I'm tired today" / "I have a headache" → ephemeral state
+
+═══ THE KEY DISTINCTION ═══
+A fact becomes an insight ONLY when it reveals a repeating pattern, a core value, or a psychological tendency:
+- FACT (skip): "I slept 5 hours last night"
+- INSIGHT (extract): "My sleep suffers when I'm anxious about deadlines"
+- FACT (skip): "I argued with my friend today"
+- INSIGHT (extract): "I avoid confrontation even when I know I'm right"
+
+LANGUAGE REQUIREMENT (CRITICAL):
+{language_instruction}
+
+EXISTING MEMORIES (do NOT duplicate these):
+{existing_memories}
+
+JOURNAL ENTRIES TO ANALYZE:
+{journal_entries}
+
+Return a JSON object with a "memories" field containing an array of new insights:
+{{"memories": [
+  {{"content": "I value my family.", "category": "values", "confidence": 0.9}},
+  {{"content": "My sleep quality drops when I'm stressed about deadlines.", "category": "patterns", "confidence": 0.75}}
+]}}
+
+Rules:
+- Only extract genuinely new insights not already covered by existing memories
+- Apply the DURABILITY TEST to every candidate — if it won't matter in 6 months, skip it
+- Confidence should reflect how clearly the journal supports this insight (0.5-1.0)
+- Prefer fewer high-quality insights over many shallow ones — 1-2 excellent insights beats 5 mediocre ones
+- Maximum 5 new insights per batch
+- If no new durable insights can be extracted, return {{"memories": []}}
+- Return ONLY valid JSON, no markdown formatting or code blocks"""
+
+
+# ═════════════════════════════════════════════════════════════════════════
+# PREP PACK PROMPTS
+# ═════════════════════════════════════════════════════════════════════════
+
 PREP_PACK_PROMPT = """LANGUAGE REQUIREMENT (CRITICAL — read this first):
 {language_instruction}
 
@@ -605,3 +702,24 @@ Respond ONLY with valid JSON using this exact structure:
   "discussion_points": ["<in target language — never suggest bringing up specific traumatic events unprompted>"],
   "growth_moments": ["<in target language>"]
 }}"""
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LANGCHAIN ChatPromptTemplate INSTANCES
+# Each template is a ready-to-use LCEL component: template | llm | parser
+# ═══════════════════════════════════════════════════════════════════════════
+
+CRISIS_CHECK_TEMPLATE: ChatPromptTemplate = ChatPromptTemplate.from_messages([
+    ("system", CRISIS_CHECK_SYSTEM_PROMPT),
+    ("human", CRISIS_CHECK_USER_PROMPT),
+])
+
+MEMORY_EXTRACTION_TEMPLATE: ChatPromptTemplate = ChatPromptTemplate.from_messages([
+    ("system", MEMORY_EXTRACTION_SYSTEM_PROMPT),
+    ("human", MEMORY_EXTRACTION_PROMPT),
+])
+
+PREP_PACK_TEMPLATE: ChatPromptTemplate = ChatPromptTemplate.from_messages([
+    ("system", PREP_PACK_SYSTEM_PROMPT),
+    ("human", PREP_PACK_PROMPT),
+])
