@@ -62,6 +62,7 @@ import { useAuthStore } from "~/stores/stores/auth_store";
 import { useAIGuard } from "~/composables/useAIGuard";
 import { useCrisisDetection } from "~/composables/useCrisisDetection";
 import EmotionSliderV2 from "~/components/Common/EmotionSliderV2.vue";
+import { streamToEditor } from "~/utils/journal";
 
 const currentNote = ref("");
 const isGeneratingQuestion = ref(false);
@@ -74,6 +75,7 @@ const isFormatDrawerOpen = ref(false);
 const showDirectionPicker = ref(false);
 const showMoodPicker = ref(false);
 const slideMoodScore = ref(userJournalStore().currentMoodScore || 5);
+const streamAbortController = ref<AbortController | null>(null);
 const props = defineProps({
   content: {
     type: Object,
@@ -128,23 +130,29 @@ const confirmMood = () => {
 const handleGoDeeper = async (direction?: string) => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
-  
+
+  // Cancel any previous stream
+  if (streamAbortController.value) {
+    streamAbortController.value.abort();
+  }
+  streamAbortController.value = new AbortController();
+
   // Layer 1: Client-side keyword crisis detection (instant, 0 latency)
   const plainText = currentNote.value.replace(/<[^>]*>/g, '').trim();
   const clientCrisisDetected = detectCrisis(plainText);
   if (clientCrisisDetected) {
     showCrisisModal();
   }
-  
+
   try {
     isGeneratingQuestion.value = true;
-    
+
     const sdk = TranquaraSDK.getInstance();
-    
+
     const slidePrompt = props.content?.question || props.content?.question_content;
     const userId = useAuthStore().getUserUUID;
-    
-    const response = await sdk.analyzeJournal({
+
+    const stream = sdk.analyzeJournalStream({
       user_id: userId || '',
       content: plainText,
       mood_score: userJournalStore().currentMoodScore,
@@ -155,38 +163,22 @@ const handleGoDeeper = async (direction?: string) => {
       direction: direction as 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth',
       your_story: yourStory.value || undefined,
       app_language: locale.value,
+    }, streamAbortController.value.signal);
+
+    await streamToEditor(editor.value?.editor, stream, {
+      onCrisis: () => {
+        if (!clientCrisisDetected) showCrisisModal();
+      },
+      onError: (err) => {
+        console.error("[GoDeeper] Stream error:", err);
+      },
+      onDone: () => {},
     });
-    
-    // Layer 2: AI-based crisis detection
-    if (response.crisis_detected) {
-      if (!clientCrisisDetected) {
-        showCrisisModal();
-      }
-      return; // Don't insert question
-    }
-    
-    // Safe — insert AI question into editor
-    if (response.question && editor.value?.editor) {
-      const editorInstance = editor.value.editor;
-      
-      editorInstance
-        .chain()
-        .focus('end')
-        .insertContent('<p></p>', {
-          contentType: 'html',
-        })
-        .insertContent(`<p class="ai-suggestion text-muted italic">${response.question}</p>`, {
-          contentType: 'html',
-        })
-        .insertContent('<p></p>', {
-          contentType: 'html',
-        })
-        .run();
-    }
   } catch (error) {
     console.error("[GoDeeper] Error:", error);
   } finally {
     isGeneratingQuestion.value = false;
+    streamAbortController.value = null;
   }
 };
 
@@ -229,6 +221,13 @@ watch(() => [props.currentIndex, props.index], () => {
     useTiptapEditorStore().editors[props.currentIndex]?.commands?.focus()
   }
 }, {deep: true, immediate: true})
+
+onUnmounted(() => {
+  if (streamAbortController.value) {
+    streamAbortController.value.abort();
+    streamAbortController.value = null;
+  }
+});
 
 watch(
   () => userJournalStore().currentWritingContent,

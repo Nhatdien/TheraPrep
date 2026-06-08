@@ -95,6 +95,7 @@ import EmotionSliderV2 from "~/components/Common/EmotionSliderV2.vue";
 import TranquaraSDK from "~/stores/tranquara_sdk";
 import { useAIGuard } from "~/composables/useAIGuard";
 import { useCrisisDetection } from "~/composables/useCrisisDetection";
+import { streamToEditor } from "~/utils/journal";
 
 definePageMeta({
   layout: "detail",
@@ -120,6 +121,7 @@ const lastSavedAt = ref<Date | null>(null);
 const isGeneratingQuestion = ref(false);
 const isFormatDrawerOpen = ref(false);
 const showDirectionPicker = ref(false);
+const streamAbortController = ref<AbortController | null>(null);
 
 // Map autoSaveStatus keys to i18n
 const autoSaveStatusText = computed(() => {
@@ -187,6 +189,12 @@ const handleGoDeeper = async (direction?: string) => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
 
+  // Cancel any previous stream
+  if (streamAbortController.value) {
+    streamAbortController.value.abort();
+  }
+  streamAbortController.value = new AbortController();
+
   // Layer 1: Client-side keyword crisis detection (instant, 0 latency)
   const plainText = content.value.replace(/<[^>]*>/g, "").trim();
   const clientCrisisDetected = detectCrisis(plainText);
@@ -201,7 +209,7 @@ const handleGoDeeper = async (direction?: string) => {
     const sdk = TranquaraSDK.getInstance();
     const userId = useAuthStore().getUserUUID;
 
-    const response = await sdk.analyzeJournal({
+    const stream = sdk.analyzeJournalStream({
       user_id: userId || "",
       content: plainText,
       mood_score: moodScore.value,
@@ -209,36 +217,23 @@ const handleGoDeeper = async (direction?: string) => {
       direction: direction as any,
       your_story: yourStory.value || undefined,
       app_language: locale.value,
+    }, streamAbortController.value.signal);
+
+    await streamToEditor(editorRef.value?.editor, stream, {
+      onCrisis: () => {
+        if (!clientCrisisDetected) showCrisisModal();
+        autoSaveStatus.value = "ready";
+      },
+      onError: (err) => {
+        console.error("[GoDeeper] Stream error:", err);
+        autoSaveStatus.value = "errorGenerating";
+        setTimeout(() => { autoSaveStatus.value = "ready"; }, 2000);
+      },
+      onDone: () => {
+        autoSaveStatus.value = "questionAdded";
+        setTimeout(() => { autoSaveStatus.value = "ready"; }, 2000);
+      },
     });
-
-    // Layer 2: AI-based crisis detection
-    if (response.crisis_detected) {
-      if (!clientCrisisDetected) {
-        showCrisisModal();
-      }
-      autoSaveStatus.value = "ready";
-      return;
-    }
-
-    // Safe — insert AI question into editor
-    if (response.question && editorRef.value?.editor) {
-      const editor = editorRef.value.editor;
-
-      editor
-        .chain()
-        .focus("end")
-        .insertContent("<p></p>")
-        .insertContent(
-          `<p class="ai-suggestion text-muted italic">${response.question}</p>`,
-        )
-        .insertContent("<p></p>")
-        .run();
-    }
-
-    autoSaveStatus.value = "questionAdded";
-    setTimeout(() => {
-      autoSaveStatus.value = "ready";
-    }, 2000);
   } catch (error) {
     console.error("[GoDeeper] Error:", error);
     autoSaveStatus.value = "errorGenerating";
@@ -247,6 +242,7 @@ const handleGoDeeper = async (direction?: string) => {
     }, 2000);
   } finally {
     isGeneratingQuestion.value = false;
+    streamAbortController.value = null;
   }
 };
 
@@ -286,6 +282,10 @@ const saveAndClose = async () => {
 onUnmounted(() => {
   if (autoSaveTimeout) {
     clearTimeout(autoSaveTimeout);
+  }
+  if (streamAbortController.value) {
+    streamAbortController.value.abort();
+    streamAbortController.value = null;
   }
 });
 </script>

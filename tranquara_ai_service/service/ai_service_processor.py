@@ -170,7 +170,7 @@ class AIProcessor():
             google_api_key=os.environ['GOOGLE_API_KEY'],
             model=os.environ.get('LLM_MODEL', DEFAULT_LLM_MODEL),
             temperature=0.7,
-            streaming=False
+            streaming=True
         )
 
         # Crisis check cache: 5 min TTL, up to 1000 entries
@@ -653,6 +653,70 @@ class AIProcessor():
             "crisis_detected": False,
             "crisis_message": None,
         }
+
+    async def generate_journal_question_stream(self, user_id: str, content: str, mood_score: int,
+                                                slide_prompt: str = None, slide_group_context: dict = None,
+                                                current_slide_id: str = None, collection_title: str = None,
+                                                direction: str = None, your_story: str = None,
+                                                app_language: str = None):
+        """
+        Async generator that yields follow-up question tokens.
+        Reuses the same blocking logic as generate_journal_question():
+          1. Crisis check + RAG retrieval run in parallel (via asyncio.to_thread).
+          2. If crisis: yield crisis metadata and return.
+          3. If safe: build prompt and stream tokens via model.astream().
+        """
+        import asyncio
+
+        depth = get_top_k_for_direction(direction)
+        memory_depth = max(5, depth)
+
+        # Run crisis check + RAG retrieval in parallel using asyncio.to_thread
+        crisis_result, past_journals_context, user_memories_context = await asyncio.gather(
+            asyncio.to_thread(self.check_crisis, content),
+            asyncio.to_thread(self._retrieve_past_journals, user_id, content, depth),
+            asyncio.to_thread(self._retrieve_user_memories, user_id, content, memory_depth),
+        )
+
+        # If crisis detected, yield metadata and stop
+        if crisis_result["is_crisis"]:
+            yield {
+                "type": "metadata",
+                "crisis_detected": True,
+                "crisis_message": crisis_result["message"],
+            }
+            return
+
+        # Safe: yield metadata then stream tokens
+        yield {
+            "type": "metadata",
+            "crisis_detected": False,
+        }
+
+        system_prompt = get_system_prompt(direction)
+
+        user_prompt = build_user_prompt(
+            content=content,
+            mood_score=mood_score,
+            slide_prompt=slide_prompt,
+            slide_group_context=slide_group_context,
+            current_slide_id=current_slide_id,
+            collection_title=collection_title,
+            direction=direction,
+            past_journals_context=past_journals_context,
+            your_story=your_story,
+            user_memories_context=user_memories_context,
+            app_language=app_language,
+        )
+
+        messages = [
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=user_prompt),
+        ]
+
+        async for chunk in self.model.astream(messages):
+            if chunk.content:
+                yield {"type": "token", "content": chunk.content}
 
     def generate_prep_pack(self, journal_entries: list[dict],
                            memories: list[str], language: str = "en") -> dict:

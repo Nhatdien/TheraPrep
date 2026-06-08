@@ -1,3 +1,5 @@
+import type { StreamEvent } from '~/stores/ai_service';
+
 export const generateJournalHtml = (questionAnswer: { [key: string]: string }): string => {
   let result = ""
 
@@ -148,6 +150,96 @@ export const getJournalContentPreview = (content: string): string => {
   }
 
   // Last resort: strip all tags and join with spaces using a simple split on tags
-  const stripped = content.replace(/<\/(p|h[1-6]|li|div)>/gi, ' ').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  const stripped = content.replace(/<\/(p|h[1-6]|li|div)\>/gi, ' ').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
   return stripped.length > 150 ? stripped.substring(0, 150) + '…' : stripped;
 };
+
+// ─── Stream-to-Editor helper ────────────────────────────────────────────────
+
+function findStreamNodePos(editor: any, streamId: string): number | null {
+  let foundPos: number | null = null;
+  editor.state.doc.descendants((node: any, pos: number) => {
+    if (foundPos !== null) return false;
+    if (node.type.name === 'paragraph' && node.attrs['data-stream-id'] === streamId) {
+      foundPos = pos + 1 + node.content.size;
+      return false;
+    }
+  });
+  return foundPos;
+}
+
+function deleteStreamNode(editor: any, streamId: string): void {
+  editor.state.doc.descendants((node: any, pos: number) => {
+    if (node.type.name === 'paragraph' && node.attrs['data-stream-id'] === streamId) {
+      const endPos = pos + node.nodeSize;
+      editor.chain().focus().deleteRange({ from: pos, to: endPos }).run();
+      return false;
+    }
+  });
+}
+
+export async function streamToEditor(
+  editor: any,
+  stream: AsyncGenerator<StreamEvent>,
+  options?: {
+    onCrisis?: () => void;
+    onError?: (err: Error) => void;
+    onDone?: () => void;
+  }
+): Promise<void> {
+  const streamId = `ai-stream-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+  // Insert empty AI paragraph + trailing empty paragraph
+  editor
+    .chain()
+    .focus('end')
+    .insertContent(`<p class="ai-suggestion text-muted italic" data-stream-id="${streamId}"></p>`)
+    .insertContent('<p></p>')
+    .run();
+
+  let receivedToken = false;
+  let completed = false;
+
+  try {
+    for await (const event of stream) {
+      if (event.type === 'metadata') {
+        if (event.crisis_detected) {
+          deleteStreamNode(editor, streamId);
+          options?.onCrisis?.();
+          return;
+        }
+        continue;
+      }
+
+      if (event.type === 'token') {
+        const position = findStreamNodePos(editor, streamId);
+        if (position !== null) {
+          editor.commands.insertText(event.content, { at: position });
+          receivedToken = true;
+        }
+        continue;
+      }
+
+      if (event.type === 'done') {
+        completed = true;
+        options?.onDone?.();
+        return;
+      }
+
+      if (event.type === 'error') {
+        throw new Error(event.message);
+      }
+    }
+
+    // Loop exited without 'done' (e.g., network drop)
+    if (!completed) {
+      throw new Error('Stream ended unexpectedly');
+    }
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error(String(err));
+    if (!receivedToken) {
+      deleteStreamNode(editor, streamId);
+    }
+    options?.onError?.(error);
+  }
+}

@@ -116,6 +116,7 @@ import type { LocalJournal } from "~/types/user_journal";
 import { useAIGuard } from "~/composables/useAIGuard";
 import { useCrisisDetection } from "~/composables/useCrisisDetection";
 import { useFallbackQuestions } from "~/composables/useFallbackQuestions";
+import { streamToEditor } from "~/utils/journal";
 
 definePageMeta({ layout: "detail" });
 
@@ -145,6 +146,7 @@ const autoSaveStatus = ref("ready");
 const isGeneratingQuestion = ref(false);
 const isFormatDrawerOpen = ref(false);
 const showDirectionPicker = ref(false);
+const streamAbortController = ref<AbortController | null>(null);
 
 // Map autoSaveStatus keys to i18n
 const autoSaveStatusText = computed(() => {
@@ -271,22 +273,28 @@ const insertQuestionToEditor = (question: string) => {
 const handleGoDeeper = async (direction?: string) => {
   if (!hasContent.value || isGeneratingQuestion.value) return;
   if (!canUseAI()) return;
-  
+
+  // Cancel any previous stream
+  if (streamAbortController.value) {
+    streamAbortController.value.abort();
+  }
+  streamAbortController.value = new AbortController();
+
   // Layer 1: Client-side keyword crisis detection (instant, 0 latency)
   const plainText = content.value.replace(/<[^>]*>/g, '').trim();
   const clientCrisisDetected = detectCrisis(plainText);
   if (clientCrisisDetected) {
     showCrisisModal();
   }
-  
+
   try {
     isGeneratingQuestion.value = true;
     autoSaveStatus.value = "thinking";
-    
+
     const sdk = TranquaraSDK.getInstance();
     const userId = useAuthStore().getUserUUID;
-    
-    const response = await sdk.analyzeJournal({
+
+    const stream = sdk.analyzeJournalStream({
       user_id: userId || '',
       content: plainText,
       mood_score: moodScore.value,
@@ -294,21 +302,27 @@ const handleGoDeeper = async (direction?: string) => {
       direction: direction as 'why' | 'emotions' | 'patterns' | 'challenge' | 'growth',
       your_story: yourStory.value || undefined,
       app_language: locale.value,
+    }, streamAbortController.value.signal);
+
+    await streamToEditor(editorRef.value?.editor, stream, {
+      onCrisis: () => {
+        if (!clientCrisisDetected) showCrisisModal();
+        autoSaveStatus.value = "unsavedChanges";
+      },
+      onError: (err) => {
+        console.error("[GoDeeper] Stream error:", err);
+        // Fallback question when AI fails
+        const fallbackQ = getFallbackQuestion(direction);
+        const prefix = t('goDeeper.fallbackMessage');
+        insertQuestionToEditor(prefix + ' ' + fallbackQ);
+        autoSaveStatus.value = "questionAdded";
+        setTimeout(() => { autoSaveStatus.value = "unsavedChanges"; }, 2000);
+      },
+      onDone: () => {
+        autoSaveStatus.value = "questionAdded";
+        setTimeout(() => { autoSaveStatus.value = "unsavedChanges"; }, 2000);
+      },
     });
-    
-    // Layer 2: AI-based crisis detection — backend returns structured response
-    if (response.crisis_detected) {
-      // AI detected crisis — show modal (if not already shown by Layer 1)
-      if (!clientCrisisDetected) {
-        showCrisisModal();
-      }
-      autoSaveStatus.value = "unsavedChanges";
-    } else if (response.question) {
-      // Safe — insert the follow-up question
-      insertQuestionToEditor(response.question);
-      autoSaveStatus.value = "questionAdded";
-      setTimeout(() => { autoSaveStatus.value = "unsavedChanges"; }, 2000);
-    }
   } catch (error) {
     // Fallback question when AI fails
     console.error("[GoDeeper] Error:", error);
@@ -319,6 +333,7 @@ const handleGoDeeper = async (direction?: string) => {
     setTimeout(() => { autoSaveStatus.value = "unsavedChanges"; }, 2000);
   } finally {
     isGeneratingQuestion.value = false;
+    streamAbortController.value = null;
   }
 };
 
@@ -350,6 +365,10 @@ const saveAndClose = async () => {
 
 onUnmounted(() => {
   if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+  if (streamAbortController.value) {
+    streamAbortController.value.abort();
+    streamAbortController.value = null;
+  }
 });
 </script>
 
