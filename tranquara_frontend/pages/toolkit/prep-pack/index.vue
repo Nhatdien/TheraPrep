@@ -24,14 +24,60 @@
         <button
           v-for="option in rangeOptions"
           :key="option.days"
-          @click="selectedDays = option.days"
+          @click="selectPreset(option.days)"
           class="flex-1 py-2 px-3 rounded-lg text-xs font-medium border transition-colors"
-          :class="selectedDays === option.days
+          :class="!isCustomMode && selectedDays === option.days
             ? 'border-default bg-elevated text-highlighted'
             : 'border-default bg-muted text-muted hover:border-accented'"
         >
           {{ option.label }}
         </button>
+        <!-- Custom option -->
+        <button
+          @click="toggleCustomMode"
+          class="flex-1 py-2 px-3 rounded-lg text-xs font-medium border transition-colors"
+          :class="isCustomMode
+            ? 'border-default bg-elevated text-highlighted'
+            : 'border-default bg-muted text-muted hover:border-accented'"
+        >
+          {{ $t('toolkit.prepPack.custom') }}
+        </button>
+      </div>
+
+      <!-- Custom date picker -->
+      <div v-if="isCustomMode" class="mb-4 p-4 rounded-lg bg-muted border border-default">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-muted mb-1 block">{{ $t('toolkit.prepPack.startDate') }}</label>
+            <input
+              type="date"
+              v-model="customStartDate"
+              :max="customEndDate || today"
+              class="w-full px-3 py-2 rounded-lg bg-elevated border border-default text-sm focus:outline-none focus:border-accented transition-colors"
+            />
+          </div>
+          <div>
+            <label class="text-xs text-muted mb-1 block">{{ $t('toolkit.prepPack.endDate') }}</label>
+            <input
+              type="date"
+              v-model="customEndDate"
+              :max="today"
+              class="w-full px-3 py-2 rounded-lg bg-elevated border border-default text-sm focus:outline-none focus:border-accented transition-colors"
+            />
+          </div>
+        </div>
+
+        <!-- Validation feedback -->
+        <div class="mt-3 text-xs space-y-1">
+          <div v-if="journalCountInRange >= 0" class="flex items-center gap-1" :class="journalCountInRange >= 3 ? 'text-green-400' : 'text-amber-400'">
+            <Icon name="i-lucide-info" class="w-3 h-3" />
+            <span>{{ $t('toolkit.prepPack.journalsFound', { count: journalCountInRange }) }}</span>
+          </div>
+          <div v-if="dateRangeError" class="flex items-center gap-1 text-red-400">
+            <Icon name="i-lucide-alert-circle" class="w-3 h-3" />
+            <span>{{ dateRangeError }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- Generate button -->
@@ -119,7 +165,21 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
   { label: t('toolkit.prepPack.title') },
 ])
 
+// Custom mode state
 const selectedDays = ref(7);
+const isCustomMode = ref(false);
+const customStartDate = ref('');
+const customEndDate = ref('');
+const today = new Date().toISOString().split('T')[0];
+
+// Initialize custom dates to last 7 days
+onMounted(() => {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(end.getDate() - 7);
+  customStartDate.value = start.toISOString().split('T')[0];
+  customEndDate.value = end.toISOString().split('T')[0];
+});
 
 const rangeOptions = computed(() => [
   { days: 7, label: t('toolkit.prepPack.last7Days') },
@@ -129,15 +189,96 @@ const rangeOptions = computed(() => [
 
 const hasJournals = computed(() => journalStore.journals.length > 0);
 
-const handleGenerate = async () => {
+// Computed: effective date range based on mode
+const effectiveDateRange = computed(() => {
+  if (isCustomMode.value && customStartDate.value && customEndDate.value) {
+    let start = new Date(customStartDate.value);
+    let end = new Date(customEndDate.value);
+    
+    // Swap if start > end
+    if (start > end) {
+      [start, end] = [end, start];
+    }
+    
+    return {
+      start: start.toISOString().split('T')[0],
+      end: end.toISOString().split('T')[0],
+    };
+  }
+  
   const end = new Date();
   const start = new Date();
   start.setDate(end.getDate() - selectedDays.value);
+  return {
+    start: start.toISOString().split('T')[0],
+    end: end.toISOString().split('T')[0],
+  };
+});
 
-  const pack = await toolkitStore.generatePrepPack(
-    start.toISOString().split('T')[0],
-    end.toISOString().split('T')[0],
-  );
+// Computed: date range validation
+const dateRangeError = computed(() => {
+  if (!isCustomMode.value) return null;
+  
+  const { start, end } = effectiveDateRange.value;
+  
+  if (!start || !end) return null;
+  
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (daysDiff > 90) {
+    return t('toolkit.prepPack.errorRangeTooLarge');
+  }
+  
+  if (daysDiff < 0) {
+    return t('toolkit.prepPack.errorInvalidRange');
+  }
+  
+  return null;
+});
+
+// Computed: journal count in selected range
+const journalCountInRange = computed(() => {
+  if (!isCustomMode.value) return -1;
+  
+  const { start, end } = effectiveDateRange.value;
+  if (!start || !end) return -1;
+  
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  endDate.setHours(23, 59, 59, 999);
+  
+  const count = journalStore.journals.filter(j => {
+    const journalDate = new Date(j.created_at);
+    return journalDate >= startDate && journalDate <= endDate;
+  }).length;
+  
+  return count;
+});
+
+// Actions
+const selectPreset = (days: number) => {
+  isCustomMode.value = false;
+  selectedDays.value = days;
+};
+
+const toggleCustomMode = () => {
+  isCustomMode.value = !isCustomMode.value;
+  if (isCustomMode.value) {
+    // Initialize with last 7 days when entering custom mode
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 7);
+    customStartDate.value = start.toISOString().split('T')[0];
+    customEndDate.value = end.toISOString().split('T')[0];
+  }
+};
+
+const handleGenerate = async () => {
+  const { start, end } = effectiveDateRange.value;
+
+  const pack = await toolkitStore.generatePrepPack(start, end);
 
   if (pack) {
     navigateTo(`/toolkit/prep-pack/${pack.id}`);

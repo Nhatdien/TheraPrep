@@ -630,6 +630,12 @@
       "deleteConfirm": "Delete this insight report?",
       "errorGenerate": "Failed to generate insights. Please try again.",
       "pastPacks": "Previous Insights",
+      "custom": "Custom",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "journalsFound": "{count} journals found",
+      "errorRangeTooLarge": "Maximum range is 90 days",
+      "errorInvalidRange": "Invalid date range",
       "patternCategories": {
         "triggers": "Triggers",
         "patterns": "Patterns",

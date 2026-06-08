@@ -630,6 +630,12 @@
       "deleteConfirm": "Bạn có chắc muốn xóa phân tích này không?",
       "errorGenerate": "Tạo phân tích thất bại. Vui lòng thử lại sau.",
       "pastPacks": "Các phân tích trước đây",
+      "custom": "Tùy chỉnh",
+      "startDate": "Ngày bắt đầu",
+      "endDate": "Ngày kết thúc",
+      "journalsFound": "Tìm thấy {count} nhật ký",
+      "errorRangeTooLarge": "Khoảng thời gian tối đa là 90 ngày",
+      "errorInvalidRange": "Khoảng thời gian không hợp lệ",
       "patternCategories": {
         "triggers": "Yếu tố kích hoạt",
         "patterns": "Xu hướng & phản ứng",
