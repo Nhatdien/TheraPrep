@@ -64,7 +64,8 @@ class AIProcessor():
         _model_name = os.environ.get('LLM_MODEL', DEFAULT_LLM_MODEL)
         # Crisis uses a lighter, faster model — simple binary classification doesn't need
         # the full reasoning power of gemini-2.5-flash (~5-8s). gemini-2.0-flash takes ~1-2s.
-        _crisis_model_name = os.environ.get('CRISIS_LLM_MODEL', 'gemini-2.0-flash')
+        _crisis_model_name = os.environ.get(
+            'CRISIS_LLM_MODEL', 'gemini-2.0-flash')
         _api_key = os.environ['GOOGLE_API_KEY']
 
         # Enable LangChain global LLM cache. Identical prompts (same content + same model params)
@@ -91,7 +92,8 @@ class AIProcessor():
             streaming=False
         )
 
-        _retry_kwargs = dict(stop_after_attempt=3, wait_exponential_jitter=True)
+        _retry_kwargs = dict(stop_after_attempt=3,
+                             wait_exponential_jitter=True)
 
         self._llm_with_retry = self.model.with_retry(**_retry_kwargs)
 
@@ -112,8 +114,10 @@ class AIProcessor():
         # Crisis: lighter model + short prompt → more concurrent slots safe (default: 8).
         # Journal: heavier generation → fewer concurrent slots to stay under rate limits (default: 5).
         # Both are tunable via env vars.
-        self._crisis_semaphore = asyncio.Semaphore(int(os.getenv("LLM_CRISIS_MAX_CONCURRENT", "8")))
-        self._journal_semaphore = asyncio.Semaphore(int(os.getenv("LLM_JOURNAL_MAX_CONCURRENT", "5")))
+        self._crisis_semaphore = asyncio.Semaphore(
+            int(os.getenv("LLM_CRISIS_MAX_CONCURRENT", "8")))
+        self._journal_semaphore = asyncio.Semaphore(
+            int(os.getenv("LLM_JOURNAL_MAX_CONCURRENT", "5")))
 
         # Crisis result cache: 5 min TTL, up to 1000 entries
         self._crisis_cache = TTLCache(maxsize=1000, ttl=300)
@@ -322,7 +326,8 @@ class AIProcessor():
             return new_memories
 
         except Exception as e:
-            print(f"[memories] Error extracting memories for user {user_id}: {e}")
+            print(
+                f"[memories] Error extracting memories for user {user_id}: {e}")
             traceback.print_exc()
             return []
 
@@ -364,23 +369,23 @@ class AIProcessor():
         """
         Quick heuristic check: if content contains clearly positive/safe indicators,
         we can skip the crisis check LLM call entirely.
-        
+
         SAFETY: Crisis override keywords ALWAYS take priority. If any crisis-related
         phrase is detected, the shortcut is bypassed and the full LLM crisis check runs.
         This prevents false negatives like "một ngày tuyệt vời để rời khỏi thế giới này".
-        
+
         This saves ~5-10s and 1 Gemini API call per request for genuinely safe content,
         which significantly reduces load under high concurrency.
         """
         content_lower = content.lower()
-        
+
         # CRITICAL: Check crisis overrides FIRST — if ANY match, never shortcut
         for pattern in AIProcessor.CRISIS_OVERRIDE_PATTERNS:
             if pattern in content_lower:
                 return False  # Must run full crisis check
-        
+
         positive_count = sum(1 for pattern in SAFE_CONTENT_PATTERNS
-                            if pattern in content_lower)
+                             if pattern in content_lower)
         # If 2+ positive indicators and no crisis overrides, likely safe
         if positive_count >= 2:
             return True
@@ -407,7 +412,8 @@ class AIProcessor():
         with self._crisis_cache_lock:
             cached = self._crisis_cache.get(cache_key)
             if cached is not None:
-                print(f"[crisis-check] Cache hit (result={cached['is_crisis']})")
+                print(
+                    f"[crisis-check] Cache hit (result={cached['is_crisis']})")
                 return cached
 
         # --- Full LLM-based crisis check via crisis_chain (async) ---
@@ -420,10 +426,12 @@ class AIProcessor():
             message = llm_result.message
 
             if is_crisis and confidence < self.CRISIS_CONFIDENCE_THRESHOLD:
-                print(f"[crisis-check] Below threshold ({confidence:.2f} < {self.CRISIS_CONFIDENCE_THRESHOLD}), treating as safe")
+                print(
+                    f"[crisis-check] Below threshold ({confidence:.2f} < {self.CRISIS_CONFIDENCE_THRESHOLD}), treating as safe")
                 is_crisis = False
 
-            print(f"[crisis-check] is_crisis={is_crisis}, confidence={confidence:.2f}")
+            print(
+                f"[crisis-check] is_crisis={is_crisis}, confidence={confidence:.2f}")
 
             crisis_result = {
                 "is_crisis": is_crisis,
@@ -474,9 +482,11 @@ class AIProcessor():
             self._aretrieve_user_memories(user_id, content, memory_depth),
         )
 
-        print(f"[RAG-DEBUG] User {user_id} | Direction: {direction} | top_k: {depth}")
+        print(
+            f"[RAG-DEBUG] User {user_id} | Direction: {direction} | top_k: {depth}")
         if past_journals_context:
-            print(f"[RAG-DEBUG] Past journals retrieved:\n{past_journals_context}")
+            print(
+                f"[RAG-DEBUG] Past journals retrieved:\n{past_journals_context}")
         else:
             print("[RAG-DEBUG] No past journals retrieved.")
         if user_memories_context:
@@ -514,7 +524,8 @@ class AIProcessor():
         crisis_result, response = await asyncio.gather(crisis_task, journal_task)
 
         if crisis_result["is_crisis"]:
-            print(f"[crisis] Detected (confidence={crisis_result['confidence']:.2f}), discarding journal response")
+            print(
+                f"[crisis] Detected (confidence={crisis_result['confidence']:.2f}), discarding journal response")
             return {
                 "question": None,
                 "crisis_detected": True,

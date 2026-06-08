@@ -461,7 +461,8 @@ def build_user_prompt_content(
             for idx, slide in enumerate(slides, 1):
                 slide_type = slide.get('type', 'unknown')
                 question = slide.get('question', slide.get('title', ''))
-                is_current = (current_slide_id and slide.get('id') == current_slide_id)
+                is_current = (current_slide_id and slide.get(
+                    'id') == current_slide_id)
                 marker = " [CURRENT SLIDE]" if is_current else ""
                 if question:
                     slide_questions.append(

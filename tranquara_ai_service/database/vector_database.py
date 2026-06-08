@@ -66,7 +66,7 @@ def _get_embeddings():
 
 def _ensure_collection(name: str):
     """Create a Qdrant collection if it doesn't already exist.
-    
+
     If the collection exists but has a different vector size (e.g., migrated
     from OpenAI 1536-dim to Gemini 3072-dim), it will be recreated.
     """
@@ -89,7 +89,8 @@ def _ensure_collection(name: str):
             elif isinstance(vectors_config, dict) and vectors_config:
                 existing_size = next(iter(vectors_config.values())).size
             else:
-                print(f"[migration] Collection '{name}' has unexpected vector config. Recreating.")
+                print(
+                    f"[migration] Collection '{name}' has unexpected vector config. Recreating.")
                 client.recreate_collection(
                     collection_name=name,
                     vectors_config=VectorParams(
@@ -115,9 +116,11 @@ def _ensure_collection(name: str):
                 elif name == MEMORY_COLLECTION:
                     _memory_vector_store = None
             else:
-                print(f"Collection '{name}' already exists (size={existing_size}).")
+                print(
+                    f"Collection '{name}' already exists (size={existing_size}).")
         except Exception as e:
-            print(f"[qdrant] Error checking collection '{name}': {e}. Will attempt to recreate.")
+            print(
+                f"[qdrant] Error checking collection '{name}': {e}. Will attempt to recreate.")
             client.recreate_collection(
                 collection_name=name,
                 vectors_config=VectorParams(
@@ -172,7 +175,8 @@ def get_journal_retriever(user_id: str, top_k: int = 5):
         search_kwargs={
             "k": top_k,
             "filter": Filter(
-                must=[FieldCondition(key="metadata.user_id", match=MatchValue(value=user_id))]
+                must=[FieldCondition(key="metadata.user_id",
+                                     match=MatchValue(value=user_id))]
             ),
         },
     )
@@ -195,7 +199,8 @@ def get_memory_retriever(user_id: str, top_k: int = 10):
         search_kwargs={
             "k": top_k,
             "filter": Filter(
-                must=[FieldCondition(key="metadata.user_id", match=MatchValue(value=user_id))]
+                must=[FieldCondition(key="metadata.user_id",
+                                     match=MatchValue(value=user_id))]
             ),
         },
     )
@@ -351,7 +356,8 @@ def get_user_journals_by_date_range(user_id: str, date_start: str,
                     metadata = {}
                 created_at = metadata.get("created_at", "")
                 if not isinstance(created_at, str):
-                    created_at = str(created_at) if created_at is not None else ""
+                    created_at = str(
+                        created_at) if created_at is not None else ""
 
                 # Compare date portion only (ISO format sorts lexicographically)
                 entry_date = created_at[:10] if created_at else ""
