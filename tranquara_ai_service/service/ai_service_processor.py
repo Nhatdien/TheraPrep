@@ -65,7 +65,7 @@ class AIProcessor():
         # Crisis uses a lighter, faster model — simple binary classification doesn't need
         # the full reasoning power of gemini-2.5-flash (~5-8s). gemini-2.0-flash takes ~1-2s.
         _crisis_model_name = os.environ.get(
-            'CRISIS_LLM_MODEL', 'gemini-2.0-flash')
+            'CRISIS_LLM_MODEL', 'gemini-2.5-flash')
         _api_key = os.environ['GOOGLE_API_KEY']
 
         # Enable LangChain global LLM cache. Identical prompts (same content + same model params)
