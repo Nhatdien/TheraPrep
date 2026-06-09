@@ -131,7 +131,9 @@ export abstract class Base {
       clearTimeout(timeoutId);
       const err = error instanceof Error ? error : new Error(String(error));
       if (err.name === "AbortError") {
-        err.message = "Request timeout";
+        const timeoutError = new Error("Request timeout");
+        this.onError(timeoutError);
+        throw timeoutError;
       }
       this.onError(err);
       throw err;

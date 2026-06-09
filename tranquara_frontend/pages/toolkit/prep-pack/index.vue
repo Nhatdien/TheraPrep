@@ -46,25 +46,21 @@
 
       <!-- Custom date picker -->
       <div v-if="isCustomMode" class="mb-4 p-4 rounded-lg bg-muted border border-default">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-xs text-muted mb-1 block">{{ $t('toolkit.prepPack.startDate') }}</label>
-            <input
-              type="date"
-              v-model="customStartDate"
-              :max="customEndDate || today"
-              class="w-full px-3 py-2 rounded-lg bg-elevated border border-default text-sm focus:outline-none focus:border-accented transition-colors"
-            />
-          </div>
-          <div>
-            <label class="text-xs text-muted mb-1 block">{{ $t('toolkit.prepPack.endDate') }}</label>
-            <input
-              type="date"
-              v-model="customEndDate"
-              :max="today"
-              class="w-full px-3 py-2 rounded-lg bg-elevated border border-default text-sm focus:outline-none focus:border-accented transition-colors"
-            />
-          </div>
+        <UCalendar
+          :model-value="calendarRange"
+          @update:model-value="onCalendarRangeChange"
+          :max-date="todayDate"
+          :min-date="minDate"
+          range
+          class="mx-auto"
+        />
+
+        <!-- Selected range display -->
+        <div v-if="customStartDate && customEndDate" class="mt-3 flex items-center justify-between text-xs">
+          <span class="text-muted">
+            {{ formatPickerDate(customStartDate) }} – {{ formatPickerDate(customEndDate) }}
+            <span class="text-dimmed ml-1">({{ daysInRange }}d)</span>
+          </span>
         </div>
 
         <!-- Validation feedback -->
@@ -153,6 +149,9 @@ import type { BreadcrumbItem } from '@nuxt/ui'
 import { ChevronLeft, Trash2, Sparkles } from "lucide-vue-next";
 import { userJournalStore } from "~/stores/stores/user_journal";
 import { useToolkitStore } from "~/stores/stores/therapy_toolkit_store";
+import { CalendarDate } from '@internationalized/date';
+import { useAuthStore } from "~/stores/stores/auth_store";
+import JournalsRepository from "~/services/sqlite/journals_repository";
 import DesktopBreadcrumb from '~/components/Common/DesktopBreadcrumb.vue';
 
 const { t } = useI18n();
@@ -171,6 +170,87 @@ const isCustomMode = ref(false);
 const customStartDate = ref('');
 const customEndDate = ref('');
 const today = new Date().toISOString().split('T')[0];
+
+// Date bounds for UCalendar (CalendarDate instances)
+const todayNative = new Date();
+const todayDate = new CalendarDate(todayNative.getFullYear(), todayNative.getMonth() + 1, todayNative.getDate());
+const minDateNative = new Date();
+minDateNative.setDate(minDateNative.getDate() - 90);
+const minDate = new CalendarDate(minDateNative.getFullYear(), minDateNative.getMonth() + 1, minDateNative.getDate());
+
+// Reactive journal count (fetched from SQLite, not in-memory)
+const journalCountInRange = ref(-1);
+
+// Helper: convert "YYYY-MM-DD" to CalendarDate for UCalendar
+function isoToCalendarDate(iso: string): CalendarDate {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new CalendarDate(y, m, d);
+}
+
+// Computed: UCalendar range model (DateRange { start, end })
+const calendarRange = computed(() => {
+  if (customStartDate.value && customEndDate.value) {
+    return {
+      start: isoToCalendarDate(customStartDate.value),
+      end: isoToCalendarDate(customEndDate.value),
+    };
+  }
+  return undefined;
+});
+
+// Computed: number of days in the selected range
+const daysInRange = computed(() => {
+  if (!customStartDate.value || !customEndDate.value) return 0;
+  const start = new Date(customStartDate.value);
+  const end = new Date(customEndDate.value);
+  return Math.ceil(Math.abs(end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+});
+
+// Handler: UCalendar range change
+const onCalendarRangeChange = (value: any) => {
+  if (value?.start && value?.end) {
+    customStartDate.value = String(value.start);
+    customEndDate.value = String(value.end);
+  } else if (value?.start) {
+    customStartDate.value = String(value.start);
+    customEndDate.value = '';
+  } else {
+    customStartDate.value = '';
+    customEndDate.value = '';
+  }
+};
+
+// Helper: format date for display below the picker
+const formatPickerDate = (dateStr: string): string => {
+  return new Date(dateStr).toLocaleDateString(dateLocale.value, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+// Fetch journal count from SQLite (performant for large datasets)
+async function fetchJournalCount() {
+  if (!isCustomMode.value || !customStartDate.value || !customEndDate.value) {
+    journalCountInRange.value = -1;
+    return;
+  }
+  try {
+    const authStore = useAuthStore();
+    const userId = authStore.getUserUUID;
+    if (!userId) { journalCountInRange.value = -1; return; }
+    journalCountInRange.value = await JournalsRepository.countByDateRange(
+      userId,
+      customStartDate.value,
+      customEndDate.value,
+    );
+  } catch {
+    journalCountInRange.value = -1;
+  }
+}
+
+// Re-fetch count when custom dates change
+watch([customStartDate, customEndDate], fetchJournalCount);
 
 // Initialize custom dates to last 7 days
 onMounted(() => {
@@ -236,25 +316,6 @@ const dateRangeError = computed(() => {
   }
   
   return null;
-});
-
-// Computed: journal count in selected range
-const journalCountInRange = computed(() => {
-  if (!isCustomMode.value) return -1;
-  
-  const { start, end } = effectiveDateRange.value;
-  if (!start || !end) return -1;
-  
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-  endDate.setHours(23, 59, 59, 999);
-  
-  const count = journalStore.journals.filter(j => {
-    const journalDate = new Date(j.created_at);
-    return journalDate >= startDate && journalDate <= endDate;
-  }).length;
-  
-  return count;
 });
 
 // Actions

@@ -124,6 +124,26 @@ export class JournalsRepository {
   }
 
   /**
+   * Count journals in a date range (lightweight query for UI feedback)
+   * Uses the idx_journals_created_at index for fast lookup
+   */
+  async countByDateRange(userId: string, startDate: string, endDate: string): Promise<number> {
+    const db = this.getDb();
+
+    const query = `
+      SELECT COUNT(*) as count FROM user_journals
+      WHERE user_id = ? AND is_deleted = 0
+        AND created_at >= ? AND created_at <= ?;
+    `;
+
+    // Make endDate inclusive of the full day
+    const endOfDay = endDate.includes('T') ? endDate : `${endDate}T23:59:59.999Z`;
+    const result = await db.query(query, [userId, startDate, endOfDay]);
+
+    return result.values?.[0]?.count || 0;
+  }
+
+  /**
    * Get all journals for a user (sorted by created_at DESC)
    */
   async getAllByUserId(userId: string, limit = 100, offset = 0): Promise<LocalJournal[]> {

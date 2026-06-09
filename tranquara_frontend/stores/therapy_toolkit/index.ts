@@ -65,7 +65,7 @@ export class TherapyToolkit extends Base {
     return this.fetch(`${aiBaseUrl}/api/prep-pack`, {
       method: "POST",
       body: JSON.stringify(request),
-    });
+    }, 120000); // 2 min timeout — AI generation (Qdrant + GPT) can take >30s
   }
 
   async getPrepPacks(): Promise<{ prep_packs: PrepPack[] }> {
