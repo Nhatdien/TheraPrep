@@ -120,7 +120,45 @@ export const getJournalContentPreview = (content: string): string => {
         if (question) return `<p class="text-sm text-muted">${question}</p>`;
       }
 
-      // ── 3. No heading — collect non-AI-suggestion block text joined with spaces ──
+      // ── 3. No heading — handle free-form journals with optional AI suggestions ──
+      // Priority: user text before any AI suggestion → user text after AI suggestion → AI as Q&A
+      const firstAI = doc.body.querySelector('p.ai-suggestion');
+      if (firstAI) {
+        // Collect user paragraphs written BEFORE the first AI suggestion
+        const beforeAI: string[] = [];
+        let prev = firstAI.previousElementSibling as Element | null;
+        while (prev) {
+          if (prev.matches('p') && !prev.classList.contains('ai-suggestion')) {
+            const txt = prev.textContent?.trim();
+            if (txt) beforeAI.unshift(txt); // prepend to preserve order
+          }
+          prev = prev.previousElementSibling as Element | null;
+        }
+        if (beforeAI.length) {
+          // Show user's initial content (before the AI question)
+          const preview = beforeAI.join(' ');
+          return preview.length > 150 ? preview.substring(0, 150) + '…' : preview;
+        }
+
+        // No user content before AI — show AI question + user's following response as Q&A
+        const aiQuestion = firstAI.textContent?.trim() ?? '';
+        let sibling = firstAI.nextElementSibling as Element | null;
+        while (sibling) {
+          if (sibling.matches('p') && !sibling.classList.contains('ai-suggestion')) {
+            const answer = sibling.textContent?.trim() ?? '';
+            if (answer) {
+              const truncated = answer.length > 120 ? answer.substring(0, 120) + '…' : answer;
+              if (aiQuestion) {
+                return `<p class="text-xs font-medium text-highlighted mb-1">${aiQuestion}</p><p class="text-sm text-muted line-clamp-3">${truncated}</p>`;
+              }
+              return `<p class="text-sm text-muted line-clamp-3">${truncated}</p>`;
+            }
+          }
+          sibling = sibling.nextElementSibling as Element | null;
+        }
+      }
+
+      // ── 4. Fallback — collect all non-AI-suggestion block text joined with spaces ──
       const blockEls = Array.from(doc.body.querySelectorAll('p:not(.ai-suggestion), li'));
       const plainText = blockEls
         .map(el => el.textContent?.trim())

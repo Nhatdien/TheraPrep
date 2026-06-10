@@ -28,6 +28,14 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   // devtools: { enabled: true },
   modules: ["@pinia/nuxt", "@nuxt/image", '@nuxt/ui', '@nuxtjs/i18n'],
+  icon: {
+    serverBundle: {
+      collections: ['lucide', 'heroicons']
+    },
+    clientBundle: {
+      scan: true,
+    }
+  },
   i18n: {
     locales: [
       { code: 'en', name: 'English', file: 'en.json' },

@@ -1042,6 +1042,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@iconify-json/heroicons@npm:^1.2.3":
+  version: 1.2.3
+  resolution: "@iconify-json/heroicons@npm:1.2.3"
+  dependencies:
+    "@iconify/types": "npm:*"
+  checksum: 10c0/121a0e8bd6cd2091b0ceeb334754a068253cf6cc819f4cc18acfba66a4d59bcd092ce6c476a584d3a0874242b9c7f21459f24bfba3bb6a75d63f46cf31e701f4
+  languageName: node
+  linkType: hard
+
+"@iconify-json/lucide@npm:^1.2.111":
+  version: 1.2.111
+  resolution: "@iconify-json/lucide@npm:1.2.111"
+  dependencies:
+    "@iconify/types": "npm:*"
+  checksum: 10c0/0093ecdd987ab3786e71e4027afe6e1b39f7ca27ccf2cea48cf57149d3a5ff4ddc7a3bcc73e7c03108367f9c52be4452b652d5c3cae5e9184f95b9bdb989f716
+  languageName: node
+  linkType: hard
+
 "@iconify/collections@npm:^1.0.563":
   version: 1.0.658
   resolution: "@iconify/collections@npm:1.0.658"
@@ -13019,6 +13037,8 @@ __metadata:
     "@capacitor/network": "npm:^7.0.0"
     "@capacitor/preferences": "npm:^7.0.0"
     "@capacitor/splash-screen": "npm:^7.0.0"
+    "@iconify-json/heroicons": "npm:^1.2.3"
+    "@iconify-json/lucide": "npm:^1.2.111"
     "@internationalized/date": "npm:^3.5.0"
     "@nuxt/image": "npm:^1.8.1"
     "@nuxt/ui": "npm:^3.1.3"

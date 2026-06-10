@@ -61,7 +61,8 @@ const editJournal = () => {
     if (journal.value.collection_id) {
       isEditMode.value = true;
     } else {
-      navigateTo(`/journaling/${journal.value.id}`);
+      // Pass ?mode=edit so the journaling page auto-enters edit mode directly
+      navigateTo(`/journaling/${journal.value.id}?mode=edit`);
     }
   }
 };

@@ -165,6 +165,10 @@ onMounted(async () => {
     const loadedJournal = await journalStore.getJournalById(journalId);
     if (loadedJournal) {
       journal.value = loadedJournal;
+      // Auto-enter edit mode when navigated from learn_and_prepare journal view
+      if (route.query.mode === 'edit') {
+        enterEdit();
+      }
     } else {
       router.push("/history");
     }

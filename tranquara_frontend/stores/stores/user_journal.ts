@@ -17,6 +17,7 @@ import SyncQueue from "~/services/sync/sync_queue";
 import NetworkMonitor from "~/services/sync/network_monitor";
 import { useAuthStore } from "./auth_store";
 import { useUserStreakStore } from "./user_streak";
+import { useSyncStatusStore } from "./sync_status";
 
 // Helper function to get current user ID from auth store
 const getUserId = (): string | undefined => {
@@ -462,6 +463,9 @@ export const userJournalStore = defineStore("user_journal", {
         // Add to sync queue
         SyncQueue.addToQueue(newJournal);
 
+        // Refresh pending count in sync status store
+        useSyncStatusStore().refreshPendingCount();
+
         // Attempt sync if online
         if (this.isOnline) {
           this.triggerBackgroundSync();
@@ -508,6 +512,9 @@ export const userJournalStore = defineStore("user_journal", {
 
         // Add to sync queue
         SyncQueue.addToQueue(updated);
+
+        // Refresh pending count in sync status store
+        useSyncStatusStore().refreshPendingCount();
 
         // Attempt sync if online
         if (this.isOnline) {
