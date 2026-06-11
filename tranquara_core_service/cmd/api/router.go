@@ -81,7 +81,6 @@ func (app *application) routes() http.Handler {
 	// AI Memory routes (internal — called by AI service with API key)
 	router.HandlerFunc(http.MethodGet, "/v1/internal/active-journal-users", app.internalAuthMiddleware(app.internalGetActiveJournalUsersHandler))
 	router.HandlerFunc(http.MethodPost, "/v1/internal/ai-memories/batch", app.internalAuthMiddleware(app.internalBatchCreateMemoriesHandler))
-	router.HandlerFunc(http.MethodGet, "/v1/internal/user-journals", app.internalAuthMiddleware(app.internalGetUserJournalsByDateRangeHandler))
 
 	// Therapy Toolkit — Session routes
 	router.HandlerFunc(http.MethodPost, "/v1/therapy-sessions", app.authMiddleWare(app.createSessionHandler))

@@ -298,17 +298,35 @@ export const useToolkitStore = defineStore("therapy_toolkit", {
           console.warn('[ToolkitStore] Failed to cache prep pack locally:', e);
         }
 
-        // Add to state (newest first) and return immediately so the UI can navigate.
-        this.prepPacks.unshift(prepPack);
-        this.currentPrepPack = prepPack;
-
-        // Sync to server in the background if online; don't block navigation.
+        // Sync to server if online
         if (this.isOnline) {
-          this._syncPrepPackToServer(prepPack).catch((e) => {
+          try {
+            const { prep_pack: saved } = await TranquaraSDK.getInstance().savePrepPackToServer({
+              date_range_start: dateRangeStart,
+              date_range_end: dateRangeEnd,
+              content: {
+                mood_overview: prepPack.mood_overview,
+                key_themes: prepPack.key_themes,
+                emotional_highlights: prepPack.emotional_highlights,
+                patterns: prepPack.patterns,
+                discussion_points: prepPack.discussion_points,
+                growth_moments: prepPack.growth_moments,
+              },
+              journal_count: prepPack.journal_count,
+              personal_notes: prepPack.personal_notes || null,
+            });
+            const syncRepo = new ToolkitRepository();
+            await syncRepo.markPrepPackSynced(prepPack.id, saved.id);
+            prepPack.server_id = saved.id;
+            prepPack.needs_sync = false;
+          } catch (e) {
             console.warn('[ToolkitStore] Failed to sync prep pack to server:', e);
-          });
+          }
         }
 
+        // Add to state (newest first)
+        this.prepPacks.unshift(prepPack);
+        this.currentPrepPack = prepPack;
         return prepPack;
       } catch (error: any) {
         console.error('[ToolkitStore] Error generating prep pack:', error);
@@ -317,29 +335,6 @@ export const useToolkitStore = defineStore("therapy_toolkit", {
       } finally {
         this.isGeneratingPrepPack = false;
       }
-    },
-
-    /** Background helper: sync a locally-created prep pack to the server. */
-    async _syncPrepPackToServer(prepPack: PrepPack) {
-      const sdk = TranquaraSDK.getInstance();
-      const { prep_pack: saved } = await sdk.savePrepPackToServer({
-        date_range_start: prepPack.date_range_start,
-        date_range_end: prepPack.date_range_end,
-        content: {
-          mood_overview: prepPack.mood_overview,
-          key_themes: prepPack.key_themes,
-          emotional_highlights: prepPack.emotional_highlights,
-          patterns: prepPack.patterns,
-          discussion_points: prepPack.discussion_points,
-          growth_moments: prepPack.growth_moments,
-        },
-        journal_count: prepPack.journal_count,
-        personal_notes: prepPack.personal_notes || null,
-      });
-      const syncRepo = new ToolkitRepository();
-      await syncRepo.markPrepPackSynced(prepPack.id, saved.id);
-      prepPack.server_id = saved.id;
-      prepPack.needs_sync = false;
     },
 
     /** Load a specific prep pack by ID from local cache */

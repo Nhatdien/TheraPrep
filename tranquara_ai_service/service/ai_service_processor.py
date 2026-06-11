@@ -10,7 +10,6 @@ from cachetools import TTLCache
 from service.prompts import (
     get_system_prompt, build_user_prompt,
     PREP_PACK_SYSTEM_PROMPT, PREP_PACK_PROMPT,
-    PREP_PACK_SECTION_A_PROMPT, PREP_PACK_SECTION_B_PROMPT, PREP_PACK_SECTION_C_PROMPT,
     CRISIS_CHECK_SYSTEM_PROMPT, CRISIS_CHECK_USER_PROMPT
 )
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -25,10 +24,6 @@ load_dotenv()
 # ─── Config ──────────────────────────────────────────────────────────────────
 
 DEFAULT_LLM_MODEL = "gemini-2.5-flash"
-
-# Shared thread pool for RAG retrieval and crisis checks across all requests.
-# Using a single pool avoids the overhead of creating/destroying threads per request.
-_SHARED_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=20)
 
 
 def _extract_json_from_response(raw: str) -> str:
@@ -152,18 +147,18 @@ class AIProcessor():
     """
     AI processor focused on generating RAG-enhanced journal follow-up questions.
     Uses Qdrant to retrieve user's past journals for richer, personalized guidance.
-
+    
     All prompt text lives in prompts.py — this class only handles:
     - RAG retrieval (past journals + memories)
     - Building prompts via prompts.py functions
     - Calling the LLM (with rate limiting + retry)
     - Post-processing responses
-
+    
     Performance features:
     - Crisis check caching (TTL 5 min) to skip redundant LLM calls
     - Safe content shortcut to bypass crisis check for positive content
     - Automatic retry with exponential backoff on transient API failures
-
+    
     Uses singleton pattern — call AIProcessor.get_instance() instead of AIProcessor().
     """
 
@@ -176,16 +171,6 @@ class AIProcessor():
             model=os.environ.get('LLM_MODEL', DEFAULT_LLM_MODEL),
             temperature=0.7,
             streaming=False
-        )
-
-        # Lightweight model for crisis checks — faster TTFT and lower latency.
-        # Using a smaller model for this simple binary-classification task
-        # saves ~2-3s per request vs the main model.
-        self._crisis_model = ChatGoogleGenerativeAI(
-            google_api_key=os.environ['GOOGLE_API_KEY'],
-            model=os.environ.get('CRISIS_LLM_MODEL', 'gemini-2.5-flash'),
-            temperature=0.0,
-            streaming=False,
         )
 
         # Crisis check cache: 5 min TTL, up to 1000 entries
@@ -203,27 +188,21 @@ class AIProcessor():
 
     # ─── Rate-limited LLM invocation with retry ───────────────────────────
 
-    def _invoke_with_retry(self, messages: list, max_retries: int = None, model=None) -> object:
+    def _invoke_with_retry(self, messages: list, max_retries: int = None) -> object:
         """
-        Call the LLM with exponential backoff retry on transient failures.
-
+        Call self.model.invoke() with exponential backoff retry on transient failures.
+        
         Retries on rate limit (429), timeout, quota, and server errors (5xx).
         Uses backoff (2s → 4s → 8s) to give Gemini API breathing room on overload.
-
-        Args:
-            messages: List of langchain messages
-            max_retries: Override default retry count
-            model: Specific model instance to use (defaults to self.model)
         """
         import time
         if max_retries is None:
             max_retries = LLM_MAX_RETRIES
-        target_model = model or self.model
 
         last_error = None
         for attempt in range(max_retries):
             try:
-                return target_model.invoke(messages)
+                return self.model.invoke(messages)
             except Exception as e:
                 last_error = e
                 error_str = str(e).lower()
@@ -232,12 +211,12 @@ class AIProcessor():
                                    ["429", "rate", "quota", "timeout", "503", "500"])
                 if not is_retryable or attempt == max_retries - 1:
                     raise
-
+                
                 delay = LLM_RETRY_BASE_DELAY * (2 ** attempt)
                 print(f"[llm-retry] Attempt {attempt + 1}/{max_retries} failed: {e}. "
                       f"Retrying in {delay:.1f}s...")
                 time.sleep(delay)
-
+        
         raise last_error
 
     def _retrieve_past_journals(self, user_id: str, current_content: str, top_k: int = 5) -> str:
@@ -439,12 +418,10 @@ class AIProcessor():
 
         except json.JSONDecodeError as e:
             print(f"[memories] JSON parse error for user {user_id}: {e}")
-            print(
-                f"[memories] Raw LLM response (first 500 chars): {raw[:500]}")
+            print(f"[memories] Raw LLM response (first 500 chars): {raw[:500]}")
             return []
         except Exception as e:
-            print(
-                f"[memories] Error extracting memories for user {user_id}: {e}")
+            print(f"[memories] Error extracting memories for user {user_id}: {e}")
             traceback.print_exc()
             return []
 
@@ -486,23 +463,23 @@ class AIProcessor():
         """
         Quick heuristic check: if content contains clearly positive/safe indicators,
         we can skip the crisis check LLM call entirely.
-
+        
         SAFETY: Crisis override keywords ALWAYS take priority. If any crisis-related
         phrase is detected, the shortcut is bypassed and the full LLM crisis check runs.
         This prevents false negatives like "một ngày tuyệt vời để rời khỏi thế giới này".
-
+        
         This saves ~5-10s and 1 Gemini API call per request for genuinely safe content,
         which significantly reduces load under high concurrency.
         """
         content_lower = content.lower()
-
+        
         # CRITICAL: Check crisis overrides FIRST — if ANY match, never shortcut
         for pattern in AIProcessor.CRISIS_OVERRIDE_PATTERNS:
             if pattern in content_lower:
                 return False  # Must run full crisis check
-
+        
         positive_count = sum(1 for pattern in SAFE_CONTENT_PATTERNS
-                             if pattern in content_lower)
+                            if pattern in content_lower)
         # If 2+ positive indicators and no crisis overrides, likely safe
         if positive_count >= 2:
             return True
@@ -515,7 +492,7 @@ class AIProcessor():
         """
         Dedicated lightweight LLM call to check if content is crisis-related.
         Runs in parallel with RAG retrieval to minimize added latency.
-
+        
         Performance optimizations:
         1. Safe content shortcut — skip LLM for obviously positive content
         2. TTL cache — avoid re-checking identical content within 5 minutes
@@ -533,19 +510,17 @@ class AIProcessor():
         with self._crisis_cache_lock:
             cached = self._crisis_cache.get(cache_key)
             if cached is not None:
-                print(
-                    f"[crisis-check] Cache hit (result={cached['is_crisis']})")
+                print(f"[crisis-check] Cache hit (result={cached['is_crisis']})")
                 return cached
 
         # --- Full LLM-based crisis check ---
         try:
-            user_prompt = CRISIS_CHECK_USER_PROMPT.format(
-                content=content[:1500])
+            user_prompt = CRISIS_CHECK_USER_PROMPT.format(content=content[:1500])
 
             response = self._invoke_with_retry([
                 SystemMessage(content=CRISIS_CHECK_SYSTEM_PROMPT),
                 HumanMessage(content=user_prompt),
-            ], model=self._crisis_model)
+            ])
 
             raw = _extract_json_from_response(response.content)
             result = json.loads(raw)
@@ -556,12 +531,10 @@ class AIProcessor():
 
             # Apply confidence threshold
             if is_crisis and confidence < self.CRISIS_CONFIDENCE_THRESHOLD:
-                print(
-                    f"[crisis-check] Below threshold ({confidence:.2f} < {self.CRISIS_CONFIDENCE_THRESHOLD}), treating as safe")
+                print(f"[crisis-check] Below threshold ({confidence:.2f} < {self.CRISIS_CONFIDENCE_THRESHOLD}), treating as safe")
                 is_crisis = False
 
-            print(
-                f"[crisis-check] is_crisis={is_crisis}, confidence={confidence:.2f}")
+            print(f"[crisis-check] is_crisis={is_crisis}, confidence={confidence:.2f}")
 
             crisis_result = {
                 "is_crisis": is_crisis,
@@ -580,20 +553,6 @@ class AIProcessor():
             print(f"[crisis-check] Error (defaulting to safe): {e}")
             return {"is_crisis": False, "confidence": 0.0, "message": None}
 
-    def _generate_question_llm(self, system_prompt: str, user_prompt: str) -> str:
-        """Internal helper: call the main LLM for question generation."""
-        response = self._invoke_with_retry([
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_prompt)
-        ])
-        question = response.content.strip()
-        # Remove quotes if LLM added them
-        if question.startswith('"') and question.endswith('"'):
-            question = question[1:-1]
-        if question.startswith("'") and question.endswith("'"):
-            question = question[1:-1]
-        return question
-
     def generate_journal_question(self, user_id: str, content: str, mood_score: int,
                                   slide_prompt: str = None, slide_group_context: dict = None,
                                   current_slide_id: str = None, collection_title: str = None,
@@ -601,47 +560,61 @@ class AIProcessor():
                                   app_language: str = None) -> dict:
         """
         Generate a single follow-up question based on journal content.
-        Uses SPECULATIVE PARALLEL EXECUTION:
-          - Crisis check runs on the fast model in parallel with RAG retrieval.
-          - As soon as RAG data arrives, the question-generation LLM call is
-            fired SPECULATIVELY on the main model.
-          - When the crisis check finishes:
-              * If crisis → abort the speculative question, return crisis response.
-              * If safe → wait for the speculative question and return it.
-        This overlaps the slow question-generation call with the crisis check,
-        cutting total latency from ~10s to ~5-6s in the common safe-content case.
+        Enhanced with RAG retrieval and parallel AI-based crisis detection.
 
         Returns:
             {
-                "question": str | None,
-                "crisis_detected": bool,
-                "crisis_message": str | None
+                "question": str | None,          # The follow-up question (null if crisis)
+                "crisis_detected": bool,          # Whether crisis was detected
+                "crisis_message": str | None      # Warm message if crisis detected
             }
         """
-        import time
-        t_start = time.time()
-
         depth = get_top_k_for_direction(direction)
         memory_depth = max(5, depth)
 
-        # ── Phase 1: Fire crisis check + RAG retrieval in parallel ──
-        crisis_future = _SHARED_EXECUTOR.submit(self.check_crisis, content)
-        journals_future = _SHARED_EXECUTOR.submit(
-            self._retrieve_past_journals, user_id, content, depth
-        )
-        memories_future = _SHARED_EXECUTOR.submit(
-            self._retrieve_user_memories, user_id, content, memory_depth
-        )
+        # --- Run crisis check + RAG retrieval ALL IN PARALLEL ---
+        # Per-request executor: each request gets its own 3 threads, no cross-request queuing
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            crisis_future = executor.submit(self.check_crisis, content)
+            journals_future = executor.submit(
+                self._retrieve_past_journals, user_id, content, depth
+            )
+            memories_future = executor.submit(
+                self._retrieve_user_memories, user_id, content, memory_depth
+            )
 
-        # Wait for RAG data (needed to build the prompt).
-        # Crisis check is still running in parallel.
-        past_journals_context = journals_future.result()
-        user_memories_context = memories_future.result()
+            # Get crisis result first — if crisis, skip question generation
+            crisis_result = crisis_future.result()
 
-        t_rag_done = time.time()
+            # Retrieve RAG data (they're already running, don't waste them)
+            past_journals_context = journals_future.result()
+            user_memories_context = memories_future.result()
 
-        # ── Phase 2: Build prompt and fire SPECULATIVE question generation ──
+        # --- If crisis detected, return crisis response immediately ---
+        if crisis_result["is_crisis"]:
+            print(f"[crisis] Crisis detected (confidence={crisis_result['confidence']:.2f}), skipping question generation")
+            return {
+                "question": None,
+                "crisis_detected": True,
+                "crisis_message": crisis_result["message"],
+            }
+
+        # --- Safe: proceed with question generation ---
         system_prompt = get_system_prompt(direction)
+
+        # --- Debug: Log retrieved RAG context ---
+        print(f"[RAG-DEBUG] User {user_id} | Direction: {direction} | top_k: {depth}")
+        if past_journals_context:
+            print(f"[RAG-DEBUG] Past journals retrieved:\n{past_journals_context}")
+        else:
+            print(f"[RAG-DEBUG] No past journals retrieved for this query.")
+
+        if user_memories_context:
+            print(f"[RAG-DEBUG] User memories retrieved:\n{user_memories_context}")
+        else:
+            print(f"[RAG-DEBUG] No user memories retrieved for this query.")
+
+        # --- Build user prompt (all prompt text lives in prompts.py) ---
         user_prompt = build_user_prompt(
             content=content,
             mood_score=mood_score,
@@ -656,39 +629,24 @@ class AIProcessor():
             app_language=app_language,
         )
 
-        # Fire the speculative question-generation call.
-        # If crisis is later detected, this result is simply discarded.
-        question_future = _SHARED_EXECUTOR.submit(
-            self._generate_question_llm, system_prompt, user_prompt
-        )
+        # --- Debug: Log the final prompt sent to LLM ---
+        print(f"[RAG-DEBUG] === SYSTEM PROMPT (first 500 chars) ===\n{system_prompt[:500]}...")
+        print(f"[RAG-DEBUG] === USER PROMPT ===\n{user_prompt}")
 
-        t_question_fired = time.time()
+        # --- Call LLM (rate-limited with retry) ---
+        response = self._invoke_with_retry([
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=user_prompt)
+        ])
 
-        # ── Phase 3: Wait for crisis result ──
-        crisis_result = crisis_future.result()
-        t_crisis_done = time.time()
+        question = response.content.strip()
+        print(f"[RAG-DEBUG] === GENERATED QUESTION ===\n{question}")
 
-        # --- If crisis detected, abort speculative question and return ---
-        if crisis_result["is_crisis"]:
-            print(f"[crisis] Crisis detected (confidence={crisis_result['confidence']:.2f}), "
-                  f"aborting speculative question generation")
-            # We can't truly cancel the future, but we ignore the result.
-            return {
-                "question": None,
-                "crisis_detected": True,
-                "crisis_message": crisis_result["message"],
-            }
-
-        # ── Phase 4: Safe — collect the speculative question result ──
-        question = question_future.result()
-        t_done = time.time()
-
-        print(f"[analyze-journal] user={user_id} | "
-              f"rag={t_rag_done - t_start:.2f}s | "
-              f"speculative-fired={t_question_fired - t_start:.2f}s | "
-              f"crisis-done={t_crisis_done - t_start:.2f}s | "
-              f"question-done={t_done - t_start:.2f}s | "
-              f"total={t_done - t_start:.2f}s")
+        # Remove quotes if LLM added them
+        if question.startswith('"') and question.endswith('"'):
+            question = question[1:-1]
+        if question.startswith("'") and question.endswith("'"):
+            question = question[1:-1]
 
         return {
             "question": question,
@@ -696,118 +654,10 @@ class AIProcessor():
             "crisis_message": None,
         }
 
-    @staticmethod
-    def _format_journal_entries_for_prep_pack(journal_entries: list[dict]) -> tuple[str, bool]:
-        """Format and summarize journal entries for prep-pack prompts."""
-        sorted_entries = sorted(
-            journal_entries,
-            key=lambda e: e.get("created_at", ""),
-            reverse=True,
-        )
-        MAX_ENTRIES = 20
-        truncated = len(sorted_entries) > MAX_ENTRIES
-        selected_entries = sorted_entries[:MAX_ENTRIES]
-
-        sanitized_entries = []
-        for e in selected_entries:
-            raw = e.get("content", "")
-            clean = AIProcessor._sanitize_journal_content(raw) if raw else ""
-            summary = clean[:200].strip()
-            if len(clean) > 200:
-                summary += "..."
-            sanitized_entries.append(
-                f"Date: {e.get('created_at', 'unknown')}\n"
-                f"Title: {e.get('title', 'Untitled')}\n"
-                f"Mood: {e.get('mood_score', 'N/A')}/10\n"
-                f"Content: {summary}"
-            )
-        entries_text = "\n\n".join(sanitized_entries) or "(no journal entries)"
-        if truncated:
-            entries_text = (
-                f"[Note: {len(sorted_entries)} journal entries were available; "
-                f"the {MAX_ENTRIES} most recent are summarized below.]\n\n"
-                + entries_text
-            )
-        return entries_text, truncated
-
-    @staticmethod
-    def _format_memories_for_prep_pack(memories: list[str]) -> str:
-        """Format memories for prep-pack prompts."""
-        MAX_MEMORIES = 20
-        selected_memories = memories[:MAX_MEMORIES]
-        memories_text = "\n".join(
-            f"- {m}" for m in selected_memories
-        ) if selected_memories else "(no known patterns yet)"
-        if len(memories) > MAX_MEMORIES:
-            memories_text = (
-                f"[Note: {len(memories)} patterns/memories are known; "
-                f"the {MAX_MEMORIES} most relevant are shown below.]\n" +
-                memories_text
-            )
-        return memories_text
-
-    def _generate_prep_pack_section(self, system_prompt: str, user_prompt: str) -> dict:
-        """Internal helper: call LLM for a single prep-pack section.
-        Validates that the response is a dict, not a string or other type."""
-        response = self._invoke_with_retry([
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_prompt),
-        ])
-        raw = _extract_json_from_response(response.content)
-        parsed = json.loads(raw)
-        if not isinstance(parsed, dict):
-            raise ValueError(
-                f"LLM returned {type(parsed).__name__} instead of dict: {str(parsed)[:200]}")
-        return parsed
-
-    def _generate_prep_pack_monolithic(self, journal_entries: list[dict],
-                                       memories: list[str], language: str = "en") -> dict:
-        """Fallback: generate the entire prep pack in one monolithic LLM call.
-        Used when parallel section generation fails."""
-        if language == 'vi':
-            language_instruction = (
-                "Write ALL free-text content in Vietnamese (tiếng Việt). "
-                "Use natural, conversational Vietnamese — not word-for-word translations from English. "
-                "EXCEPTION: The following JSON field values are system identifiers and MUST remain in English exactly as shown: "
-                "trend ('improving', 'declining', 'stable') and category ('triggers', 'patterns', 'coping', 'relationships', 'growth')."
-            )
-        else:
-            language_instruction = "Write all content in English."
-
-        entries_text, _ = self._format_journal_entries_for_prep_pack(
-            journal_entries)
-        memories_text = self._format_memories_for_prep_pack(memories)
-
-        prompt = PREP_PACK_PROMPT.format(
-            journal_entries=entries_text,
-            memories=memories_text,
-            language_instruction=language_instruction,
-        )
-
-        response = self._invoke_with_retry([
-            SystemMessage(content=PREP_PACK_SYSTEM_PROMPT),
-            HumanMessage(content=prompt),
-        ])
-
-        raw = _extract_json_from_response(response.content)
-        result = json.loads(raw)
-
-        required_keys = {"mood_overview", "key_themes", "emotional_highlights",
-                         "patterns", "discussion_points", "growth_moments"}
-        missing = required_keys - set(result.keys())
-        if missing:
-            print(
-                f"[prep-pack] Warning: missing keys in monolithic response: {missing}")
-
-        return result
-
     def generate_prep_pack(self, journal_entries: list[dict],
                            memories: list[str], language: str = "en") -> dict:
         """
         Generate a structured Therapy Session Prep Pack from journal entries and AI memories.
-        Uses PARALLEL SECTION GENERATION: splits the work into 3 focused LLM calls
-        that run simultaneously, cutting latency from ~30s to ~5-8s.
-        Falls back to monolithic generation if parallel sections fail.
 
         Args:
             journal_entries: List of dicts with 'title', 'content', 'mood_score', 'created_at'
@@ -817,9 +667,6 @@ class AIProcessor():
         Returns:
             Structured prep pack dict matching the PrepPack TypeScript type
         """
-        import time
-        t_start = time.time()
-
         # Build language instruction
         if language == 'vi':
             language_instruction = (
@@ -831,99 +678,54 @@ class AIProcessor():
         else:
             language_instruction = "Write all content in English."
 
-        entries_text, _ = self._format_journal_entries_for_prep_pack(
-            journal_entries)
-        memories_text = self._format_memories_for_prep_pack(memories)
+        # Format journal entries (sanitize content for LLM readability)
+        sanitized_entries = []
+        for e in journal_entries:
+            raw = e.get("content", "")[:800]
+            clean = AIProcessor._sanitize_journal_content(raw) if raw else ""
+            sanitized_entries.append(
+                f"Date: {e.get('created_at', 'unknown')}\n"
+                f"Title: {e.get('title', 'Untitled')}\n"
+                f"Mood: {e.get('mood_score', 'N/A')}/10\n"
+                f"Content: {clean}"
+            )
+        entries_text = "\n\n".join(sanitized_entries) or "(no journal entries)"
 
-        # Build the 3 section prompts
-        prompt_a = PREP_PACK_SECTION_A_PROMPT.format(
-            language_instruction=language_instruction,
+        # Format memories
+        memories_text = "\n".join(
+            f"- {m}" for m in memories
+        ) if memories else "(no known patterns yet)"
+
+        prompt = PREP_PACK_PROMPT.format(
             journal_entries=entries_text,
             memories=memories_text,
-        )
-        prompt_b = PREP_PACK_SECTION_B_PROMPT.format(
             language_instruction=language_instruction,
-            journal_entries=entries_text,
-            memories=memories_text,
         )
-        prompt_c = PREP_PACK_SECTION_C_PROMPT.format(
-            language_instruction=language_instruction,
-            journal_entries=entries_text,
-            memories=memories_text,
-        )
-
-        # Fire all 3 section generations in parallel
-        future_a = _SHARED_EXECUTOR.submit(
-            self._generate_prep_pack_section, PREP_PACK_SYSTEM_PROMPT, prompt_a
-        )
-        future_b = _SHARED_EXECUTOR.submit(
-            self._generate_prep_pack_section, PREP_PACK_SYSTEM_PROMPT, prompt_b
-        )
-        future_c = _SHARED_EXECUTOR.submit(
-            self._generate_prep_pack_section, PREP_PACK_SYSTEM_PROMPT, prompt_c
-        )
-
-        # Collect results
-        errors = []
-        section_a = {}
-        section_b = {}
-        section_c = {}
 
         try:
-            section_a = future_a.result()
-        except Exception as e:
-            errors.append(f"section_a: {e}")
-            print(f"[prep-pack] Section A failed: {e}")
+            response = self._invoke_with_retry([
+                SystemMessage(content=PREP_PACK_SYSTEM_PROMPT),
+                HumanMessage(content=prompt),
+            ])
 
-        try:
-            section_b = future_b.result()
-        except Exception as e:
-            errors.append(f"section_b: {e}")
-            print(f"[prep-pack] Section B failed: {e}")
+            raw = _extract_json_from_response(response.content)
 
-        try:
-            section_c = future_c.result()
-        except Exception as e:
-            errors.append(f"section_c: {e}")
-            print(f"[prep-pack] Section C failed: {e}")
+            result = json.loads(raw)
 
-        t_done = time.time()
-        print(
-            f"[prep-pack] parallel-sections | "
-            f"total={t_done - t_start:.2f}s | "
-            f"errors={len(errors)} | "
-            f"journals={len(journal_entries)} | memories={len(memories)}"
-        )
-
-        # If all 3 sections failed, fall back to monolithic generation
-        if len(errors) == 3:
-            print(
-                f"[prep-pack] All parallel sections failed; falling back to monolithic generation")
-            return self._generate_prep_pack_monolithic(journal_entries, memories, language)
-
-        # Merge sections into final structure
-        result = {
-            "crisis_warning": section_a.get("crisis_warning", False),
-            "crisis_message": section_a.get("crisis_message"),
-            "mood_overview": section_a.get("mood_overview", {}),
-            "key_themes": section_a.get("key_themes", []),
-            "emotional_highlights": section_b.get("emotional_highlights", []),
-            "patterns": section_b.get("patterns", []),
-            "discussion_points": section_c.get("discussion_points", []),
-            "growth_moments": section_c.get("growth_moments", []),
-        }
-
-        # Validate
-        required_keys = {"mood_overview", "key_themes", "emotional_highlights",
-                         "patterns", "discussion_points", "growth_moments"}
-        missing = required_keys - {k for k, v in result.items() if v}
-        if missing:
-            print(
-                f"[prep-pack] Warning: missing keys in merged response: {missing}")
-            # If critical sections are missing, fall back to monolithic
-            if missing & {"mood_overview", "key_themes", "emotional_highlights", "patterns"}:
+            # Validate required top-level keys
+            required_keys = {"mood_overview", "key_themes", "emotional_highlights",
+                             "patterns", "discussion_points", "growth_moments"}
+            missing = required_keys - set(result.keys())
+            if missing:
                 print(
-                    f"[prep-pack] Critical sections missing; falling back to monolithic generation")
-                return self._generate_prep_pack_monolithic(journal_entries, memories, language)
+                    f"[prep-pack] Warning: missing keys in AI response: {missing}")
 
-        return result
+            return result
+
+        except json.JSONDecodeError as e:
+            print(f"[prep-pack] JSON parse error: {e}")
+            print(f"[prep-pack] Raw response: {raw[:500]}")
+            raise ValueError(f"AI returned invalid JSON: {e}")
+        except Exception as e:
+            print(f"[prep-pack] Error generating prep pack: {e}")
+            raise

@@ -363,7 +363,7 @@ def search_user_memories(user_id: str, query: str, top_k: int = 10) -> list:
     return results
 
 
-def get_all_user_memories(user_id: str, limit: int = 100, with_vectors: bool = False) -> list:
+def get_all_user_memories(user_id: str, limit: int = 100) -> list:
     """
     Get ALL memories for a user (not similarity-based, just list all).
     Used for deduplication during memory generation.
@@ -371,7 +371,6 @@ def get_all_user_memories(user_id: str, limit: int = 100, with_vectors: bool = F
     Args:
         user_id: The user's UUID string
         limit: Maximum number of memories to return
-        with_vectors: Whether to fetch vectors (needed only for deduplication)
 
     Returns:
         List of matching Documents with metadata
@@ -389,7 +388,7 @@ def get_all_user_memories(user_id: str, limit: int = 100, with_vectors: bool = F
             ),
             limit=limit,
             with_payload=True,
-            with_vectors=with_vectors,
+            with_vectors=True,
         )
         return results if results else []
     except Exception as e:
@@ -466,7 +465,7 @@ def check_memory_duplicate(user_id: str, candidate_text: str,
     """
     try:
         # Get existing memories with their vectors
-        existing = get_all_user_memories(user_id, with_vectors=True)
+        existing = get_all_user_memories(user_id)
         if not existing:
             return False
 
