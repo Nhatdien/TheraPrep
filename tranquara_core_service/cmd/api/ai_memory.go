@@ -210,3 +210,48 @@ func (app *application) internalBatchCreateMemoriesHandler(w http.ResponseWriter
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+// internalGetUserJournalsByDateRangeHandler returns a user's journals within a date range.
+// GET /v1/internal/user-journals?user_id=<uuid>&date_start=2026-03-01&date_end=2026-03-11
+func (app *application) internalGetUserJournalsByDateRangeHandler(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("user_id")
+	dateStartStr := r.URL.Query().Get("date_start")
+	dateEndStr := r.URL.Query().Get("date_end")
+
+	if userIDStr == "" || dateStartStr == "" || dateEndStr == "" {
+		app.errorResponse(w, r, http.StatusBadRequest, "Missing user_id, date_start or date_end")
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		app.errorResponse(w, r, http.StatusBadRequest, "Invalid user_id format")
+		return
+	}
+
+	startDate, err := time.Parse("2006-01-02", dateStartStr)
+	if err != nil {
+		app.errorResponse(w, r, http.StatusBadRequest, "Invalid date_start format (expected YYYY-MM-DD)")
+		return
+	}
+
+	endDate, err := time.Parse("2006-01-02", dateEndStr)
+	if err != nil {
+		app.errorResponse(w, r, http.StatusBadRequest, "Invalid date_end format (expected YYYY-MM-DD)")
+		return
+	}
+
+	// Include the full end day
+	endDate = endDate.Add(24*time.Hour - time.Nanosecond)
+
+	journals, err := app.models.UserJournal.GetByDateRange(userID, startDate, endDate)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJson(w, http.StatusOK, envolope{"journals": journals}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

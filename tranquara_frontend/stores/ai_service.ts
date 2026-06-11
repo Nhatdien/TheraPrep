@@ -31,7 +31,7 @@ export class AIService extends Base {
     }>(url, {
       method: "POST",
       body: JSON.stringify(params),
-    });
+    }, 60000);
 
     return response;
   }

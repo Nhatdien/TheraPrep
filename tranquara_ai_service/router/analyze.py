@@ -1,4 +1,5 @@
 import asyncio
+import time
 from fastapi import APIRouter, HTTPException
 from service.ai_service_processor import AIProcessor
 from models.messages import AnalyzeJournalRequest
@@ -13,6 +14,7 @@ async def analyze_journal(request: AnalyzeJournalRequest):
     Enhanced with RAG: queries Qdrant for the user's past journals
     and includes them as context for richer, personalized guidance.
     """
+    t0 = time.time()
     try:
         ai_processor = AIProcessor.get_instance()
 
@@ -31,6 +33,12 @@ async def analyze_journal(request: AnalyzeJournalRequest):
             app_language=request.app_language,
         )
 
+        print(
+            f"[analyze-journal] user={request.user_id} | "
+            f"total={time.time() - t0:.2f}s | "
+            f"crisis={result.get('crisis_detected')} | "
+            f"direction={request.direction}"
+        )
         return result
 
     except Exception as e:

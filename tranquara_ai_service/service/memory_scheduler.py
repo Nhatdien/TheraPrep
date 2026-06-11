@@ -82,7 +82,7 @@ def _get_existing_memories_from_qdrant(user_id: str) -> list[str]:
     """Fetch existing memory contents for a user directly from Qdrant.
     Memories are indexed in Qdrant alongside PostgreSQL storage."""
     try:
-        raw_memories = get_all_user_memories(user_id)
+        raw_memories = get_all_user_memories(user_id, with_vectors=False)
         return [
             point.payload.get("page_content", "")
             for point in raw_memories

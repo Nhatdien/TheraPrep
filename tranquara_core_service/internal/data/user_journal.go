@@ -530,6 +530,50 @@ func (journal UserJournalModel) GetAllSince(userID uuid.UUID, since time.Time) (
 	return journals, rows.Err()
 }
 
+// GetByDateRange returns journals for a user created within [start, end].
+// Used by the AI service for prep-pack generation.
+func (journal UserJournalModel) GetByDateRange(userID uuid.UUID, start time.Time, end time.Time) ([]*UserJournal, error) {
+	query := `
+		SELECT id, user_id, collection_id, title, content, content_html,
+		       mood_score, mood_label, created_at, updated_at
+		FROM user_journals
+		WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3
+		ORDER BY created_at DESC
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := journal.DB.QueryContext(ctx, query, userID, start, end)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var journals []*UserJournal
+	for rows.Next() {
+		var uj UserJournal
+		err = rows.Scan(
+			&uj.ID,
+			&uj.UserID,
+			&uj.CollectionID,
+			&uj.Title,
+			&uj.Content,
+			&uj.ContentHTML,
+			&uj.MoodScore,
+			&uj.MoodLabel,
+			&uj.CreatedAt,
+			&uj.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		journals = append(journals, &uj)
+	}
+
+	return journals, rows.Err()
+}
+
 // ============================================================
 // Admin Template Management Methods
 // ============================================================
